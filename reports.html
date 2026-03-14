@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Messify – Weekly Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f1a;--surface:#111827;--surface2:#1a2235;--surface3:#222e45;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --accent:#f97316;--accent2:#fb923c;--accent3:#fdba74;
+  --text:#f0f4ff;--muted:#6b7a99;--muted2:#8b9ab8;
+  --success:#22c55e;--danger:#ef4444;--warning:#eab308;--info:#60a5fa;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+.bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18;animation:drift 14s ease-in-out infinite alternate}
+.blob-1{width:560px;height:560px;background:#f97316;top:-160px;left:-140px}
+.blob-2{width:400px;height:400px;background:#3b82f6;bottom:-100px;right:-80px;animation-delay:-5s}
+.blob-3{width:280px;height:280px;background:#ec4899;top:40%;left:55%;animation-delay:-9s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,20px) scale(1.08)}}
+.grid-lines{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── NAV ── */
+.topnav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(11,15,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.logo-text span{color:var(--accent)}
+.nav-center{display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;gap:4px}
+.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:all .2s}
+.nav-link:hover{background:var(--surface2);color:var(--muted2)}
+.nav-link.active{background:rgba(249,115,22,.12);color:var(--accent);border:1px solid rgba(249,115,22,.2)}
+.nav-user{display:flex;align-items:center;gap:10px}
+.nav-avatar{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent)}
+.nav-email{font-size:12px;color:var(--muted)}
+
+/* ── HAMBURGER ── */
+.menu-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;cursor:pointer;flex-shrink:0;transition:all .2s}
+.menu-btn:hover{background:var(--surface3);border-color:rgba(249,115,22,.3)}
+.menu-btn svg{width:20px;height:20px;color:var(--muted)}
+
+/* ── LAYOUT ── */
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 62px)}
+
+/* ── SIDEBAR ── */
+.sidebar{border-right:1px solid var(--border);padding:24px 14px;background:rgba(11,15,26,.4);transition:transform .3s ease}
+.sb-section{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:0 10px;margin:18px 0 6px}
+.sb-section:first-child{margin-top:0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;cursor:pointer;transition:all .2s;margin-bottom:2px}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:rgba(249,115,22,.12);color:var(--accent);border:1px solid rgba(249,115,22,.15)}
+.sb-item .ic{font-size:15px;width:18px;text-align:center}
+.sb-pill{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
+
+/* ── MAIN ── */
+.main{padding:40px 36px 80px;overflow-y:auto}
+
+/* ── MOBILE DRAWER ── */
+@media(max-width:1000px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{
+    display:block;
+    position:fixed;top:62px;left:0;bottom:0;
+    width:260px;z-index:150;
+    transform:translateX(-100%);
+    overflow-y:auto;
+    border-right:1px solid var(--border2);
+    box-shadow:4px 0 24px rgba(0,0,0,.4);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:none;position:fixed;inset:0;top:62px;background:rgba(0,0,0,.65);z-index:140}
+  .sidebar-overlay.show{display:block}
+  .main{padding:24px 20px 60px}
+  .nav-links{display:none}
+  .nav-email{display:none}
+}
+@media(min-width:1001px){
+  .sidebar-overlay{display:none!important}
+}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px;animation:fadeUp .6s ease both}
+.ph-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.025em;margin-bottom:4px}
+.ph-title em{color:var(--accent);font-style:normal}
+.ph-sub{font-size:13px;color:var(--muted)}
+.wk-pills{display:flex;gap:8px;flex-wrap:wrap}
+.wp{background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
+.wp:hover{border-color:rgba(249,115,22,.3);color:var(--muted2)}
+.wp.active{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.35);color:var(--accent);box-shadow:0 0 12px rgba(249,115,22,.15)}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;animation:fadeUp .6s .05s ease both}
+.ss{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.ss-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:2px}
+.ss-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+
+/* ── HEATMAP ── */
+.heat-card{animation:fadeUp .6s .1s ease both;margin-bottom:20px}
+.heat-legend{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
+.hl-strip{display:flex;gap:3px}
+.hl-cell{width:18px;height:12px;border-radius:3px}
+.heat-table{width:100%;border-collapse:separate;border-spacing:5px}
+.heat-table th{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;text-align:center}
+.heat-table th:first-child{text-align:left;width:55px}
+.heat-table td{padding:0;text-align:center;border-radius:10px;height:44px;transition:transform .15s,box-shadow .15s;cursor:default}
+.heat-table td:hover{transform:scale(1.06);box-shadow:0 0 14px rgba(249,115,22,.2)}
+.heat-table td:first-child{background:transparent!important;font-size:12px;font-weight:600;color:var(--muted2);text-align:left;padding:0 8px;transform:none!important;box-shadow:none!important}
+.hval{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}
+
+/* ── CHARTS ROW ── */
+.charts-row{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:20px;animation:fadeUp .6s .15s ease both}
+
+/* ── INSIGHTS ── */
+.insights-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;animation:fadeUp .6s .2s ease both}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.ic-icon{font-size:22px;margin-bottom:10px}
+.ic-title{font-size:13px;font-weight:700;margin-bottom:5px}
+.ic-body{font-size:12px;color:var(--muted);line-height:1.6}
+.ic-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;margin-top:10px;text-transform:uppercase;letter-spacing:.05em}
+.tag-danger{background:rgba(239,68,68,.1);color:#f87171}
+.tag-success{background:rgba(34,197,94,.1);color:#4ade80}
+.tag-warning{background:rgba(234,179,8,.1);color:#fcd34d}
+
+/* ── COMMENTS ── */
+.comments-card{animation:fadeUp .6s .25s ease both}
+.comment-item{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
+.comment-item:last-child{border-bottom:none}
+.ca{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent3);flex-shrink:0}
+.c-body{font-size:13px;color:var(--muted2);line-height:1.6}
+.c-meta{font-size:11px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:8px}
+.sent{padding:1px 8px;border-radius:100px;font-size:10px;font-weight:600}
+.pos{background:rgba(34,197,94,.1);color:#4ade80}
+.neg{background:rgba(239,68,68,.1);color:#f87171}
+
+@media(max-width:900px){
+  .summary-strip{grid-template-columns:repeat(3,1fr)}
+  .charts-row{grid-template-columns:1fr}
+  .insights-row{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .summary-strip{grid-template-columns:repeat(2,1fr)}
+  .topnav{padding:12px 16px}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer">
+  <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+</div>
+<div class="grid-lines"></div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a class="nav-logo" href="index.html">
+    <div class="logo-icon">🍽</div>
+    <div class="logo-text">Messi<span>fy</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="feedback.html" class="nav-link">Feedback</a>
+    <a href="reports.html" class="nav-link active">Reports</a>
+    <a href="admin.html" class="nav-link">Admin</a>
+  </div>
+  <div class="nav-user">
+    <div class="nav-avatar">RS</div>
+    <span class="nav-email">rahul.sharma@nist.edu</span>
+  </div>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+  <!-- SIDEBAR — student only, no admin link -->
+  <div class="sidebar" id="sidebar">
+    <div class="sb-section">Student</div>
+    <a class="sb-item" href="index.html"><span class="ic">🏠</span> Dashboard</a>
+    <a class="sb-item" href="feedback.html"><span class="ic">✍️</span> Submit Feedback</a>
+    <a class="sb-item" href="reports.html"><span class="ic">📋</span> My History</a>
+    <div class="sb-section">Reports</div>
+    <a class="sb-item active"><span class="ic">📊</span> Weekly Report</a>
+    <a class="sb-item"><span class="ic">📈</span> Trends</a>
+    <a class="sb-item"><span class="ic">💬</span> Complaints <span class="sb-pill">3</span></a>
+    <div class="sb-section">Account</div>
+    <a class="sb-item"><span class="ic">⚙️</span> Settings</a>
+    <a class="sb-item" href="index.html"><span class="ic">🚪</span> Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="ph">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="ph-title">Weekly <em>Reports</em></div>
+          <div class="ph-sub">NIST University Mess · Academic Year 2024–25</div>
+        </div>
+      </div>
+      <div class="wk-pills">
+        <div class="wp">Wk 10</div>
+        <div class="wp">Wk 11</div>
+        <div class="wp active">Wk 12</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-strip">
+      <div class="ss"><div class="ss-val" style="color:var(--accent)">4.1</div><div class="ss-label">Overall Avg</div></div>
+      <div class="ss"><div class="ss-val">4,218</div><div class="ss-label">Submissions</div></div>
+      <div class="ss"><div class="ss-val" style="color:var(--success)">4.6</div><div class="ss-label">Best — Snacks</div></div>
+      <div class="ss"><div class="ss-val" style="color:var(--danger)">2.1</div><div class="ss-label">Worst — Dinner</div></div>
+      <div class="ss"><div class="ss-val" style="color:var(--warning)">↑ 0.3</div><div class="ss-label">vs Last Week</div></div>
+    </div>
+
+    <!-- HEATMAP -->
+    <div class="card heat-card">
+      <div class="card-header">
+        <div class="card-title">Meal Quality Heatmap — Week 12</div>
+        <div class="heat-legend">
+          <span>Low</span>
+          <div class="hl-strip">
+            <div class="hl-cell" style="background:rgba(239,68,68,.55)"></div>
+            <div class="hl-cell" style="background:rgba(234,179,8,.5)"></div>
+            <div class="hl-cell" style="background:rgba(249,115,22,.5)"></div>
+            <div class="hl-cell" style="background:rgba(34,197,94,.45)"></div>
+            <div class="hl-cell" style="background:rgba(34,197,94,.8)"></div>
+          </div>
+          <span>High</span>
+        </div>
+      </div>
+      <div style="padding:16px 18px;overflow-x:auto">
+        <table class="heat-table" id="heatTable"></table>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-row">
+      <div class="card" style="padding:20px 22px">
+        <div class="card-title" style="margin-bottom:16px">📈 12-Week Trend — Average Rating</div>
+        <canvas id="trendChart" height="100"></canvas>
+      </div>
+      <div class="card" style="padding:20px 22px">
+        <div class="card-title" style="margin-bottom:16px">📊 Meal Comparison</div>
+        <canvas id="barChart" height="130"></canvas>
+      </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="insights-row">
+      <div class="insight-card">
+        <div class="ic-icon">🔴</div>
+        <div class="ic-title">Dinner needs urgent review</div>
+        <div class="ic-body">Wednesday dinner below 2.5 for 4 consecutive weeks. Oil quality and undercooking are top recurring complaints.</div>
+        <div class="ic-tag tag-danger">⚠ Critical</div>
+      </div>
+      <div class="insight-card">
+        <div class="ic-icon">🟢</div>
+        <div class="ic-title">Snacks consistently excellent</div>
+        <div class="ic-body">Snacks averaged 4.5+ for 8 weeks. Students frequently praise evening tea and samosa quality.</div>
+        <div class="ic-tag tag-success">✓ Performing well</div>
+      </div>
+      <div class="insight-card">
+        <div class="ic-icon">🟡</div>
+        <div class="ic-title">Lunch quality declining</div>
+        <div class="ic-body">Lunch dropped from 4.0 to 3.2 over 3 weeks. Recurring complaints about oil and vegetable freshness.</div>
+        <div class="ic-tag tag-warning">↓ Declining trend</div>
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="card comments-card">
+      <div class="card-header">
+        <div class="card-title">💬 Student Comments — Week 12</div>
+        <span style="font-size:12px;color:var(--muted)">Anonymous · 4,218 submissions</span>
+      </div>
+      <div class="comment-item"><div class="ca">A</div><div><div class="c-body">The breakfast on Monday was amazing — poha was freshly made and the chutney was excellent. Please maintain this quality!</div><div class="c-meta">Monday · Breakfast <span class="sent pos">Positive</span></div></div></div>
+      <div class="comment-item"><div class="ca">B</div><div><div class="c-body">Dinner on Tuesday was horrible. Dal was watery and roti was hard. This has been a problem for weeks, please fix it urgently.</div><div class="c-meta">Tuesday · Dinner <span class="sent neg">Negative</span></div></div></div>
+      <div class="comment-item"><div class="ca">C</div><div><div class="c-body">Found something suspicious in Wednesday lunch rice. This is a serious hygiene issue and needs immediate attention from the mess committee.</div><div class="c-meta">Wednesday · Lunch <span class="sent neg">Negative · URGENT</span></div></div></div>
+      <div class="comment-item"><div class="ca">D</div><div><div class="c-body">Snacks have been consistently good this week. Evening tea is perfect and Thursday samosas were crispy and well-spiced.</div><div class="c-meta">Thursday · Snacks <span class="sent pos">Positive</span></div></div></div>
+    </div>
+  </div><!-- end .main -->
+</div><!-- end .layout -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── SIDEBAR TOGGLE ── */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+/* ── CHART COLOURS ── */
+var C={
+  a:'#f97316', a2:'#fb923c', g:'#22c55e',
+  b:'#60a5fa', y:'#eab308', r:'#ef4444',
+  muted:'#6b7a99', grid:'rgba(255,255,255,.05)', bg:'#111827'
+};
+Chart.defaults.color=C.muted;
+Chart.defaults.borderColor=C.grid;
+
+/* ── HEATMAP ── */
+var hd={
+  Mon:{b:4.5,l:3.8,s:4.7,d:2.8},
+  Tue:{b:4.2,l:3.2,s:4.5,d:2.1},
+  Wed:{b:4.6,l:4.1,s:4.2,d:2.5},
+  Thu:{b:4.3,l:3.9,s:4.8,d:2.9},
+  Fri:{b:3.8,l:3.4,s:4.6,d:2.3},
+  Sat:{b:4.7,l:3.7,s:4.4,d:3.1},
+  Sun:{b:4.4,l:3.5,s:4.9,d:2.4}
+};
+var mk=['b','l','s','d'];
+var mh={b:'🌅 Breakfast',l:'🍱 Lunch',s:'🫖 Snacks',d:'🌙 Dinner'};
+function sc(v){
+  if(v>=4.5)return'rgba(34,197,94,.7)';
+  if(v>=3.8)return'rgba(34,197,94,.38)';
+  if(v>=3.0)return'rgba(234,179,8,.42)';
+  if(v>=2.5)return'rgba(249,115,22,.45)';
+  return'rgba(239,68,68,.55)';
+}
+var htEl=document.getElementById('heatTable');
+var thead=htEl.createTHead();
+var hr=thead.insertRow();
+var th0=document.createElement('th');
+hr.appendChild(th0);
+mk.forEach(function(m){
+  var t=document.createElement('th');
+  t.textContent=mh[m];
+  hr.appendChild(t);
+});
+var tbody=htEl.createTBody();
+Object.keys(hd).forEach(function(day){
+  var vals=hd[day];
+  var tr=tbody.insertRow();
+  var td0=tr.insertCell();
+  td0.textContent=day;
+  mk.forEach(function(m){
+    var td=tr.insertCell();
+    var v=vals[m];
+    td.style.background=sc(v);
+    td.innerHTML='<span class="hval">'+v+'</span>';
+  });
+});
+
+/* ── TREND CHART ── */
+new Chart(document.getElementById('trendChart'),{
+  type:'line',
+  data:{
+    labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8','Wk9','Wk10','Wk11','Wk12'],
+    datasets:[{
+      label:'Avg',
+      data:[3.5,3.6,3.4,3.7,3.8,3.6,3.9,4.0,3.8,3.9,3.8,4.1],
+      borderColor:C.a,
+      backgroundColor:'rgba(249,115,22,.1)',
+      tension:.4,
+      pointRadius:4,
+      pointBackgroundColor:C.a,
+      fill:true
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{display:false},
+      tooltip:{backgroundColor:C.bg,borderColor:'rgba(249,115,22,.25)',borderWidth:1,titleColor:'#f0f4ff',bodyColor:C.muted}
+    },
+    scales:{
+      x:{grid:{color:C.grid},ticks:{font:{family:'DM Sans',size:10}}},
+      y:{min:1,max:5,grid:{color:C.grid},ticks:{font:{family:'DM Sans',size:10}}}
+    }
+  }
+});
+
+/* ── BAR CHART ── */
+new Chart(document.getElementById('barChart'),{
+  type:'bar',
+  data:{
+    labels:['Breakfast','Lunch','Snacks','Dinner'],
+    datasets:[{
+      data:[4.3,3.7,4.6,2.6],
+      backgroundColor:[C.a,C.a2,C.g,C.r],
+      borderRadius:8,
+      borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{display:false},
+      tooltip:{backgroundColor:C.bg,borderColor:'rgba(249,115,22,.25)',borderWidth:1,titleColor:'#f0f4ff',b

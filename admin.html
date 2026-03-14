@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Messify – Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f1a;--surface:#111827;--surface2:#1a2235;--surface3:#222e45;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --accent:#f97316;--accent2:#fb923c;--accent3:#fdba74;
+  --text:#f0f4ff;--muted:#6b7a99;--muted2:#8b9ab8;
+  --success:#22c55e;--danger:#ef4444;--warning:#eab308;--info:#60a5fa;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+.bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18;animation:drift 14s ease-in-out infinite alternate}
+.blob-1{width:560px;height:560px;background:#f97316;top:-160px;left:-140px}
+.blob-2{width:400px;height:400px;background:#3b82f6;bottom:-100px;right:-80px;animation-delay:-5s}
+.blob-3{width:280px;height:280px;background:#ec4899;top:40%;left:55%;animation-delay:-9s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,20px) scale(1.08)}}
+.grid-lines{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.topnav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(11,15,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.menu-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;cursor:pointer;flex-shrink:0;transition:all .2s}
+.menu-btn:hover{background:var(--surface3);border-color:rgba(249,115,22,.3)}
+.menu-btn svg{width:20px;height:20px;color:var(--muted)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.logo-text span{color:var(--accent)}
+.nav-links{display:flex;gap:4px}
+.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:all .2s}
+.nav-link:hover{background:var(--surface2);color:var(--muted2)}
+.nav-link.active{background:rgba(249,115,22,.12);color:var(--accent);border:1px solid rgba(249,115,22,.2)}
+.admin-pill{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:var(--accent2);font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;text-transform:uppercase;letter-spacing:.07em}
+
+/* LAYOUT */
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 61px)}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--border);padding:24px 14px;background:rgba(11,15,26,.4);transition:transform .3s ease}
+.sb-section{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:0 10px;margin:18px 0 6px}
+.sb-section:first-child{margin-top:0}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;cursor:pointer;transition:all .2s;margin-bottom:2px}
+.sb-item:hover{background:var(--surface2);color:var(--muted2)}
+.sb-item.active{background:rgba(249,115,22,.1);color:var(--accent);border:1px solid rgba(249,115,22,.15)}
+.sb-item .ic{font-size:15px;width:18px;text-align:center}
+.sb-pill{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
+
+/* CONTENT */
+.content{padding:32px 36px;overflow-y:auto}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px;animation:fadeUp .6s ease both}
+.ph-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.025em;margin-bottom:4px}
+.ph-title em{color:var(--accent);font-style:normal}
+.ph-sub{font-size:13px;color:var(--muted)}
+.ph-right{display:flex;gap:10px;align-items:center}
+.week-select{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted2);outline:none;cursor:pointer}
+.week-select option{background:var(--surface)}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:0 4px 16px rgba(249,115,22,.35)}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 6px 22px rgba(249,115,22,.45)}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;animation:fadeUp .6s .05s ease both}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.kpi-icon{font-size:22px;margin-bottom:10px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:2px}
+.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;margin-top:7px;padding:3px 9px;border-radius:100px}
+.delta-up{background:rgba(34,197,94,.1);color:#4ade80}
+.delta-dn{background:rgba(239,68,68,.1);color:#f87171}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:20px;animation:fadeUp .6s .1s ease both}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px 22px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.cc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.cc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.cc-legend{display:flex;gap:10px;flex-wrap:wrap}
+.cc-leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.cc-dot{width:8px;height:8px;border-radius:50%}
+
+/* BOTTOM */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;animation:fadeUp .6s .15s ease both}
+.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.tc-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.tc-link{font-size:12px;color:var(--accent);text-decoration:none}
+.tc-link:hover{text-decoration:underline}
+.complaint-item{padding:13px 22px;border-bottom:1px solid var(--border);display:flex;gap:11px;align-items:flex-start}
+.complaint-item:last-child{border-bottom:none}
+.ci-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ci-text{font-size:12px;color:var(--muted2);line-height:1.6}
+.ci-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.score-item{padding:12px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.score-item:last-child{border-bottom:none}
+.si-info{flex:1}
+.si-name{font-size:13px;font-weight:600}
+.si-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.si-bar-bg{height:4px;background:var(--surface2);border-radius:2px;flex:1;max-width:110px}
+.si-bar{height:4px;border-radius:2px;transition:width .6s ease}
+.si-score{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;min-width:28px;text-align:right}
+.score-hi{color:var(--success)}.score-md{color:var(--warning)}.score-lo{color:var(--danger)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 22px;font-size:14px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;transition:transform .4s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:10px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1000px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:block;position:fixed;top:62px;left:0;bottom:0;width:260px;z-index:150;transform:translateX(-100%);overflow-y:auto;border-right:1px solid var(--border2);box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:none;position:fixed;inset:0;top:62px;background:rgba(0,0,0,.65);z-index:140}
+  .sidebar-overlay.show{display:block}
+  .content{padding:24px 20px}
+  .nav-links{display:none}
+}
+@media(min-width:1001px){.sidebar-overlay{display:none!important}}
+@media(max-width:700px){.kpi-row{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}.bottom-row{grid-template-columns:1fr}}
+@media(max-width:480px){.topnav{padding:12px 16px}}
+</style>
+</head>
+<body>
+<div class="bg-layer">
+  <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+</div>
+<div class="grid-lines"></div>
+
+<nav class="topnav">
+  <a class="nav-logo" href="index.html">
+    <div class="logo-icon">🍽</div>
+    <div class="logo-text">Messi<span>fy</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="feedback.html" class="nav-link">Feedback</a>
+    <a href="reports.html" class="nav-link">Reports</a>
+    <a href="admin.html" class="nav-link active">Admin</a>
+  </div>
+  <span class="admin-pill">⚙️ Admin Panel</span>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sb-section">Overview</div>
+    <a class="sb-item active"><span class="ic">📊</span> Dashboard</a>
+    <a class="sb-item"><span class="ic">📈</span> Analytics</a>
+    <a class="sb-item" href="reports.html"><span class="ic">📋</span> Reports</a>
+    <div class="sb-section">Management</div>
+    <a class="sb-item"><span class="ic">👥</span> Students</a>
+    <a class="sb-item"><span class="ic">🏫</span> Mess Staff</a>
+    <a class="sb-item"><span class="ic">💬</span> Complaints <span class="sb-pill">7</span></a>
+    <div class="sb-section">System</div>
+    <a class="sb-item"><span class="ic">⚙️</span> Settings</a>
+    <a class="sb-item" href="index.html"><span class="ic">🚪</span> Logout</a>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="ph">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="ph-title">Admin <em>Dashboard</em></div>
+          <div class="ph-sub">Week 12 · March 10–16, 2025 · NIST University</div>
+        </div>
+      </div>
+      <div class="ph-right">
+        <select class="week-select">
+          <option>Week 12 (Mar 10–16)</option>
+          <option>Week 11 (Mar 3–9)</option>
+          <option>Week 10 (Feb 24–Mar 2)</option>
+        </select>
+        <button class="btn-primary">⬇ Export PDF</button>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-icon">⭐</div><div class="kpi-val">4.1</div><div class="kpi-label">Avg Rating / 5</div><div class="kpi-delta delta-up">↑ +0.3 vs last week</div></div>
+      <div class="kpi"><div class="kpi-icon">📝</div><div class="kpi-val">4,218</div><div class="kpi-label">Submissions</div><div class="kpi-delta delta-up">↑ 84% participation</div></div>
+      <div class="kpi"><div class="kpi-icon">⚠️</div><div class="kpi-val">7</div><div class="kpi-label">Open Complaints</div><div class="kpi-delta delta-dn">↑ 2 new today</div></div>
+      <div class="kpi"><div class="kpi-icon">🌙</div><div class="kpi-val">2.1</div><div class="kpi-label">Worst — Dinner</div><div class="kpi-delta delta-dn">↓ needs attention</div></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="cc-header">
+          <div class="cc-title">Daily Ratings — Week 12</div>
+          <div class="cc-legend">
+            <div class="cc-leg"><div class="cc-dot" style="background:#f97316"></div>Breakfast</div>
+            <div class="cc-leg"><div class="cc-dot" style="background:#fb923c"></div>Lunch</div>
+            <div class="cc-leg"><div class="cc-dot" style="background:#22c55e"></div>Snacks</div>
+            <div class="cc-leg"><div class="cc-dot" style="background:#60a5fa"></div>Dinner</div>
+          </div>
+        </div>
+        <canvas id="lineChart" height="90"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="cc-header"><div class="cc-title">Meal Distribution</div></div>
+        <canvas id="doughnut" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="bottom-row">
+      <div class="tbl-card">
+        <div class="tc-head"><div class="tc-title">🔴 Recent Complaints</div><a href="#" class="tc-link">View all →</a></div>
+        <div class="complaint-item"><div class="ci-ic" style="background:rgba(239,68,68,.1)">🦠</div><div><div class="ci-text">Oil quality in Wednesday lunch was extremely poor and unhygienic.</div><div class="ci-meta">Thu, Mar 14 · 47 students reported</div></div></div>
+        <div class="complaint-item"><div class="ci-ic" style="background:rgba(234,179,8,.1)">🍛</div><div><div class="ci-text">Dal on Tuesday dinner was undercooked and tasteless.</div><div class="ci-meta">Wed, Mar 13 · 31 students</div></div></div>
+        <div class="complaint-item"><div class="ci-ic" style="background:rgba(249,115,22,.1)">🧂</div><div><div class="ci-text">Friday breakfast roti was hard and over-salted.</div><div class="ci-meta">Fri, Mar 15 · 19 students</div></div></div>
+        <div class="complaint-item"><div class="ci-ic" style="background:rgba(239,68,68,.1)">🐛</div><div><div class="ci-text">Foreign material found in Monday lunch rice.</div><div class="ci-meta">Mon, Mar 11 · URGENT</div></div></div>
+      </div>
+      <div class="tbl-card">
+        <div class="tc-head"><div class="tc-title">🏆 Meal Scores — This Week</div><span style="font-size:11px;color:var(--muted)">Mon–Sun avg</span></div>
+        <div id="mealScores"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const C={accent:'#f97316',accent2:'#fb923c',green:'#22c55e',blue:'#60a5fa',muted:'#6b7a99',grid:'rgba(255,255,255,.05)',bg:'#111827'};
+Chart.defaults.color=C.muted;Chart.defaults.borderColor=C.grid;
+
+new Chart(document.getElementById('lineChart'),{type:'line',data:{
+  labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+  datasets:[
+    {label:'Breakfast',data:[4.5,4.2,4.6,4.3,3.8,4.7,4.4],borderColor:C.accent,backgroundColor:'rgba(249,115,22,.08)',tension:.4,pointRadius:4,pointBackgroundColor:C.accent,fill:true},
+    {label:'Lunch',    data:[3.8,3.2,4.1,3.9,3.4,3.7,3.5],borderColor:C.accent2,backgroundColor:'rgba(251,146,60,.05)',tension:.4,pointRadius:4,pointBackgroundColor:C.accent2,fill:true},
+    {label:'Snacks',   data:[4.7,4.5,4.2,4.8,4.6,4.4,4.9],borderColor:C.green,backgroundColor:'rgba(34,197,94,.05)',tension:.4,pointRadius:4,pointBackgroundColor:C.green,fill:true},
+    {label:'Dinner',   data:[2.8,2.1,2.5,2.9,2.3,3.1,2.4],borderColor:C.blue,backgroundColor:'rgba(96,165,250,.05)',tension:.4,pointRadius:4,pointBackgroundColor:C.blue,fill:true},
+  ]
+},options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:C.bg,borderColor:'rgba(249,115,22,.25)',borderWidth:1,titleColor:'#f0f4ff',bodyColor:C.muted}},scales:{x:{grid:{color:C.grid},ticks:{font:{family:'DM Sans',size:10}}},y:{min:1,max:5,grid:{color:C.grid},ticks:{font:{family:'DM Sans',size:10}}}}}});
+
+new Chart(document.getElementById('doughnut'),{type:'doughnut',data:{
+  labels:['Breakfast','Lunch','Snacks','Dinner'],
+  datasets:[{data:[4.4,3.7,4.6,2.6],backgroundColor:[C.accent,C.accent2,C.green,C.blue],borderWidth:0,hoverOffset:6}]
+},options:{responsive:true,cutout:'68%',plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12,boxWidth:10,boxHeight:10,color:C.muted}},tooltip:{backgroundColor:C.bg,borderColor:'rgba(249,115,22,.25)',borderWidth:1,callbacks:{label:ctx=>`Avg: ${ctx.raw}/5`}}}}});
+
+const scores=[
+  {name:'Snacks',sub:'Best performer',score:4.6,cls:'score-hi'},
+  {name:'Breakfast',sub:'Consistent quality',score:4.3,cls:'score-hi'},
+  {name:'Lunch',sub:'Needs improvement',score:3.7,cls:'score-md'},
+  {name:'Dinner',sub:'Critical — review needed',score:2.6,cls:'score-lo'},
+];
+const ms=document.getElementById('mealScores');
+scores.forEach(s=>{
+  const bc=s.score>=4?'#22c55e':s.score>=3?'#eab308':'#ef4444';
+  ms.innerHTML+=`<div class="score-item">
+    <div class="si-info"><div class="si-name">${s.name}</div><div class="si-sub">${s.sub}</div></div>
+    <div class="si-bar-bg"><div class="si-bar" style="width:${s.score/5*100}%;background:${bc}"></div></div>
+    <div class="si-score ${s.cls}">${s.score}</div>
+  </div>`;
+});
+
+/* ── SIDEBAR TOGGLE ── */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+</script>
+</body>
+</html>
