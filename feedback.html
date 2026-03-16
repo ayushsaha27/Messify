@@ -14,7 +14,6 @@
   --text:#f0f4ff;--muted:#6b7a99;--muted2:#8b9ab8;
   --success:#22c55e;--danger:#ef4444;--warning:#eab308;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
 .bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18;animation:drift 14s ease-in-out infinite alternate}
@@ -25,14 +24,11 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .grid-lines{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-
-/* ── NAV ── */
 .topnav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(11,15,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-icon{width:32px;height:32px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px}
 .logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
 .logo-text span{color:var(--accent)}
-.nav-center{display:flex;align-items:center;gap:8px}
 .nav-links{display:flex;gap:4px}
 .nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:all .2s}
 .nav-link:hover{background:var(--surface2);color:var(--muted2)}
@@ -40,17 +36,12 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .nav-user{display:flex;align-items:center;gap:10px}
 .nav-avatar{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent)}
 .nav-email{font-size:12px;color:var(--muted)}
-
-/* ── HAMBURGER ── */
-.menu-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;cursor:pointer;flex-shrink:0;transition:all .2s}
+/* Hamburger: HIDDEN on desktop (sidebar visible in grid), SHOWN only on mobile */
+.menu-btn{display:none;align-items:center;justify-content:center;width:36px;height:36px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;cursor:pointer;flex-shrink:0;transition:all .2s}
 .menu-btn:hover{background:var(--surface3);border-color:rgba(249,115,22,.3)}
 .menu-btn svg{width:18px;height:18px;color:var(--muted)}
-
-/* ── LAYOUT ── */
 .layout{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 62px)}
-
-/* ── SIDEBAR ── */
-.sidebar{border-right:1px solid var(--border);padding:24px 14px;background:rgba(11,15,26,.4);transition:transform .3s ease}
+.sidebar{border-right:1px solid var(--border);padding:24px 14px;background:rgba(11,15,26,.6)}
 .sb-section{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:0 10px;margin:18px 0 6px}
 .sb-section:first-child{margin-top:0}
 .sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;cursor:pointer;transition:all .2s;margin-bottom:2px}
@@ -58,63 +49,42 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .sb-item.active{background:rgba(249,115,22,.12);color:var(--accent);border:1px solid rgba(249,115,22,.15)}
 .sb-item .ic{font-size:15px;width:18px;text-align:center}
 .sb-pill{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
-
-/* ── MAIN ── */
 .main{padding:40px 36px 80px;overflow-y:auto}
-
-/* ── MOBILE DRAWER ── */
+/* MOBILE: show hamburger, sidebar becomes slide-in drawer */
 @media(max-width:1000px){
+  .menu-btn{display:flex}
+  .nav-links{display:none}
+  .nav-email{display:none}
   .layout{grid-template-columns:1fr}
-  .sidebar{
-    display:block;
-    position:fixed;top:62px;left:0;bottom:0;
-    width:260px;z-index:150;
-    transform:translateX(-100%);
-    overflow-y:auto;
-    border-right:1px solid var(--border2);
-    box-shadow:4px 0 24px rgba(0,0,0,.4);
-  }
+  .sidebar{position:fixed;top:62px;left:0;bottom:0;width:260px;z-index:150;transform:translateX(-100%);transition:transform .3s ease;overflow-y:auto;border-right:1px solid var(--border2);box-shadow:4px 0 32px rgba(0,0,0,.5);background:rgba(11,15,26,.98)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay{display:none;position:fixed;inset:0;top:62px;background:rgba(0,0,0,.65);z-index:140}
   .sidebar-overlay.show{display:block}
-  .main{padding:24px 20px 60px}
-  .nav-links{display:none}
-  .nav-email{display:none}
+  .main{padding:24px 16px 60px}
 }
-@media(min-width:1001px){
-  .sidebar-overlay{display:none!important}
-}
-
-/* ── PAGE TITLE ── */
+@media(min-width:1001px){.sidebar-overlay{display:none!important}}
 .page-title-row{margin-bottom:32px;animation:fadeUp .6s ease both}
-.breadcrumb{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.title-row-inner{display:flex;align-items:center;gap:14px;margin-bottom:5px}
+.breadcrumb{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .breadcrumb span{color:var(--accent)}
-.page-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.025em;margin-bottom:5px}
+.page-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.025em;margin-bottom:4px}
 .page-title em{color:var(--accent);font-style:normal}
 .page-sub{font-size:14px;color:var(--muted)}
-
-/* ── CARD ── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.4)}
 .card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
 .card-hint{font-size:12px;color:var(--muted)}
-
-/* ── WEEK BANNER ── */
 .week-banner{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;box-shadow:0 12px 40px rgba(0,0,0,.3);animation:fadeUp .6s .05s ease both}
 .wb-left{display:flex;align-items:center;gap:14px}
 .wb-icon{width:46px;height:46px;border-radius:12px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:20px}
 .wb-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
 .wb-sub{font-size:12px;color:var(--muted);margin-top:2px}
 .wb-badge{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ade80;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px}
-
-/* ── PROGRESS ── */
 .prog-wrap{margin-bottom:24px;animation:fadeUp .6s .1s ease both}
 .prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
 .prog-top strong{color:var(--accent)}
 .prog-track{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width .4s ease}
-
-/* ── RATING GRID ── */
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s ease}
 .grid-card{animation:fadeUp .6s .15s ease both;margin-bottom:20px}
 .rating-table{width:100%;border-collapse:collapse}
 .rating-table th{padding:12px 8px;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;text-align:center;border-bottom:1px solid var(--border)}
@@ -126,14 +96,10 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .meal-head{display:flex;flex-direction:column;align-items:center;gap:3px}
 .meal-head .me{font-size:18px}
 .meal-head .mn{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
-
-/* ── STARS ── */
 .stars{display:inline-flex;gap:3px;justify-content:center}
 .star{font-size:20px;cursor:pointer;transition:transform .15s,color .15s;color:var(--surface3);line-height:1;user-select:none;-webkit-tap-highlight-color:transparent}
 .star:hover{transform:scale(1.25)}
 .star.on{color:var(--accent);filter:drop-shadow(0 0 4px rgba(249,115,22,.5))}
-
-/* ── WRITTEN FEEDBACK ── */
 .fb-card{animation:fadeUp .6s .2s ease both;margin-bottom:20px}
 .fb-tag{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:var(--accent2);font-size:10px;font-weight:600;padding:2px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em}
 .fb-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 24px}
@@ -142,15 +108,11 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .fb-field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;resize:none;min-height:86px;transition:border-color .2s,box-shadow .2s}
 .fb-field textarea::placeholder{color:var(--muted)}
 .fb-field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,.12)}
-
-/* ── SUBMIT ── */
 .submit-row{display:flex;align-items:center;justify-content:space-between;gap:16px;animation:fadeUp .6s .25s ease both}
 .sr-info{font-size:13px;color:var(--muted)}
 .sr-info strong{color:var(--accent)}
 .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px 28px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .18s,box-shadow .18s,background .18s;box-shadow:0 4px 20px rgba(249,115,22,.4)}
 .btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 6px 28px rgba(249,115,22,.5)}
-
-/* ── SUCCESS ── */
 .success-overlay{display:none;position:fixed;inset:0;background:rgba(11,15,26,.92);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(16px)}
 .success-overlay.show{display:flex}
 .success-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px 40px;text-align:center;max-width:380px;box-shadow:0 32px 80px rgba(0,0,0,.6);animation:cardIn .5s cubic-bezier(.16,1,.3,1)}
@@ -158,63 +120,43 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .success-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px}
 .success-title em{color:var(--accent);font-style:normal}
 .success-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:24px}
-
-/* ── TOAST ── */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 22px;font-size:14px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;transition:transform .4s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:10px}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.error .ti{color:var(--danger)}.toast.success .ti{color:var(--success)}
-
-@media(max-width:600px){
-  .week-banner{flex-direction:column;gap:14px;align-items:flex-start}
-  .submit-row{flex-direction:column;align-items:stretch}
-}
+@media(max-width:600px){.week-banner{flex-direction:column;gap:14px;align-items:flex-start}.submit-row{flex-direction:column;align-items:stretch}}
 </style>
 </head>
 <body>
-<div class="bg-layer">
-  <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
-</div>
+<div class="bg-layer"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
 <div class="grid-lines"></div>
-
-<!-- NAV -->
 <nav class="topnav">
-  <a class="nav-logo" href="index.html">
-    <div class="logo-icon">🍽</div>
-    <div class="logo-text">Messi<span>fy</span></div>
-  </a>
+  <a class="nav-logo" href="index.html"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></a>
   <div class="nav-links">
     <a href="index.html" class="nav-link">Home</a>
     <a href="feedback.html" class="nav-link active">Feedback</a>
     <a href="reports.html" class="nav-link">Reports</a>
     <a href="admin.html" class="nav-link">Admin</a>
   </div>
-  <div class="nav-user">
-    <div class="nav-avatar">RS</div>
-    <span class="nav-email">rahul.sharma@nist.edu</span>
-  </div>
+  <div class="nav-user"><div class="nav-avatar">RS</div><span class="nav-email">rahul.sharma@nist.edu</span></div>
 </nav>
-
-<!-- Sidebar overlay for mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
 <div class="layout">
   <div class="sidebar" id="sidebar">
     <div class="sb-section">Student</div>
     <a class="sb-item" href="index.html"><span class="ic">🏠</span> Dashboard</a>
-    <a class="sb-item active"><span class="ic">✍️</span> Submit Feedback</a>
+    <a class="sb-item active" href="feedback.html"><span class="ic">✍️</span> Submit Feedback</a>
     <a class="sb-item" href="reports.html"><span class="ic">📋</span> My History</a>
     <div class="sb-section">Reports</div>
     <a class="sb-item" href="reports.html"><span class="ic">📊</span> Weekly Report</a>
-    <a class="sb-item"><span class="ic">📈</span> Trends</a>
-    <a class="sb-item"><span class="ic">💬</span> Complaints <span class="sb-pill">3</span></a>
+    <a class="sb-item" href="reports.html"><span class="ic">📈</span> Trends</a>
+    <a class="sb-item" href="reports.html"><span class="ic">💬</span> Complaints <span class="sb-pill">3</span></a>
     <div class="sb-section">Account</div>
-    <a class="sb-item"><span class="ic">⚙️</span> Settings</a>
+    <a class="sb-item" href="index.html"><span class="ic">⚙️</span> Settings</a>
     <a class="sb-item" href="index.html"><span class="ic">🚪</span> Logout</a>
   </div>
-
   <div class="main">
     <div class="page-title-row">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:5px">
+      <div class="title-row-inner">
         <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -225,28 +167,16 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
       </div>
       <div class="page-sub">Rate each meal for every day this week. Your feedback is anonymous to mess staff.</div>
     </div>
-
     <div class="week-banner">
-      <div class="wb-left">
-        <div class="wb-icon">📅</div>
-        <div>
-          <div class="wb-title">Week 12 — March 10–16, 2025</div>
-          <div class="wb-sub">One submission per student · Deadline: Sunday 11:59 PM</div>
-        </div>
-      </div>
-      <div class="wb-badge">✓ Not yet submitted</div>
+      <div class="wb-left"><div class="wb-icon">📅</div><div><div class="wb-title">Week 12 — March 10–16, 2025</div><div class="wb-sub">One submission per student · Deadline: Sunday 11:59 PM</div></div></div>
+      <div class="wb-badge">✓ Demo Mode</div>
     </div>
-
     <div class="prog-wrap">
-      <div class="prog-top"><span>Rating progress</span><strong id="prog-text">0 / 28 meals rated</strong></div>
-      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-top"><span>Rating progress</span><strong id="prog-text">28 / 28 meals rated</strong></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:100%"></div></div>
     </div>
-
     <div class="card grid-card">
-      <div class="card-header">
-        <div class="card-title">⭐ Meal Ratings — 1 to 5 stars</div>
-        <div class="card-hint">Click a star · Hover to preview</div>
-      </div>
+      <div class="card-header"><div class="card-title">⭐ Meal Ratings — 1 to 5 stars</div><div class="card-hint">Click a star · Hover to preview</div></div>
       <table class="rating-table">
         <thead><tr>
           <th>Day</th>
@@ -258,31 +188,25 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
         <tbody id="ratingBody"></tbody>
       </table>
     </div>
-
     <div class="card fb-card">
-      <div class="card-header">
-        <div class="card-title">Written Feedback</div>
-        <span class="fb-tag">Optional</span>
-      </div>
+      <div class="card-header"><div class="card-title">Written Feedback</div><span class="fb-tag">Optional</span></div>
       <div class="fb-grid">
         <div class="fb-field">
           <label>What did you enjoy this week? 😊</label>
-          <textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea>
+          <textarea id="liked">Breakfast on Monday was excellent — poha was fresh and hot. Snacks this week were consistently great, especially Thursday's samosas and evening tea.</textarea>
         </div>
         <div class="fb-field">
           <label>What needs improvement? 🔧</label>
-          <textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea>
+          <textarea id="issues">Tuesday dinner dal was watery and undercooked. Wednesday lunch oil quality was very poor. Dinner quality needs urgent improvement across all days.</textarea>
         </div>
       </div>
     </div>
-
     <div class="submit-row">
-      <div class="sr-info">Rated <strong id="rated-count">0</strong> / 28 meal slots</div>
+      <div class="sr-info">Rated <strong id="rated-count">28</strong> / 28 meal slots</div>
       <button class="btn-primary" onclick="submitFeedback()">Submit Feedback →</button>
     </div>
-  </div><!-- end .main -->
-</div><!-- end .layout -->
-
+  </div>
+</div>
 <div class="success-overlay" id="successOverlay">
   <div class="success-card">
     <div class="success-icon">🎉</div>
@@ -291,92 +215,87 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
     <button class="btn-primary" onclick="location.href='reports.html'">View Reports →</button>
   </div>
 </div>
-
 <div class="toast" id="toast"><span class="ti" id="toast-icon"></span><span id="toast-msg"></span></div>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ── SIDEBAR TOGGLE ── */
+<script>
 function toggleSidebar(){
-  const sb=document.getElementById('sidebar');
-  const ov=document.getElementById('sidebarOverlay');
-  sb.classList.toggle('open');
-  ov.classList.toggle('show');
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
 }
-
-/* ── STAR RATINGS ── */
-const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const meals=['breakfast','lunch','snacks','dinner'];
-const ratings={};
-days.forEach(d=>meals.forEach(m=>{ratings[d+'_'+m]=0}));
+// Demo ratings pre-filled for adviser presentation
+var demoData={
+  Mon_breakfast:4,Mon_lunch:3,Mon_snacks:5,Mon_dinner:2,
+  Tue_breakfast:4,Tue_lunch:3,Tue_snacks:4,Tue_dinner:2,
+  Wed_breakfast:5,Wed_lunch:4,Wed_snacks:4,Wed_dinner:3,
+  Thu_breakfast:4,Thu_lunch:3,Thu_snacks:5,Thu_dinner:2,
+  Fri_breakfast:3,Fri_lunch:3,Fri_snacks:5,Fri_dinner:2,
+  Sat_breakfast:5,Sat_lunch:4,Sat_snacks:4,Sat_dinner:3,
+  Sun_breakfast:4,Sun_lunch:3,Sun_snacks:5,Sun_dinner:2
+};
+var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var meals=['breakfast','lunch','snacks','dinner'];
+var ratings={};
+days.forEach(function(d){meals.forEach(function(m){ratings[d+'_'+m]=demoData[d+'_'+m]||0;});});
 
 function buildTable(){
-  const tb=document.getElementById('ratingBody');
-  days.forEach(day=>{
-    const tr=document.createElement('tr');
-    const td0=document.createElement('td');
-    td0.textContent=day;
-    tr.appendChild(td0);
-    meals.forEach(meal=>{
-      const td=document.createElement('td');
-      const key=day+'_'+meal;
-      const wrap=document.createElement('div');
-      wrap.className='stars';
-      for(let s=1;s<=5;s++){
-        const star=document.createElement('span');
-        star.className='star';
-        star.textContent='★';
-        star.dataset.key=key;
-        star.dataset.val=s;
-        star.addEventListener('click',function(){setRating(key,s)});
-        star.addEventListener('mouseover',function(){previewStars(key,s)});
-        star.addEventListener('mouseout',function(){renderStars(key)});
+  var tb=document.getElementById('ratingBody');
+  days.forEach(function(day){
+    var tr=document.createElement('tr');
+    var td0=document.createElement('td');td0.textContent=day;tr.appendChild(td0);
+    meals.forEach(function(meal){
+      var td=document.createElement('td');
+      var key=day+'_'+meal;
+      var wrap=document.createElement('div');wrap.className='stars';
+      for(var s=1;s<=5;s++){
+        var star=document.createElement('span');
+        star.className='star';star.textContent='★';
+        star.dataset.key=key;star.dataset.val=s;
+        star.addEventListener('click',(function(k,v){return function(){setRating(k,v);};})(key,s));
+        star.addEventListener('mouseover',(function(k,v){return function(){previewStars(k,v);};})(key,s));
+        star.addEventListener('mouseout',(function(k){return function(){renderStars(k);};})(key));
         wrap.appendChild(star);
       }
-      td.appendChild(wrap);
-      tr.appendChild(td);
+      td.appendChild(wrap);tr.appendChild(td);
     });
     tb.appendChild(tr);
   });
-}
-
-function setRating(k,v){
-  ratings[k]=v;
-  renderStars(k);
+  // Apply demo ratings visually
+  Object.keys(ratings).forEach(function(k){renderStars(k);});
   updateProg();
 }
-
+function setRating(k,v){ratings[k]=v;renderStars(k);updateProg();}
 function previewStars(k,v){
   document.querySelectorAll('[data-key="'+k+'"]').forEach(function(s,i){
     s.style.color=i<v?'var(--accent2)':'var(--surface3)';
     s.style.filter=i<v?'drop-shadow(0 0 3px rgba(249,115,22,.4))':'';
   });
 }
-
 function renderStars(k){
-  const v=ratings[k];
+  var v=ratings[k];
   document.querySelectorAll('[data-key="'+k+'"]').forEach(function(s,i){
-    s.style.color='';
-    s.style.filter='';
-    if(i<v){s.classList.add('on')}else{s.classList.remove('on')}
+    s.style.color='';s.style.filter='';
+    if(i<v){s.classList.add('on');}else{s.classList.remove('on');}
   });
 }
-
 function updateProg(){
-  const n=Object.values(ratings).filter(function(v){return v>0}).length;
+  var n=Object.values(ratings).filter(function(v){return v>0;}).length;
   document.getElementById('prog-fill').style.width=Math.round(n/28*100)+'%';
   document.getElementById('prog-text').textContent=n+' / 28 meals rated';
   document.getElementById('rated-count').textContent=n;
 }
-
 function showToast(msg,type){
   type=type||'error';
-  const t=document.getElementById('toast');
+  var t=document.getElementById('toast');
   document.getElementById('toast-msg').textContent=msg;
   document.getElementById('toast-icon').textContent=type==='success'?'✅':'⚠️';
-  t.className='toast '+type;
-  t.classList.add('show');
-  setTimeout(function(){t.classList.remove('show')},3200);
+  t.className='toast '+type;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3200);
 }
-
 function submitFeedback(){
-  const n=Object.values(ratings).filter(f
+  var n=Object.values(ratings).filter(function(v){return v>0;}).length;
+  if(n<14){showToast('Please rate at least 14 meals before submitting.','error');return;}
+  document.getElementById('successOverlay').classList.add('show');
+}
+buildTable();
+</script>
+</body>
+</html>
