@@ -39,6 +39,9 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
 .nav-link:hover{background:var(--surface2);color:var(--muted2)}
 .nav-link.active{background:rgba(249,115,22,.12);color:var(--accent);border:1px solid rgba(249,115,22,.2)}
 .admin-pill{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:var(--accent2);font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;text-transform:uppercase;letter-spacing:.07em}
+.nav-user{display:flex;align-items:center;gap:10px}
+.nav-avatar{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent)}
+.nav-email{font-size:12px;color:var(--muted)}
 
 /* LAYOUT */
 .layout{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 61px)}
@@ -144,7 +147,10 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
     <a href="reports.html" class="nav-link">Reports</a>
     <a href="admin.html" class="nav-link active">Admin</a>
   </div>
-  <span class="admin-pill">⚙️ Admin Panel</span>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="nav-user"><div class="nav-avatar" id="nav-avatar">?</div><span class="nav-email" id="nav-email">Loading...</span></div>
+    <span class="admin-pill">⚙️ Admin Panel</span>
+  </div>
 </nav>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>

@@ -137,7 +137,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
     <a href="reports.html" class="nav-link">Reports</a>
     <a href="admin.html" class="nav-link">Admin</a>
   </div>
-  <div class="nav-user"><div class="nav-avatar">RS</div><span class="nav-email">rahul.sharma@nist.edu</span></div>
+  <div class="nav-user"><div class="nav-avatar" id="nav-avatar">?</div><span class="nav-email" id="nav-email">Loading...</span></div>
 </nav>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="layout">
@@ -216,7 +216,19 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
   </div>
 </div>
 <div class="toast" id="toast"><span class="ti" id="toast-icon"></span><span id="toast-msg"></span></div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── AUTH GUARD ── */
+var messifyUser = null;
+try { messifyUser = JSON.parse(localStorage.getItem('messify_user')); } catch(e) {}
+if (!messifyUser || !messifyUser.email) { window.location.href = 'index.html'; }
+
+/* ── SHOW REAL USER IN NAV ── */
+if (messifyUser) {
+  var _ini = (messifyUser.name || messifyUser.email).split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  document.getElementById('nav-avatar').textContent = _ini;
+  document.getElementById('nav-email').textContent  = messifyUser.email;
+}
+
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebarOverlay').classList.toggle('show');
@@ -291,11 +303,4 @@ function showToast(msg,type){
   setTimeout(function(){t.classList.remove('show');},3200);
 }
 function submitFeedback(){
-  var n=Object.values(ratings).filter(function(v){return v>0;}).length;
-  if(n<14){showToast('Please rate at least 14 meals before submitting.','error');return;}
-  document.getElementById('successOverlay').classList.add('show');
-}
-buildTable();
-</script>
-</body>
-</html>
+  var n=Object.values(ratings).filter(f

@@ -528,62 +528,136 @@
 </div>
 
 <script>
+  /* ─────────────────────────────────────────────────────────────
+     If user is already logged in, skip the login page
+  ───────────────────────────────────────────────────────────── */
+  (function() {
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem('messify_user')); } catch(e) {}
+    if (user && user.email) {
+      window.location.href = 'feedback.html';
+    }
+  })();
+
+  /* ─────────────────────────────────────────────────────────────
+     Tab switching
+  ───────────────────────────────────────────────────────────── */
   function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    document.querySelectorAll('.tab-btn').forEach(function(b, i) {
       b.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
     });
-    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.form-section').forEach(function(s) { s.classList.remove('active'); });
     document.getElementById('tab-' + tab).classList.add('active');
   }
 
-  function showToast(msg, type = 'error') {
-    const t = document.getElementById('toast');
+  /* ─────────────────────────────────────────────────────────────
+     Toast helper
+  ───────────────────────────────────────────────────────────── */
+  function showToast(msg, type) {
+    type = type || 'error';
+    var t = document.getElementById('toast');
     document.getElementById('toast-msg').textContent = msg;
     document.getElementById('toast-icon').textContent = type === 'success' ? '✅' : '⚠️';
     t.className = 'toast ' + type;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3500);
+    setTimeout(function() { t.classList.remove('show'); }, 3500);
   }
 
   function isNistEmail(email) {
     return email.trim().toLowerCase().endsWith('@nist.edu');
   }
 
-  function handleGoogleAuth(mode) {
-    // ⚠️ Replace this URL with your actual Google OAuth endpoint
-    // e.g. window.location.href = '/auth/google';
-    showToast('Google OAuth: connect your backend endpoint at /auth/google', 'error');
-    /*
-      BACKEND SETUP INSTRUCTIONS:
-      1. Install: npm install passport passport-google-oauth20
-      2. Route: GET /auth/google → passport.authenticate('google', { scope: ['profile','email'] })
-      3. Callback: GET /auth/google/callback
-      4. In callback, verify email ends with @nist.edu before creating session
-    */
+  /* ─────────────────────────────────────────────────────────────
+     Save user to localStorage and redirect
+  ───────────────────────────────────────────────────────────── */
+  function saveUserAndRedirect(user) {
+    localStorage.setItem('messify_user', JSON.stringify(user));
+    window.location.href = 'feedback.html';
   }
 
+  /* ─────────────────────────────────────────────────────────────
+     GOOGLE OAUTH
+     Clicking this redirects to your Node.js backend route
+     which handles the full OAuth flow and redirects back to
+     /auth/google/callback → sets session → returns user JSON
+  ───────────────────────────────────────────────────────────── */
+  function handleGoogleAuth(mode) {
+    /*
+      HOW IT WORKS:
+      1. User clicks → browser goes to GET /auth/google
+      2. Google shows consent screen
+      3. Google redirects to GET /auth/google/callback
+      4. Backend verifies @nist.edu, creates session, responds with:
+         { name, email, picture, role }
+      5. Frontend saves to localStorage and redirects to feedback.html
+
+      To wire this up, change the line below from '#' to '/auth/google'
+      once your Node.js server is running.
+    */
+    window.location.href = '/auth/google';
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     EMAIL / PASSWORD LOGIN
+  ───────────────────────────────────────────────────────────── */
   function handleLogin() {
-    const email = document.getElementById('login-email').value;
-    const pass  = document.getElementById('login-pass').value;
+    var email = document.getElementById('login-email').value.trim();
+    var pass  = document.getElementById('login-pass').value;
     if (!email || !pass) { showToast('Please fill in all fields.'); return; }
     if (!isNistEmail(email)) { showToast('Only @nist.edu emails are allowed!'); return; }
-    // ✅ Replace with your backend API call:
-    // fetch('/api/login', { method:'POST', body: JSON.stringify({email, pass}), headers:{'Content-Type':'application/json'} })
-    showToast('Login validated! Connect your backend API at /api/login', 'success');
+
+    showToast('Signing in…', 'success');
+
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: pass })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        saveUserAndRedirect(data.user);
+      } else {
+        showToast(data.message || 'Login failed. Please check your credentials.');
+      }
+    })
+    .catch(function() {
+      showToast('Server error. Make sure your backend is running.');
+    });
   }
 
-  function handleRegiste() {
-    const name    = document.getElementById('reg-name').value.trim();
-    const email   = document.getElementById('reg-email').value.trim();
-    const pass    = document.getElementById('reg-pass').value;
-    const confirm = document.getElementById('reg-confirm').value;
+  /* ─────────────────────────────────────────────────────────────
+     EMAIL / PASSWORD REGISTER
+  ───────────────────────────────────────────────────────────── */
+  function handleRegister() {
+    var name    = document.getElementById('reg-name').value.trim();
+    var email   = document.getElementById('reg-email').value.trim();
+    var pass    = document.getElementById('reg-pass').value;
+    var confirm = document.getElementById('reg-confirm').value;
+
     if (!name || !email || !pass || !confirm) { showToast('Please fill in all fields.'); return; }
     if (!isNistEmail(email)) { showToast('Only @nist.edu emails are allowed!'); return; }
     if (pass.length < 8) { showToast('Password must be at least 8 characters.'); return; }
     if (pass !== confirm) { showToast('Passwords do not match!'); return; }
-    // ✅ Replace with your backend API call:
-    // fetch('/api/register', { method:'POST', body: JSON.stringify({name, email, pass}), headers:{'Content-Type':'application/json'} })
-    showToast('Registration validated! Connect your backend API at /api/register', 'success');
+
+    showToast('Creating account…', 'success');
+
+    fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, password: pass })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        saveUserAndRedirect(data.user);
+      } else {
+        showToast(data.message || 'Registration failed.');
+      }
+    })
+    .catch(function() {
+      showToast('Server error. Make sure your backend is running.');
+    });
   }
 </script>
 </body>
