@@ -152,7 +152,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
     <a class="sb-item" href="reports.html"><span class="ic">💬</span> Complaints <span class="sb-pill">3</span></a>
     <div class="sb-section">Account</div>
     <a class="sb-item" href="index.html"><span class="ic">⚙️</span> Settings</a>
-    <a class="sb-item" href="index.html"><span class="ic">🚪</span> Logout</a>
+    <a class="sb-item" href="#" onclick="logoutUser()"><span class="ic">🚪</span> Logout</a>
   </div>
   <div class="main">
     <div class="page-title-row">
@@ -229,9 +229,12 @@ if (messifyUser) {
   document.getElementById('nav-email').textContent  = messifyUser.email;
 }
 
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('show');
+function logoutUser() {
+  // 1. Delete the user's saved data from memory
+  localStorage.removeItem('messify_user');
+
+  // 2. Redirect them back to the login page
+  window.location.href = 'index.html';
 }
 // Demo ratings pre-filled for adviser presentation
 var demoData={

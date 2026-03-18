@@ -147,7 +147,7 @@ app.get('/auth/google/callback',
     res.send(`<!DOCTYPE html><html><head><title>Redirecting...</title></head><body>
       <script>
         localStorage.setItem('messify_user', JSON.stringify(${JSON.stringify(safeUser)}));
-        window.location.href = 'feedback.html';
+        window.location.href = '/feedback.html';
       </script>
       <p>Redirecting...</p>
     </body></html>`);

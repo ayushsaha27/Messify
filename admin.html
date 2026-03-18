@@ -168,7 +168,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'D
     <a class="sb-item"><span class="ic">💬</span> Complaints <span class="sb-pill">7</span></a>
     <div class="sb-section">System</div>
     <a class="sb-item"><span class="ic">⚙️</span> Settings</a>
-    <a class="sb-item" href="index.html"><span class="ic">🚪</span> Logout</a>
+    <a class="sb-item" href="#" onclick="logoutUser()"><span class="ic">🚪</span> Logout</a>
   </div>
 
   <!-- CONTENT -->
@@ -274,9 +274,12 @@ scores.forEach(s=>{
 });
 
 /* ── SIDEBAR TOGGLE ── */
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('show');
+function logoutUser() {
+  // 1. Delete the user's saved data from memory
+  localStorage.removeItem('messify_user');
+
+  // 2. Redirect them back to the login page
+  window.location.href = 'index.html';
 }
 </script>
 </body>
