@@ -254,10 +254,13 @@ app.post('/api/auth/login', async function(req, res) {
 });
 
 // ── LOGOUT ─────────────────────────────────────────────────
-app.post('/api/auth/logout', function(req, res) {
+app.post('/api/auth/logout', function(req, res, next) {
   req.logout(function(err) {
-    if (err) console.error(err);
-    res.json({ success: true });
+    if (err) return next(err);
+    req.session.destroy(function(err) {
+      res.clearCookie('connect.sid'); 
+      res.json({ success: true });
+    });
   });
 });
 
