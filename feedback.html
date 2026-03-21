@@ -821,21 +821,21 @@
           <div class="wb-left">
             <div class="wb-icon">📅</div>
             <div>
-              <div class="wb-title">Week 12 — March 10–16, 2025</div>
+              <div class="wb-title" id="wb-title">Loading week...</div>
               <div class="wb-sub">
                 One submission per student · Deadline: Sunday 11:59 PM
               </div>
             </div>
           </div>
-          <div class="wb-badge">✓ Demo Mode</div>
+          <div class="wb-badge">✓ Not yet submitted</div>
         </div>
         <div class="prog-wrap">
           <div class="prog-top">
             <span>Rating progress</span
-            ><strong id="prog-text">28 / 28 meals rated</strong>
+            ><strong id="prog-text">0 / 28 meals rated</strong>
           </div>
           <div class="prog-track">
-            <div class="prog-fill" id="prog-fill" style="width: 100%"></div>
+            <div class="prog-fill" id="prog-fill" style="width:0%"></div>
           </div>
         </div>
         <div class="card grid-card">
@@ -880,21 +880,19 @@
           <div class="fb-grid">
             <div class="fb-field">
               <label>What did you enjoy this week? 😊</label>
-              <textarea id="liked">
-Breakfast on Monday was excellent — poha was fresh and hot. Snacks this week were consistently great, especially Thursday's samosas and evening tea.</textarea
+              <textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea>
               >
             </div>
             <div class="fb-field">
               <label>What needs improvement? 🔧</label>
-              <textarea id="issues">
-Tuesday dinner dal was watery and undercooked. Wednesday lunch oil quality was very poor. Dinner quality needs urgent improvement across all days.</textarea
+              <textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea>
               >
             </div>
           </div>
         </div>
         <div class="submit-row">
           <div class="sr-info">
-            Rated <strong id="rated-count">28</strong> / 28 meal slots
+            Rated <strong id="rated-count">0</strong> / 28 meal slots
           </div>
           <button class="btn-primary" onclick="submitFeedback()">
             Submit Feedback →
@@ -906,9 +904,8 @@ Tuesday dinner dal was watery and undercooked. Wednesday lunch oil quality was v
       <div class="success-card">
         <div class="success-icon">🎉</div>
         <div class="success-title">Feedback <em>Submitted!</em></div>
-        <div class="success-sub">
-          Thank you, Rahul! Your ratings for Week 12 have been recorded. The
-          mess committee will review them before next week.
+        <div class="success-sub" id="success-sub">
+          Thank you, <span id="success-name">there</span>! Your ratings for <span id="success-week">this week</span> have been recorded. The mess committee will review them before next week.
         </div>
         <button class="btn-primary" onclick="location.href = 'reports.html'">
           View Reports →
@@ -967,43 +964,13 @@ Tuesday dinner dal was watery and undercooked. Wednesday lunch oil quality was v
             window.location.href = "index.html";
           });
       }
-      // Demo ratings pre-filled for adviser presentation
-      var demoData = {
-        Mon_breakfast: 4,
-        Mon_lunch: 3,
-        Mon_snacks: 5,
-        Mon_dinner: 2,
-        Tue_breakfast: 4,
-        Tue_lunch: 3,
-        Tue_snacks: 4,
-        Tue_dinner: 2,
-        Wed_breakfast: 5,
-        Wed_lunch: 4,
-        Wed_snacks: 4,
-        Wed_dinner: 3,
-        Thu_breakfast: 4,
-        Thu_lunch: 3,
-        Thu_snacks: 5,
-        Thu_dinner: 2,
-        Fri_breakfast: 3,
-        Fri_lunch: 3,
-        Fri_snacks: 5,
-        Fri_dinner: 2,
-        Sat_breakfast: 5,
-        Sat_lunch: 4,
-        Sat_snacks: 4,
-        Sat_dinner: 3,
-        Sun_breakfast: 4,
-        Sun_lunch: 3,
-        Sun_snacks: 5,
-        Sun_dinner: 2,
-      };
       var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       var meals = ["breakfast", "lunch", "snacks", "dinner"];
+      // All ratings start blank — user selects manually
       var ratings = {};
       days.forEach(function (d) {
         meals.forEach(function (m) {
-          ratings[d + "_" + m] = demoData[d + "_" + m] || 0;
+          ratings[d + "_" + m] = 0;
         });
       });
 
@@ -1055,10 +1022,6 @@ Tuesday dinner dal was watery and undercooked. Wednesday lunch oil quality was v
             tr.appendChild(td);
           });
           tb.appendChild(tr);
-        });
-        // Apply demo ratings visually
-        Object.keys(ratings).forEach(function (k) {
-          renderStars(k);
         });
         updateProg();
       }
@@ -1130,5 +1093,6 @@ Tuesday dinner dal was watery and undercooked. Wednesday lunch oil quality was v
 
       buildTable(); // initialize
     </script>
-  </body>
+  <script src="messify.js"></script>
+</body>
 </html>

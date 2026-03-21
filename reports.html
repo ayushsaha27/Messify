@@ -989,7 +989,7 @@
           td.innerHTML = '<span class="hval">' + v + "</span>";
         });
       });
-      new Chart(document.getElementById("trendChart"), {
+      window._messifyTrendChart = new Chart(document.getElementById("trendChart"), {
         type: "line",
         data: {
           labels: [
@@ -1035,10 +1035,38 @@
         },
       });
 
+      window._messifyBarChart = new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+          labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
+          datasets: [{
+            data: [4.3, 3.7, 4.6, 2.6],
+            backgroundColor: [C.a, C.a2, C.g, C.r],
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: C.bg, borderColor: "rgba(249,115,22,.25)",
+              borderWidth: 1, titleColor: "#f0f4ff", bodyColor: C.muted
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: "DM Sans", size: 11 } } },
+            y: { min: 0, max: 5, grid: { color: C.grid }, ticks: { font: { family: "DM Sans", size: 10 } } }
+          }
+        }
+      });
+
       function toggleSidebar() {
         document.getElementById("sidebar").classList.toggle("open");
         document.getElementById("sidebarOverlay").classList.toggle("show");
       }
     </script>
-  </body>
+  <script src="messify.js"></script>
+</body>
 </html>

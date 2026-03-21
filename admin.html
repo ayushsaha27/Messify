@@ -896,7 +896,7 @@
       Chart.defaults.color = C.muted;
       Chart.defaults.borderColor = C.grid;
 
-      new Chart(document.getElementById("lineChart"), {
+      window._messifyAdminLineChart = new Chart(document.getElementById("lineChart"), {
         type: "line",
         data: {
           labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -970,7 +970,7 @@
         },
       });
 
-      new Chart(document.getElementById("doughnut"), {
+      window._messifyDoughnutChart = new Chart(document.getElementById("doughnut"), {
         type: "doughnut",
         data: {
           labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
@@ -1063,5 +1063,6 @@
         document.getElementById("sidebarOverlay").classList.toggle("show");
       }
     </script>
-  </body>
+  <script src="messify.js"></script>
+</body>
 </html>
