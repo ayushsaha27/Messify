@@ -1,6 +1,6 @@
 {
   "name": "messify-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Messify – NIST University Mess Feedback System Backend",
   "main": "server.js",
   "scripts": {
@@ -13,7 +13,8 @@
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "passport": "^0.6.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

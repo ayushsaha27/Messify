@@ -244,6 +244,15 @@
       })
       .catch(function (e) { console.log('Reports analytics error:', e); });
 
+    // ── Update academic year in header ──
+    fetch('/api/week/current')
+      .then(function(r){ return r.json(); })
+      .then(function(wi){
+        if(!wi.success) return;
+        var acadEl = document.getElementById('acad-year');
+        if(acadEl) acadEl.textContent = wi.acadYear;
+      }).catch(function(){});
+
     // ── Trend chart — all weeks ──
     fetch('/api/analytics/all-weeks')
       .then(function (r) { return r.json(); })
