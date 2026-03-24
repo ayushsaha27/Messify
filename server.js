@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-//  Messify Backend — server.js  (PostgreSQL version)
-//  Auth + PostgreSQL feedback storage + Analytics + PDF
+//  Messify Backend — server.js  (MongoDB version)
+//  Auth + MongoDB feedback storage + Analytics + PDF
 // ═══════════════════════════════════════════════════════════
 require('dotenv').config();
 
@@ -11,7 +11,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt         = require('bcryptjs');
 const path           = require('path');
 const fs             = require('fs');
-const db             = require('./db');
+const { initDB, User, Feedback } = require('./db');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -55,23 +55,8 @@ const MEALS     = ['breakfast','lunch','snacks','dinner'];
 const DAYS      = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
 async function computeAnalytics(weekKey) {
-  const feedbacks = await db.getMany(
-    `SELECT f.id, f.user_email, f.user_name, f.liked, f.issues, f.submitted_at, f.week_label, f.week_range
-     FROM feedbacks f WHERE f.week_key=$1`, [weekKey]
-  );
+  const feedbacks = await Feedback.find({ week_key: weekKey }).lean();
   if (!feedbacks.length) return null;
-
-  const feedbackIds = feedbacks.map(f => f.id);
-  const ratings = await db.getMany(
-    `SELECT feedback_id, day, meal, rating FROM meal_ratings WHERE feedback_id=ANY($1)`,
-    [feedbackIds]
-  );
-
-  const ratingMap = {};
-  ratings.forEach(r => {
-    if (!ratingMap[r.feedback_id]) ratingMap[r.feedback_id] = {};
-    ratingMap[r.feedback_id][`${r.day}_${r.meal}`] = r.rating;
-  });
 
   const heatSum = {}; const heatCount = {};
   DAYS.forEach(d => { heatSum[d] = {b:0,l:0,s:0,d:0}; heatCount[d] = {b:0,l:0,s:0,d:0}; });
@@ -79,16 +64,13 @@ async function computeAnalytics(weekKey) {
   const mealCount = {breakfast:0,lunch:0,snacks:0,dinner:0};
 
   feedbacks.forEach(fb => {
-    const rm = ratingMap[fb.id] || {};
-    DAYS.forEach(day => {
-      MEALS.forEach(meal => {
-        const v = Number(rm[`${day}_${meal}`] || 0);
-        if (v > 0) {
-          const k = MEAL_KEYS[meal];
-          heatSum[day][k] += v; heatCount[day][k] += 1;
-          mealSum[meal] += v;   mealCount[meal] += 1;
-        }
-      });
+    (fb.meal_ratings || []).forEach(r => {
+      const day = r.day; const meal = r.meal; const v = Number(r.rating || 0);
+      if (v > 0 && heatSum[day] && MEAL_KEYS[meal]) {
+        const k = MEAL_KEYS[meal];
+        heatSum[day][k] += v; heatCount[day][k] += 1;
+        mealSum[meal] += v;   mealCount[meal] += 1;
+      }
     });
   });
 
@@ -132,9 +114,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ── Passport ───────────────────────────────────────────────
-passport.serializeUser((u,done) => done(null,u.id));
+passport.serializeUser((u,done) => done(null, u.id));
 passport.deserializeUser(async (id,done) => {
-  try { done(null, await db.getOne('SELECT * FROM users WHERE id=$1',[id]) || false); }
+  try { done(null, await User.findOne({ id }) || false); }
   catch(e) { done(e,false); }
 });
 
@@ -147,20 +129,23 @@ passport.use(new GoogleStrategy({
     const email = profile.emails?.[0]?.value;
     if (!email || !isNistEmail(email)) return done(null,false);
     const role = isAdminEmail(email) ? 'admin' : 'student';
-    let user = await db.getOne('SELECT * FROM users WHERE email=$1',[email]);
+    let user = await User.findOne({ email });
     if (!user) {
-      const id = genId();
-      await db.query(
-        `INSERT INTO users (id,name,email,google_id,picture,password_hash,role) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [id, profile.displayName||email.split('@')[0], email, profile.id, profile.photos?.[0]?.value||null, null, role]
-      );
-      user = await db.getOne('SELECT * FROM users WHERE id=$1',[id]);
+      user = await User.create({
+        id: genId(),
+        name: profile.displayName || email.split('@')[0],
+        email,
+        google_id: profile.id,
+        picture: profile.photos?.[0]?.value || null,
+        password_hash: null,
+        role
+      });
       console.log('✅ Google user:', email, '|', role);
     } else {
-      await db.query('UPDATE users SET role=$1, google_id=$2 WHERE id=$3',[role, profile.id, user.id]);
+      await User.updateOne({ id: user.id }, { role, google_id: profile.id });
       user.role = role;
     }
-    return done(null,user);
+    return done(null, user);
   } catch(e) { return done(e,false); }
 }));
 
@@ -190,13 +175,12 @@ app.post('/api/auth/register', async(req,res)=>{
     if(!name||!email||!password) return res.json({success:false,message:'All fields required.'});
     if(!isNistEmail(email))       return res.json({success:false,message:'Only @nist.edu emails allowed.'});
     if(password.length<8)         return res.json({success:false,message:'Password min 8 chars.'});
-    const existing=await db.getOne('SELECT id FROM users WHERE email=$1',[email.toLowerCase()]);
+    const existing = await User.findOne({ email: email.toLowerCase() });
     if(existing) return res.json({success:false,message:'Email already registered.'});
-    const hash=await bcrypt.hash(password,12);
-    const role=isAdminEmail(email.toLowerCase())?'admin':'student';
-    const id=genId();
-    await db.query(`INSERT INTO users (id,name,email,password_hash,role) VALUES ($1,$2,$3,$4,$5)`,
-      [id,name.trim(),email.toLowerCase(),hash,role]);
+    const hash = await bcrypt.hash(password,12);
+    const role = isAdminEmail(email.toLowerCase()) ? 'admin' : 'student';
+    const id   = genId();
+    await User.create({ id, name:name.trim(), email:email.toLowerCase(), password_hash:hash, role });
     return res.json({success:true,user:{name:name.trim(),email:email.toLowerCase(),picture:null,role}});
   } catch(e){ console.error(e); res.status(500).json({success:false,message:'Server error.'}); }
 });
@@ -206,13 +190,13 @@ app.post('/api/auth/login', async(req,res)=>{
     const{email,password}=req.body;
     if(!email||!password) return res.json({success:false,message:'All fields required.'});
     if(!isNistEmail(email)) return res.json({success:false,message:'Only @nist.edu emails allowed.'});
-    const user=await db.getOne('SELECT * FROM users WHERE email=$1',[email.toLowerCase()]);
+    const user = await User.findOne({ email: email.toLowerCase() });
     if(!user)               return res.json({success:false,message:'No account found. Register first.'});
     if(!user.password_hash) return res.json({success:false,message:'This account uses Google Sign-In.'});
-    const match=await bcrypt.compare(password,user.password_hash);
+    const match = await bcrypt.compare(password, user.password_hash);
     if(!match) return res.json({success:false,message:'Incorrect password.'});
-    const role=isAdminEmail(email)?'admin':'student';
-    if(role!==user.role) await db.query('UPDATE users SET role=$1 WHERE id=$2',[role,user.id]);
+    const role = isAdminEmail(email) ? 'admin' : 'student';
+    if(role !== user.role) await User.updateOne({ id: user.id }, { role });
     return res.json({success:true,user:{name:user.name,email:user.email,picture:user.picture||null,role}});
   } catch(e){ console.error(e); res.status(500).json({success:false,message:'Server error.'}); }
 });
@@ -238,10 +222,7 @@ app.get('/api/feedback/status', async(req,res)=>{
     const email=req.query.email;
     if(!email) return res.json({success:false});
     const{key}=getCurrentWeekInfo();
-    const existing=await db.getOne(
-      'SELECT id FROM feedbacks WHERE user_email=$1 AND week_key=$2',
-      [email.toLowerCase(),key]
-    );
+    const existing = await Feedback.findOne({ user_email: email.toLowerCase(), week_key: key });
     res.json({success:true,submitted:!!existing,weekKey:key});
   } catch(e){ res.status(500).json({success:false}); }
 });
@@ -251,36 +232,38 @@ app.post('/api/feedback/submit', async(req,res)=>{
     const{email,name,ratings,liked,issues}=req.body;
     if(!email||!ratings) return res.json({success:false,message:'Missing data.'});
     if(!isNistEmail(email)) return res.json({success:false,message:'Only @nist.edu emails allowed.'});
-    const wi=getCurrentWeekInfo();
-    const existing=await db.getOne(
-      'SELECT id FROM feedbacks WHERE user_email=$1 AND week_key=$2',
-      [email.toLowerCase(),wi.key]
-    );
+    const wi = getCurrentWeekInfo();
+    const existing = await Feedback.findOne({ user_email: email.toLowerCase(), week_key: wi.key });
     if(existing) return res.json({success:false,message:'You have already submitted feedback this week.'});
-    const rated=Object.values(ratings).filter(v=>Number(v)>0).length;
+    const rated = Object.values(ratings).filter(v=>Number(v)>0).length;
     if(rated<14) return res.json({success:false,message:'Please rate at least 14 meals.'});
 
-    const fbId=genId();
-    await db.query(
-      `INSERT INTO feedbacks (id,user_email,user_name,week_key,week_label,week_range,liked,issues)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [fbId,email.toLowerCase(),name||email.split('@')[0],wi.key,wi.label,wi.range,(liked||'').trim(),(issues||'').trim()]
-    );
+    // Build meal_ratings array
+    const meal_ratings = [];
+    DAYS.forEach(day => {
+      MEALS.forEach(meal => {
+        const v = Number(ratings[`${day}_${meal}`] || 0);
+        if(v>=1 && v<=5) meal_ratings.push({ day, meal, rating: v });
+      });
+    });
 
-    const inserts=[];
-    DAYS.forEach(day=>{ MEALS.forEach(meal=>{ const v=Number(ratings[`${day}_${meal}`]||0);
-      if(v>=1&&v<=5) inserts.push(db.query(
-        'INSERT INTO meal_ratings (feedback_id,day,meal,rating) VALUES ($1,$2,$3,$4)',
-        [fbId,day,meal,v]
-      ));
-    });});
-    await Promise.all(inserts);
+    await Feedback.create({
+      id:         genId(),
+      user_email: email.toLowerCase(),
+      user_name:  name || email.split('@')[0],
+      week_key:   wi.key,
+      week_label: wi.label,
+      week_range: wi.range,
+      liked:      (liked||'').trim(),
+      issues:     (issues||'').trim(),
+      meal_ratings
+    });
 
-    console.log('✅ Feedback saved:',email,'| week:',wi.key,'| meals:',rated);
+    console.log('✅ Feedback saved:', email, '| week:', wi.key, '| meals:', rated);
     return res.json({success:true,message:'Feedback submitted successfully!'});
   } catch(e){
     console.error('Submit error:',e);
-    if(e.code==='23505') return res.json({success:false,message:'Already submitted this week.'});
+    if(e.code===11000) return res.json({success:false,message:'Already submitted this week.'});
     res.status(500).json({success:false,message:'Server error.'});
   }
 });
@@ -297,8 +280,9 @@ app.get('/api/analytics/current', async(req,res)=>{
 
 app.get('/api/analytics/all-weeks', async(req,res)=>{
   try {
-    const rows=await db.getMany('SELECT DISTINCT week_key FROM feedbacks ORDER BY week_key',[]);
-    const allData=await Promise.all(rows.map(r=>computeAnalytics(r.week_key)));
+    const rows = await Feedback.distinct('week_key');
+    rows.sort();
+    const allData = await Promise.all(rows.map(wk => computeAnalytics(wk)));
     res.json({success:true,data:allData.filter(Boolean)});
   } catch(e){ console.error(e); res.status(500).json({success:false,data:[]}); }
 });
@@ -314,21 +298,29 @@ app.get('/api/admin/submissions', requireAdmin, async(req,res)=>{
   try {
     const{key}=getCurrentWeekInfo();
     const week=req.query.week||key;
-    const data=await db.getMany(
-      `SELECT id,user_name as name,user_email as email,submitted_at,liked,issues
-       FROM feedbacks WHERE week_key=$1 ORDER BY submitted_at DESC`,[week]
-    );
-    res.json({success:true,count:data.length,data});
+    const data = await Feedback.find({ week_key: week })
+      .sort({ submitted_at: -1 })
+      .select('user_name user_email submitted_at liked issues')
+      .lean();
+    const formatted = data.map(d => ({
+      name: d.user_name, email: d.user_email,
+      submitted_at: d.submitted_at, liked: d.liked, issues: d.issues
+    }));
+    res.json({success:true,count:formatted.length,data:formatted});
   } catch(e){ res.status(500).json({success:false}); }
 });
 
 app.get('/api/admin/complaints', requireAdmin, async(req,res)=>{
   try {
-    const data=await db.getMany(
-      `SELECT user_name as name,user_email as email,week_label as week,issues as text,submitted_at
-       FROM feedbacks WHERE issues!='' AND issues IS NOT NULL ORDER BY submitted_at DESC`,[]
-    );
-    res.json({success:true,count:data.length,data});
+    const data = await Feedback.find({ issues: { $nin: ['', null] } })
+      .sort({ submitted_at: -1 })
+      .select('user_name user_email week_label issues submitted_at')
+      .lean();
+    const formatted = data.map(d => ({
+      name: d.user_name, email: d.user_email,
+      week: d.week_label, text: d.issues, submitted_at: d.submitted_at
+    }));
+    res.json({success:true,count:formatted.length,data:formatted});
   } catch(e){ res.status(500).json({success:false,count:0,data:[]}); }
 });
 
@@ -356,12 +348,14 @@ app.get('/api/admin/export-pdf', requireAdmin, async(req,res)=>{
       <body><h2>No submissions for ${week}</h2><p>No students have submitted feedback yet.</p><button onclick="window.close()">Close</button></body></html>`);
     }
 
-    const allRatings=await db.getMany(
-      `SELECT mr.meal,mr.rating FROM meal_ratings mr
-       INNER JOIN feedbacks f ON mr.feedback_id=f.id WHERE f.week_key=$1`,[week]
-    );
+    // Build rating distribution from embedded meal_ratings
+    const allFeedbacks = await Feedback.find({ week_key: week }).lean();
     const dist={breakfast:{1:0,2:0,3:0,4:0,5:0},lunch:{1:0,2:0,3:0,4:0,5:0},snacks:{1:0,2:0,3:0,4:0,5:0},dinner:{1:0,2:0,3:0,4:0,5:0}};
-    allRatings.forEach(r=>{ if(dist[r.meal]&&r.rating>=1&&r.rating<=5) dist[r.meal][r.rating]++; });
+    allFeedbacks.forEach(fb => {
+      (fb.meal_ratings||[]).forEach(r => {
+        if(dist[r.meal] && r.rating>=1 && r.rating<=5) dist[r.meal][r.rating]++;
+      });
+    });
 
     const heatRows=DAYS.map(d=>{
       const cells=MEALS.map(m=>{
@@ -463,7 +457,7 @@ h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin:32px 0 14
 });
 
 // ── Start ──────────────────────────────────────────────────
-db.initDB().then(()=>{
+initDB().then(()=>{
   app.listen(PORT,()=>{
     console.log('');
     console.log('  ╔══════════════════════════════════════════╗');
@@ -473,7 +467,7 @@ db.initDB().then(()=>{
     console.log('');
   });
 }).catch(err=>{
-  console.error('❌ Database connection failed:',err.message);
-  console.error('   Check your DATABASE_URL in .env file');
+  console.error('❌ MongoDB connection failed:',err.message);
+  console.error('   Check your MONGODB_URI in .env file');
   process.exit(1);
 });

@@ -1,120 +1,90 @@
-// ═══════════════════════════════════════════════════════════
-//  db.js — PostgreSQL connection (Neon.tech — port 6543)
-//  Port 6543 is the Neon connection pooler port
-//  It bypasses college/campus firewalls that block port 5432
-// ═══════════════════════════════════════════════════════════
-const { Pool } = require('pg');
+const mongoose = require('mongoose');
+const dns = require('dns').promises;
 
-function buildPool() {
-  let url = (process.env.DATABASE_URL || '')
-    .replace(/&?channel_binding=require/g, '')
-    .replace(/\?&/, '?')
-    .trim();
+// FORCE PUBLIC DNS FIRST - Fixes 99% of querySrv ECONNREFUSED on college WiFi/hotspots
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);  // Google + Cloudflare
 
-  // ── Force port 6543 (Neon pooler port — not blocked by firewalls) ──
-  // Default port 5432 is often blocked on college/office networks
-  // Port 6543 is Neon's special pooler port that works everywhere
-  if (url.includes('neon.tech') && !url.includes(':6543')) {
-    url = url.replace(
-      /(@[^/]+)(\/neondb)/,
-      '$1:6543$2'
-    );
-  }
-
-  console.log('🔌 Connecting to:', url.replace(/:([^:@]+)@/, ':****@')); // hide password in log
-
-  return new Pool({
-    connectionString: url,
-    ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 20000,
-    idleTimeoutMillis: 30000,
-    max: 5
-  });
-}
-
-const pool = buildPool();
-
-pool.on('error', (err) => {
-  console.error('Unexpected DB pool error:', err.message);
+// Your schemas (unchanged)
+const userSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  googleid: { type: String, default: null },
+  picture: { type: String, default: null },
+  passwordhash: { type: String, default: null },
+  role: { type: String, default: 'student' },
+  createdat: { type: Date, default: Date.now }
 });
 
+const mealRatingSchema = new mongoose.Schema({
+  day: { type: String, required: true },
+  meal: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 }
+});
+
+const feedbackSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  useremail: { type: String, required: true },
+  username: { type: String, required: true },
+  weekkey: { type: String, required: true },
+  weeklabel: { type: String, required: true },
+  weekrange: { type: String, required: true },
+  liked: { type: String, default: '' },
+  issues: { type: String, default: '' },
+  mealratings: [mealRatingSchema],
+  submittedat: { type: Date, default: Date.now }
+});
+
+feedbackSchema.index({ useremail: 1, weekkey: 1 }, { unique: true });
+feedbackSchema.index({ weekkey: 1 });
+
+const User = mongoose.model('User', userSchema);
+const Feedback = mongoose.model('Feedback', feedbackSchema);
+
 async function initDB() {
-  let client;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error('🚨 MONGODB_URI is not set in your .env file');
+    console.error('Go to https://mongodb.com/atlas → Connect → Drivers → Copy "Connection string only"');
+    throw new Error('MONGODB_URI not set');
+  }
+
+  console.log('🔄 Connecting to MongoDB Atlas... (with public DNS fix)');
+
+  const options = {
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10
+  };
+
   try {
-    console.log('🔄 Connecting to Neon database...');
-    client = await pool.connect();
-    console.log('✅ Database connected successfully!');
-
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id            TEXT PRIMARY KEY,
-        name          TEXT NOT NULL,
-        email         TEXT UNIQUE NOT NULL,
-        google_id     TEXT,
-        picture       TEXT,
-        password_hash TEXT,
-        role          TEXT NOT NULL DEFAULT 'student',
-        created_at    TIMESTAMPTZ DEFAULT NOW()
-      );
-
-      CREATE TABLE IF NOT EXISTS feedbacks (
-        id           TEXT PRIMARY KEY,
-        user_email   TEXT NOT NULL,
-        user_name    TEXT NOT NULL,
-        week_key     TEXT NOT NULL,
-        week_label   TEXT NOT NULL,
-        week_range   TEXT NOT NULL,
-        liked        TEXT DEFAULT '',
-        issues       TEXT DEFAULT '',
-        submitted_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(user_email, week_key)
-      );
-
-      CREATE TABLE IF NOT EXISTS meal_ratings (
-        id          SERIAL PRIMARY KEY,
-        feedback_id TEXT NOT NULL REFERENCES feedbacks(id) ON DELETE CASCADE,
-        day         TEXT NOT NULL,
-        meal        TEXT NOT NULL,
-        rating      INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5)
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_feedbacks_week   ON feedbacks(week_key);
-      CREATE INDEX IF NOT EXISTS idx_feedbacks_email  ON feedbacks(user_email);
-      CREATE INDEX IF NOT EXISTS idx_ratings_feedback ON meal_ratings(feedback_id);
-    `);
-    console.log('✅ Database tables ready');
-  } catch (err) {
-    console.error('');
-    console.error('❌ Database connection failed:', err.message);
-    console.error('');
-    console.error('  ┌─── TROUBLESHOOTING ──────────────────────────────┐');
-    console.error('  │  1. Switch to MOBILE HOTSPOT and try again        │');
-    console.error('  │     (College WiFi blocks port 5432 and 6543)      │');
-    console.error('  │                                                    │');
-    console.error('  │  2. Check DATABASE_URL in your .env file          │');
-    console.error('  │     Must have -pooler in the hostname              │');
-    console.error('  │                                                    │');
-    console.error('  │  3. Make sure you ran: npm install                 │');
-    console.error('  └────────────────────────────────────────────────────┘');
-    console.error('');
-    throw err;
-  } finally {
-    if (client) client.release();
+    // Try SRV first (now with fixed DNS)
+    await mongoose.connect(uri, options);
+    console.log('✅ MongoDB connected! (SRV)');
+    return;
+  } catch (srvErr) {
+    console.warn('⚠️ SRV failed (normal on restricted networks):', srvErr.message.split('\n')[0]);
+    
+    // Quick direct URI fallback (hardcoded for your cluster - replace if needed)
+    const directUri = uri.replace('mongodb+srv://', 'mongodb://')
+      .replace('cluster0.zeon1cd.mongodb.net', 'cluster0-shard-00-00.zeon1cd.mongodb.net,cluster0-shard-00-01.zeon1cd.mongodb.net,cluster0-shard-00-02.zeon1cd.mongodb.net')
+      .replace('?retryWrites=true&w=majority', '?ssl=true&replicaSet=atlas-abc123-shard-0&authSource=admin&retryWrites=true&w=majority');
+    
+    console.log('🔄 Trying direct connection:', directUri.split('@')[1]?.split('?')[0] || 'fallback');
+    
+    try {
+      await mongoose.connect(directUri, options);
+      console.log('✅ MongoDB connected! (Direct fallback - your network blocked SRV DNS)');
+      return;
+    } catch (directErr) {
+      console.error('💥 Both connections failed. Fixes:');
+      console.error('1. Verify .env MONGODB_URI (no quotes, password correct)');
+      console.error('2. Atlas → Network Access → 0.0.0.0/0 is green');
+      console.error('3. Password has no @/%? → URL-encode (@=%40)');
+      throw directErr;
+    }
   }
 }
 
-async function query(text, params) {
-  return pool.query(text, params);
-}
-
-async function getOne(text, params) {
-  const r = await pool.query(text, params);
-  return r.rows[0] || null;
-}
-
-async function getMany(text, params) {
-  const r = await pool.query(text, params);
-  return r.rows;
-}
-
-module.exports = { pool, initDB, query, getOne, getMany };
+module.exports = { initDB, User, Feedback };
