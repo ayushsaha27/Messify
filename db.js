@@ -4,39 +4,41 @@ const dns = require('dns').promises;
 // FORCE PUBLIC DNS FIRST - Fixes 99% of querySrv ECONNREFUSED on college WiFi/hotspots
 dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);  // Google + Cloudflare
 
-// Your schemas (unchanged)
+// ── FIXED USER SCHEMA ──
 const userSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  googleid: { type: String, default: null },
+  google_id: { type: String, default: null },       // Fixed
   picture: { type: String, default: null },
-  passwordhash: { type: String, default: null },
+  password_hash: { type: String, default: null },   // Fixed
   role: { type: String, default: 'student' },
-  createdat: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now }     // Fixed
 });
 
+// ── FIXED MEAL RATING SCHEMA ──
 const mealRatingSchema = new mongoose.Schema({
   day: { type: String, required: true },
   meal: { type: String, required: true },
   rating: { type: Number, required: true, min: 1, max: 5 }
 });
 
+// ── FIXED FEEDBACK SCHEMA ──
 const feedbackSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
-  useremail: { type: String, required: true },
-  username: { type: String, required: true },
-  weekkey: { type: String, required: true },
-  weeklabel: { type: String, required: true },
-  weekrange: { type: String, required: true },
+  user_email: { type: String, required: true },     // Fixed
+  user_name: { type: String, required: true },      // Fixed
+  week_key: { type: String, required: true },       // Fixed
+  week_label: { type: String, required: true },     // Fixed
+  week_range: { type: String, required: true },     // Fixed
   liked: { type: String, default: '' },
   issues: { type: String, default: '' },
-  mealratings: [mealRatingSchema],
-  submittedat: { type: Date, default: Date.now }
+  meal_ratings: [mealRatingSchema],                 // Fixed
+  submitted_at: { type: Date, default: Date.now }   // Fixed
 });
 
-feedbackSchema.index({ useremail: 1, weekkey: 1 }, { unique: true });
-feedbackSchema.index({ weekkey: 1 });
+feedbackSchema.index({ user_email: 1, week_key: 1 }, { unique: true });
+feedbackSchema.index({ week_key: 1 });
 
 const User = mongoose.model('User', userSchema);
 const Feedback = mongoose.model('Feedback', feedbackSchema);
@@ -45,7 +47,6 @@ async function initDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
     console.error('🚨 MONGODB_URI is not set in your .env file');
-    console.error('Go to https://mongodb.com/atlas → Connect → Drivers → Copy "Connection string only"');
     throw new Error('MONGODB_URI not set');
   }
 
@@ -66,7 +67,7 @@ async function initDB() {
   } catch (srvErr) {
     console.warn('⚠️ SRV failed (normal on restricted networks):', srvErr.message.split('\n')[0]);
     
-    // Quick direct URI fallback (hardcoded for your cluster - replace if needed)
+    // Quick direct URI fallback (hardcoded for your cluster)
     const directUri = uri.replace('mongodb+srv://', 'mongodb://')
       .replace('cluster0.zeon1cd.mongodb.net', 'cluster0-shard-00-00.zeon1cd.mongodb.net,cluster0-shard-00-01.zeon1cd.mongodb.net,cluster0-shard-00-02.zeon1cd.mongodb.net')
       .replace('?retryWrites=true&w=majority', '?ssl=true&replicaSet=atlas-abc123-shard-0&authSource=admin&retryWrites=true&w=majority');
@@ -81,7 +82,6 @@ async function initDB() {
       console.error('💥 Both connections failed. Fixes:');
       console.error('1. Verify .env MONGODB_URI (no quotes, password correct)');
       console.error('2. Atlas → Network Access → 0.0.0.0/0 is green');
-      console.error('3. Password has no @/%? → URL-encode (@=%40)');
       throw directErr;
     }
   }

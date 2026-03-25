@@ -43,11 +43,30 @@
         font-family: "DM Sans", sans-serif;
         overflow-x: hidden;
       }
+
+      /* ── SMOOTH PAGE TRANSITION ── */
+      @keyframes pageFade {
+        from {
+          opacity: 0;
+          filter: blur(4px);
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0);
+        }
+      }
+      body {
+        animation: pageFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
       .bg-layer {
         position: fixed;
         inset: 0;
         z-index: 0;
         overflow: hidden;
+        pointer-events: none;
       }
       .blob {
         position: absolute;
@@ -91,6 +110,7 @@
         position: fixed;
         inset: 0;
         z-index: 0;
+        pointer-events: none;
         background-image:
           linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
           linear-gradient(
@@ -111,7 +131,7 @@
         }
       }
 
-      /* NAV */
+      /* ── TOP NAVIGATION ── */
       .topnav {
         position: sticky;
         top: 0;
@@ -124,33 +144,12 @@
         backdrop-filter: blur(20px);
         border-bottom: 1px solid var(--border);
       }
-      .menu-btn {
-        display: none;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        border-radius: 9px;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: all 0.2s;
-      }
-      .menu-btn:hover {
-        background: var(--surface3);
-        border-color: rgba(249, 115, 22, 0.3);
-      }
-      .menu-btn svg {
-        width: 20px;
-        height: 20px;
-        color: var(--muted);
-      }
       .nav-logo {
         display: flex;
         align-items: center;
         gap: 10px;
         text-decoration: none;
+        flex: 1;
       }
       .logo-icon {
         width: 32px;
@@ -172,9 +171,14 @@
       .logo-text span {
         color: var(--accent);
       }
+
+      /* ── ABSOLUTE CENTERING FOR TABS ── */
       .nav-links {
         display: flex;
         gap: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
       }
       .nav-link {
         padding: 7px 14px;
@@ -194,16 +198,13 @@
         color: var(--accent);
         border: 1px solid rgba(249, 115, 22, 0.2);
       }
-      .admin-pill {
-        background: rgba(249, 115, 22, 0.1);
-        border: 1px solid rgba(249, 115, 22, 0.25);
-        color: var(--accent2);
-        font-size: 11px;
-        font-weight: 700;
-        padding: 4px 12px;
-        border-radius: 100px;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex: 1;
       }
       .nav-user {
         display: flex;
@@ -228,7 +229,42 @@
         color: var(--muted);
       }
 
-      /* LAYOUT */
+      .admin-pill {
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        color: var(--accent2);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        animation: fadeUp 0.3s ease both;
+      }
+
+      .menu-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 9px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s;
+      }
+      .menu-btn:hover {
+        background: var(--surface3);
+        border-color: rgba(249, 115, 22, 0.3);
+      }
+      .menu-btn svg {
+        width: 20px;
+        height: 20px;
+        color: var(--muted);
+      }
+
       .layout {
         position: relative;
         z-index: 1;
@@ -236,8 +272,6 @@
         grid-template-columns: 220px 1fr;
         min-height: calc(100vh - 61px);
       }
-
-      /* SIDEBAR */
       .sidebar {
         border-right: 1px solid var(--border);
         padding: 24px 14px;
@@ -294,13 +328,10 @@
         border-radius: 100px;
       }
 
-      /* CONTENT */
       .content {
         padding: 32px 36px;
         overflow-y: auto;
       }
-
-      /* PAGE HEADER */
       .ph {
         display: flex;
         align-items: flex-start;
@@ -330,6 +361,7 @@
         gap: 10px;
         align-items: center;
       }
+
       .week-select {
         background: var(--surface2);
         border: 1px solid var(--border2);
@@ -365,7 +397,6 @@
         box-shadow: 0 6px 22px rgba(249, 115, 22, 0.45);
       }
 
-      /* KPI ROW */
       .kpi-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -416,7 +447,6 @@
         color: #f87171;
       }
 
-      /* CHARTS */
       .charts-row {
         display: grid;
         grid-template-columns: 1.6fr 1fr;
@@ -462,7 +492,6 @@
         border-radius: 50%;
       }
 
-      /* BOTTOM */
       .bottom-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -496,6 +525,7 @@
       .tc-link:hover {
         text-decoration: underline;
       }
+
       .complaint-item {
         padding: 13px 22px;
         border-bottom: 1px solid var(--border);
@@ -526,6 +556,7 @@
         color: var(--muted);
         margin-top: 3px;
       }
+
       .score-item {
         padding: 12px 22px;
         border-bottom: 1px solid var(--border);
@@ -577,7 +608,6 @@
         color: var(--danger);
       }
 
-      /* TOAST */
       .toast {
         position: fixed;
         bottom: 28px;
@@ -680,11 +710,10 @@
         <div class="logo-text">Messi<span>fy</span></div>
       </a>
       <div class="nav-links">
-        
         <a href="reports.html" class="nav-link">Reports</a>
         <a href="admin.html" class="nav-link active">Admin</a>
       </div>
-      <div style="display: flex; align-items: center; gap: 12px">
+      <div class="nav-right" id="nav-right">
         <div class="nav-user">
           <div class="nav-avatar" id="nav-avatar">?</div>
           <span class="nav-email" id="nav-email">Loading...</span>
@@ -885,15 +914,30 @@
 
     <script>
       /* ── AUTH GUARD — Admin only ── */
-      (function() {
+      (function () {
         var mu = null;
-        try { mu = JSON.parse(localStorage.getItem('messify_user')); } catch(e) {}
-        if (!mu || !mu.email) { window.location.href = 'index.html'; return; }
-        if (mu.role !== 'admin') { window.location.href = 'feedback.html'; return; }
-        // Show admin email in nav
-        var av = document.getElementById('nav-avatar');
-        var em = document.getElementById('nav-email');
-        if (av) av.textContent = (mu.name||mu.email).split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+        try {
+          mu = JSON.parse(localStorage.getItem("messify_user"));
+        } catch (e) {}
+        if (!mu || !mu.email) {
+          window.location.href = "index.html";
+          return;
+        }
+        if (mu.role !== "admin") {
+          window.location.href = "feedback.html";
+          return;
+        }
+        var av = document.getElementById("nav-avatar");
+        var em = document.getElementById("nav-email");
+        if (av)
+          av.textContent = (mu.name || mu.email)
+            .split(" ")
+            .map(function (w) {
+              return w[0];
+            })
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
         if (em) em.textContent = mu.email;
       })();
 
@@ -909,116 +953,122 @@
       Chart.defaults.color = C.muted;
       Chart.defaults.borderColor = C.grid;
 
-      window._messifyAdminLineChart = new Chart(document.getElementById("lineChart"), {
-        type: "line",
-        data: {
-          labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-          datasets: [
-            {
-              label: "Breakfast",
-              data: [4.5, 4.2, 4.6, 4.3, 3.8, 4.7, 4.4],
-              borderColor: C.accent,
-              backgroundColor: "rgba(249,115,22,.08)",
-              tension: 0.4,
-              pointRadius: 4,
-              pointBackgroundColor: C.accent,
-              fill: true,
-            },
-            {
-              label: "Lunch",
-              data: [3.8, 3.2, 4.1, 3.9, 3.4, 3.7, 3.5],
-              borderColor: C.accent2,
-              backgroundColor: "rgba(251,146,60,.05)",
-              tension: 0.4,
-              pointRadius: 4,
-              pointBackgroundColor: C.accent2,
-              fill: true,
-            },
-            {
-              label: "Snacks",
-              data: [4.7, 4.5, 4.2, 4.8, 4.6, 4.4, 4.9],
-              borderColor: C.green,
-              backgroundColor: "rgba(34,197,94,.05)",
-              tension: 0.4,
-              pointRadius: 4,
-              pointBackgroundColor: C.green,
-              fill: true,
-            },
-            {
-              label: "Dinner",
-              data: [2.8, 2.1, 2.5, 2.9, 2.3, 3.1, 2.4],
-              borderColor: C.blue,
-              backgroundColor: "rgba(96,165,250,.05)",
-              tension: 0.4,
-              pointRadius: 4,
-              pointBackgroundColor: C.blue,
-              fill: true,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: C.bg,
-              borderColor: "rgba(249,115,22,.25)",
-              borderWidth: 1,
-              titleColor: "#f0f4ff",
-              bodyColor: C.muted,
-            },
+      window._messifyAdminLineChart = new Chart(
+        document.getElementById("lineChart"),
+        {
+          type: "line",
+          data: {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [
+              {
+                label: "Breakfast",
+                data: [4.5, 4.2, 4.6, 4.3, 3.8, 4.7, 4.4],
+                borderColor: C.accent,
+                backgroundColor: "rgba(249,115,22,.08)",
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: C.accent,
+                fill: true,
+              },
+              {
+                label: "Lunch",
+                data: [3.8, 3.2, 4.1, 3.9, 3.4, 3.7, 3.5],
+                borderColor: C.accent2,
+                backgroundColor: "rgba(251,146,60,.05)",
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: C.accent2,
+                fill: true,
+              },
+              {
+                label: "Snacks",
+                data: [4.7, 4.5, 4.2, 4.8, 4.6, 4.4, 4.9],
+                borderColor: C.green,
+                backgroundColor: "rgba(34,197,94,.05)",
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: C.green,
+                fill: true,
+              },
+              {
+                label: "Dinner",
+                data: [2.8, 2.1, 2.5, 2.9, 2.3, 3.1, 2.4],
+                borderColor: C.blue,
+                backgroundColor: "rgba(96,165,250,.05)",
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: C.blue,
+                fill: true,
+              },
+            ],
           },
-          scales: {
-            x: {
-              grid: { color: C.grid },
-              ticks: { font: { family: "DM Sans", size: 10 } },
-            },
-            y: {
-              min: 1,
-              max: 5,
-              grid: { color: C.grid },
-              ticks: { font: { family: "DM Sans", size: 10 } },
-            },
-          },
-        },
-      });
-
-      window._messifyDoughnutChart = new Chart(document.getElementById("doughnut"), {
-        type: "doughnut",
-        data: {
-          labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
-          datasets: [
-            {
-              data: [4.4, 3.7, 4.6, 2.6],
-              backgroundColor: [C.accent, C.accent2, C.green, C.blue],
-              borderWidth: 0,
-              hoverOffset: 6,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          cutout: "68%",
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: {
-                font: { family: "DM Sans", size: 11 },
-                padding: 12,
-                boxWidth: 10,
-                boxHeight: 10,
-                color: C.muted,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: C.bg,
+                borderColor: "rgba(249,115,22,.25)",
+                borderWidth: 1,
+                titleColor: "#f0f4ff",
+                bodyColor: C.muted,
               },
             },
-            tooltip: {
-              backgroundColor: C.bg,
-              borderColor: "rgba(249,115,22,.25)",
-              borderWidth: 1,
-              callbacks: { label: (ctx) => `Avg: ${ctx.raw}/5` },
+            scales: {
+              x: {
+                grid: { color: C.grid },
+                ticks: { font: { family: "DM Sans", size: 10 } },
+              },
+              y: {
+                min: 1,
+                max: 5,
+                grid: { color: C.grid },
+                ticks: { font: { family: "DM Sans", size: 10 } },
+              },
             },
           },
         },
-      });
+      );
+
+      window._messifyDoughnutChart = new Chart(
+        document.getElementById("doughnut"),
+        {
+          type: "doughnut",
+          data: {
+            labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
+            datasets: [
+              {
+                data: [4.4, 3.7, 4.6, 2.6],
+                backgroundColor: [C.accent, C.accent2, C.green, C.blue],
+                borderWidth: 0,
+                hoverOffset: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            cutout: "68%",
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  font: { family: "DM Sans", size: 11 },
+                  padding: 12,
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  color: C.muted,
+                },
+              },
+              tooltip: {
+                backgroundColor: C.bg,
+                borderColor: "rgba(249,115,22,.25)",
+                borderWidth: 1,
+                callbacks: { label: (ctx) => `Avg: ${ctx.raw}/5` },
+              },
+            },
+          },
+        },
+      );
 
       const scores = [
         { name: "Snacks", sub: "Best performer", score: 4.6, cls: "score-hi" },
@@ -1045,23 +1095,13 @@
       scores.forEach((s) => {
         const bc =
           s.score >= 4 ? "#22c55e" : s.score >= 3 ? "#eab308" : "#ef4444";
-        ms.innerHTML += `<div class="score-item">
-    <div class="si-info"><div class="si-name">${s.name}</div><div class="si-sub">${s.sub}</div></div>
-    <div class="si-bar-bg"><div class="si-bar" style="width:${(s.score / 5) * 100}%;background:${bc}"></div></div>
-    <div class="si-score ${s.cls}">${s.score}</div>
-  </div>`;
+        ms.innerHTML += `<div class="score-item"><div class="si-info"><div class="si-name">${s.name}</div><div class="si-sub">${s.sub}</div></div><div class="si-bar-bg"><div class="si-bar" style="width:${(s.score / 5) * 100}%;background:${bc}"></div></div><div class="si-score ${s.cls}">${s.score}</div></div>`;
       });
 
-      // ── FIX: Adjusted logic for log out
       function logoutUser(event) {
         if (event) event.preventDefault();
-
         localStorage.removeItem("messify_user");
-
-        fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        })
+        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
           .then(function () {
             window.location.href = "index.html";
           })
@@ -1076,6 +1116,6 @@
         document.getElementById("sidebarOverlay").classList.toggle("show");
       }
     </script>
-  <script src="messify.js"></script>
-</body>
+    <script src="messify.js"></script>
+  </body>
 </html>

@@ -41,6 +41,24 @@
         font-family: "DM Sans", sans-serif;
         overflow-x: hidden;
       }
+
+      /* ── SMOOTH PAGE TRANSITION ── */
+      @keyframes pageFade {
+        from {
+          opacity: 0;
+          filter: blur(4px);
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0);
+        }
+      }
+      body {
+        animation: pageFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
       .bg-layer {
         position: fixed;
         inset: 0;
@@ -120,6 +138,8 @@
           transform: translateY(0) scale(1);
         }
       }
+
+      /* ── TOP NAVIGATION ── */
       .topnav {
         position: sticky;
         top: 0;
@@ -137,6 +157,7 @@
         align-items: center;
         gap: 10px;
         text-decoration: none;
+        flex: 1;
       }
       .logo-icon {
         width: 32px;
@@ -158,9 +179,14 @@
       .logo-text span {
         color: var(--accent);
       }
+
+      /* ── ABSOLUTE CENTERING FOR TABS ── */
       .nav-links {
         display: flex;
         gap: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
       }
       .nav-link {
         padding: 7px 14px;
@@ -179,6 +205,14 @@
         background: rgba(249, 115, 22, 0.12);
         color: var(--accent);
         border: 1px solid rgba(249, 115, 22, 0.2);
+      }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex: 1;
       }
       .nav-user {
         display: flex;
@@ -202,7 +236,7 @@
         font-size: 12px;
         color: var(--muted);
       }
-      /* Hamburger: HIDDEN on desktop (sidebar visible in grid), SHOWN only on mobile */
+
       .menu-btn {
         display: none;
         align-items: center;
@@ -225,6 +259,7 @@
         height: 18px;
         color: var(--muted);
       }
+
       .layout {
         position: relative;
         z-index: 1;
@@ -290,7 +325,7 @@
         padding: 40px 36px 80px;
         overflow-y: auto;
       }
-      /* MOBILE: show hamburger, sidebar becomes slide-in drawer */
+
       @media (max-width: 1000px) {
         .menu-btn {
           display: flex;
@@ -341,6 +376,7 @@
           display: none !important;
         }
       }
+
       .page-title-row {
         margin-bottom: 32px;
         animation: fadeUp 0.6s ease both;
@@ -736,21 +772,24 @@
       <div class="blob blob-3"></div>
     </div>
     <div class="grid-lines"></div>
+
     <nav class="topnav">
-      <a class="nav-logo" href="index.html"
-        ><div class="logo-icon">🍽</div>
-        <div class="logo-text">Messi<span>fy</span></div></a
-      >
+      <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🍽</div>
+        <div class="logo-text">Messi<span>fy</span></div>
+      </a>
       <div class="nav-links">
         <a href="feedback.html" class="nav-link active">Feedback</a>
         <a href="reports.html" class="nav-link">Reports</a>
-        
       </div>
-      <div class="nav-user">
-        <div class="nav-avatar" id="nav-avatar">?</div>
-        <span class="nav-email" id="nav-email">Loading...</span>
+      <div class="nav-right" id="nav-right">
+        <div class="nav-user">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <span class="nav-email" id="nav-email">Loading...</span>
+        </div>
       </div>
     </nav>
+
     <div
       class="sidebar-overlay"
       id="sidebarOverlay"
@@ -835,7 +874,7 @@
             ><strong id="prog-text">0 / 28 meals rated</strong>
           </div>
           <div class="prog-track">
-            <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+            <div class="prog-fill" id="prog-fill" style="width: 0%"></div>
           </div>
         </div>
         <div class="card grid-card">
@@ -880,13 +919,17 @@
           <div class="fb-grid">
             <div class="fb-field">
               <label>What did you enjoy this week? 😊</label>
-              <textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea>
-              >
+              <textarea
+                id="liked"
+                placeholder="e.g. Monday breakfast was freshly made and hot..."
+              ></textarea>
             </div>
             <div class="fb-field">
               <label>What needs improvement? 🔧</label>
-              <textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea>
-              >
+              <textarea
+                id="issues"
+                placeholder="e.g. Tuesday dinner was undercooked..."
+              ></textarea>
             </div>
           </div>
         </div>
@@ -905,7 +948,9 @@
         <div class="success-icon">🎉</div>
         <div class="success-title">Feedback <em>Submitted!</em></div>
         <div class="success-sub" id="success-sub">
-          Thank you, <span id="success-name">there</span>! Your ratings for <span id="success-week">this week</span> have been recorded. The mess committee will review them before next week.
+          Thank you, <span id="success-name">there</span>! Your ratings for
+          <span id="success-week">this week</span> have been recorded. The mess
+          committee will review them before next week.
         </div>
         <button class="btn-primary" onclick="location.href = 'reports.html'">
           View Reports →
@@ -915,10 +960,7 @@
     <div class="toast" id="toast">
       <span class="ti" id="toast-icon"></span><span id="toast-msg"></span>
     </div>
-    <script
-      data-cfasync="false"
-      src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
-    ></script>
+
     <script>
       /* ── AUTH GUARD ── */
       var messifyUser = null;
@@ -928,8 +970,7 @@
       if (!messifyUser || !messifyUser.email) {
         window.location.href = "index.html";
       }
-      // Admin should go to admin page, not feedback
-      if (messifyUser && messifyUser.role === 'admin') {
+      if (messifyUser && messifyUser.role === "admin") {
         window.location.href = "admin.html";
       }
 
@@ -947,20 +988,11 @@
         document.getElementById("nav-email").textContent = messifyUser.email;
       }
 
-      // ── FIX: Adjusted logic for log out
       function logoutUser(event) {
         if (event) event.preventDefault();
-
-        // 1. Instantly wipe the local storage so you are definitely logged out locally
         localStorage.removeItem("messify_user");
-
-        // 2. Tell the backend to destroy the session (with credentials flag added)
-        fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        })
+        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
           .then(function () {
-            // 3. Redirect to the login page
             window.location.href = "index.html";
           })
           .catch(function (err) {
@@ -968,9 +1000,9 @@
             window.location.href = "index.html";
           });
       }
+
       var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       var meals = ["breakfast", "lunch", "snacks", "dinner"];
-      // All ratings start blank — user selects manually
       var ratings = {};
       days.forEach(function (d) {
         meals.forEach(function (m) {
@@ -1089,14 +1121,12 @@
         }
         document.getElementById("successOverlay").classList.add("show");
       }
-
       function toggleSidebar() {
         document.getElementById("sidebar").classList.toggle("open");
         document.getElementById("sidebarOverlay").classList.toggle("show");
       }
-
-      buildTable(); // initialize
+      buildTable();
     </script>
-  <script src="messify.js"></script>
-</body>
+    <script src="messify.js"></script>
+  </body>
 </html>

@@ -43,6 +43,24 @@
         font-family: "DM Sans", sans-serif;
         overflow-x: hidden;
       }
+
+      /* ── SMOOTH PAGE TRANSITION ── */
+      @keyframes pageFade {
+        from {
+          opacity: 0;
+          filter: blur(4px);
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0);
+        }
+      }
+      body {
+        animation: pageFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
       .bg-layer {
         position: fixed;
         inset: 0;
@@ -112,6 +130,8 @@
           transform: translateY(0);
         }
       }
+
+      /* ── TOP NAVIGATION ── */
       .topnav {
         position: sticky;
         top: 0;
@@ -129,6 +149,7 @@
         align-items: center;
         gap: 10px;
         text-decoration: none;
+        flex: 1;
       }
       .logo-icon {
         width: 32px;
@@ -150,9 +171,14 @@
       .logo-text span {
         color: var(--accent);
       }
+
+      /* ── ABSOLUTE CENTERING FOR TABS ── */
       .nav-links {
         display: flex;
         gap: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
       }
       .nav-link {
         padding: 7px 14px;
@@ -171,6 +197,14 @@
         background: rgba(249, 115, 22, 0.12);
         color: var(--accent);
         border: 1px solid rgba(249, 115, 22, 0.2);
+      }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex: 1;
       }
       .nav-user {
         display: flex;
@@ -194,7 +228,20 @@
         font-size: 12px;
         color: var(--muted);
       }
-      /* Hamburger hidden on desktop */
+
+      .admin-pill {
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        color: var(--accent2);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        animation: fadeUp 0.3s ease both;
+      }
+
       .menu-btn {
         display: none;
         align-items: center;
@@ -217,6 +264,7 @@
         height: 18px;
         color: var(--muted);
       }
+
       .layout {
         position: relative;
         z-index: 1;
@@ -228,6 +276,7 @@
         border-right: 1px solid var(--border);
         padding: 24px 14px;
         background: rgba(11, 15, 26, 0.6);
+        transition: transform 0.3s ease;
       }
       .sb-section {
         font-size: 10px;
@@ -282,6 +331,7 @@
         padding: 40px 36px 80px;
         overflow-y: auto;
       }
+
       @media (max-width: 1000px) {
         .menu-btn {
           display: flex;
@@ -332,6 +382,7 @@
           display: none !important;
         }
       }
+
       .ph {
         display: flex;
         align-items: flex-start;
@@ -387,6 +438,7 @@
         color: var(--accent);
         box-shadow: 0 0 12px rgba(249, 115, 22, 0.15);
       }
+
       .summary-strip {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -424,6 +476,7 @@
         text-transform: uppercase;
         letter-spacing: 0.08em;
       }
+
       .card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -464,6 +517,7 @@
         height: 12px;
         border-radius: 3px;
       }
+
       .heat-table {
         width: 100%;
         border-collapse: separate;
@@ -512,6 +566,7 @@
         font-weight: 700;
         color: #f0f4ff;
       }
+
       .charts-row {
         display: grid;
         grid-template-columns: 1.5fr 1fr;
@@ -536,6 +591,7 @@
           grid-template-columns: 1fr;
         }
       }
+
       .insight-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -580,6 +636,7 @@
         background: rgba(234, 179, 8, 0.1);
         color: #fcd34d;
       }
+
       .comments-card {
         animation: fadeUp 0.6s 0.25s ease both;
       }
@@ -643,21 +700,24 @@
       <div class="blob blob-3"></div>
     </div>
     <div class="grid-lines"></div>
+
     <nav class="topnav">
-      <a class="nav-logo" href="index.html"
-        ><div class="logo-icon">🍽</div>
-        <div class="logo-text">Messi<span>fy</span></div></a
-      >
-      <div class="nav-links">
+      <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🍽</div>
+        <div class="logo-text">Messi<span>fy</span></div>
+      </a>
+      <div class="nav-links" id="dynamic-nav-links">
         <a href="feedback.html" class="nav-link">Feedback</a>
         <a href="reports.html" class="nav-link active">Reports</a>
-        
       </div>
-      <div class="nav-user">
-        <div class="nav-avatar" id="nav-avatar">?</div>
-        <span class="nav-email" id="nav-email">Loading...</span>
+      <div class="nav-right" id="nav-right">
+        <div class="nav-user">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <span class="nav-email" id="nav-email">Loading...</span>
+        </div>
       </div>
     </nav>
+
     <div
       class="sidebar-overlay"
       id="sidebarOverlay"
@@ -691,6 +751,7 @@
           ><span class="ic">🚪</span> Logout</a
         >
       </div>
+
       <div class="main">
         <div class="ph">
           <div class="ph-left">
@@ -715,7 +776,8 @@
             <div>
               <div class="ph-title">Weekly <em>Reports</em></div>
               <div class="ph-sub">
-                NIST University Mess · Academic Year <span id="acad-year">2024–25</span>
+                NIST University Mess · Academic Year
+                <span id="acad-year">2024–25</span>
               </div>
             </div>
           </div>
@@ -725,6 +787,7 @@
             <div class="wp active">Wk 12</div>
           </div>
         </div>
+
         <div class="summary-strip">
           <div class="ss">
             <div class="ss-val" style="color: var(--accent)">4.1</div>
@@ -747,6 +810,7 @@
             <div class="ss-label">vs Last Week</div>
           </div>
         </div>
+
         <div class="card heat-card">
           <div class="card-header">
             <div class="card-title">Meal Quality Heatmap — Week 12</div>
@@ -781,6 +845,7 @@
             <table class="heat-table" id="heatTable"></table>
           </div>
         </div>
+
         <div class="charts-row">
           <div class="card" style="padding: 20px 22px">
             <div class="card-title" style="margin-bottom: 16px">
@@ -795,6 +860,7 @@
             <canvas id="barChart" height="130"></canvas>
           </div>
         </div>
+
         <div class="insights-row">
           <div class="insight-card">
             <div class="ic-icon">🔴</div>
@@ -824,6 +890,7 @@
             <div class="ic-tag tag-warning">↓ Declining trend</div>
           </div>
         </div>
+
         <div class="card comments-card">
           <div class="card-header">
             <div class="card-title">💬 Student Comments — Week 12</div>
@@ -868,25 +935,10 @@
               </div>
             </div>
           </div>
-          <div class="comment-item">
-            <div class="ca">D</div>
-            <div>
-              <div class="c-body">
-                Snacks have been consistently good this week. Evening tea is
-                perfect and Thursday samosas were crispy and well-spiced.
-              </div>
-              <div class="c-meta">
-                Thursday · Snacks <span class="sent pos">Positive</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-    <script
-      data-cfasync="false"
-      src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
-    ></script>
+
     <script>
       /* ── AUTH GUARD ── */
       var messifyUser = null;
@@ -911,16 +963,45 @@
         document.getElementById("nav-email").textContent = messifyUser.email;
       }
 
-      // ── FIX: Adjusted logic for log out
+      /* ── DYNAMIC ROLE-BASED NAVIGATION ── */
+      if (messifyUser && messifyUser.role === "admin") {
+        var navLinks = document.getElementById("dynamic-nav-links");
+        if (navLinks) {
+          navLinks.innerHTML = `
+            <a href="reports.html" class="nav-link active">Reports</a>
+            <a href="admin.html" class="nav-link">Admin</a>
+          `;
+        }
+
+        var navRight = document.getElementById("nav-right");
+        if (navRight && !document.querySelector(".admin-pill")) {
+          navRight.insertAdjacentHTML(
+            "beforeend",
+            '<span class="admin-pill">⚙️ Admin Panel</span>',
+          );
+        }
+
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar) {
+          sidebar.innerHTML = `
+            <div class="sb-section">Overview</div>
+            <a class="sb-item"><span class="ic">📈</span> Analytics</a>
+            <a class="sb-item active" href="reports.html"><span class="ic">📋</span> Reports</a>
+            <div class="sb-section">Management</div>
+            <a class="sb-item"><span class="ic">👥</span> Students</a>
+            <a class="sb-item"><span class="ic">🏫</span> Mess Staff</a>
+            <a class="sb-item"><span class="ic">💬</span> Complaints <span class="sb-pill">7</span></a>
+            <div class="sb-section">System</div>
+            <a class="sb-item"><span class="ic">⚙️</span> Settings</a>
+            <a class="sb-item" href="#" onclick="logoutUser(event)"><span class="ic">🚪</span> Logout</a>
+          `;
+        }
+      }
+
       function logoutUser(event) {
         if (event) event.preventDefault();
-
         localStorage.removeItem("messify_user");
-
-        fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        })
+        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
           .then(function () {
             window.location.href = "index.html";
           })
@@ -966,11 +1047,11 @@
         if (v >= 2.5) return "rgba(249,115,22,.45)";
         return "rgba(239,68,68,.55)";
       }
+
       var htEl = document.getElementById("heatTable");
       var thead = htEl.createTHead();
       var hr = thead.insertRow();
-      var th0 = document.createElement("th");
-      hr.appendChild(th0);
+      hr.appendChild(document.createElement("th"));
       mk.forEach(function (m) {
         var t = document.createElement("th");
         t.textContent = mh[m];
@@ -989,35 +1070,66 @@
           td.innerHTML = '<span class="hval">' + v + "</span>";
         });
       });
-      window._messifyTrendChart = new Chart(document.getElementById("trendChart"), {
-        type: "line",
+
+      window._messifyTrendChart = new Chart(
+        document.getElementById("trendChart"),
+        {
+          type: "line",
+          data: {
+            labels: [
+              "Wk1",
+              "Wk2",
+              "Wk3",
+              "Wk4",
+              "Wk5",
+              "Wk6",
+              "Wk7",
+              "Wk8",
+              "Wk9",
+              "Wk10",
+              "Wk11",
+              "Wk12",
+            ],
+            datasets: [
+              {
+                label: "Avg",
+                data: [
+                  3.5, 3.6, 3.4, 3.7, 3.8, 3.6, 3.9, 4.0, 3.8, 3.9, 3.8, 4.1,
+                ],
+                borderColor: C.a,
+                backgroundColor: "rgba(249,115,22,.1)",
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: C.a,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: C.bg,
+                borderColor: "rgba(249,115,22,.25)",
+                borderWidth: 1,
+                callbacks: { label: (ctx) => `Avg: ${ctx.raw}/5` },
+              },
+            },
+          },
+        },
+      );
+
+      window._messifyBarChart = new Chart(document.getElementById("barChart"), {
+        type: "bar",
         data: {
-          labels: [
-            "Wk1",
-            "Wk2",
-            "Wk3",
-            "Wk4",
-            "Wk5",
-            "Wk6",
-            "Wk7",
-            "Wk8",
-            "Wk9",
-            "Wk10",
-            "Wk11",
-            "Wk12",
-          ],
+          labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
           datasets: [
             {
-              label: "Avg",
-              data: [
-                3.5, 3.6, 3.4, 3.7, 3.8, 3.6, 3.9, 4.0, 3.8, 3.9, 3.8, 4.1,
-              ],
-              borderColor: C.a,
-              backgroundColor: "rgba(249,115,22,.1)",
-              tension: 0.4,
-              pointRadius: 4,
-              pointBackgroundColor: C.a,
-              fill: true,
+              data: [4.3, 3.7, 4.6, 2.6],
+              backgroundColor: [C.a, C.a2, C.g, C.r],
+              borderRadius: 8,
+              borderSkipped: false,
             },
           ],
         },
@@ -1029,37 +1141,23 @@
               backgroundColor: C.bg,
               borderColor: "rgba(249,115,22,.25)",
               borderWidth: 1,
-              callbacks: { label: (ctx) => `Avg: ${ctx.raw}/5` },
+              titleColor: "#f0f4ff",
+              bodyColor: C.muted,
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { family: "DM Sans", size: 11 } },
+            },
+            y: {
+              min: 0,
+              max: 5,
+              grid: { color: C.grid },
+              ticks: { font: { family: "DM Sans", size: 10 } },
             },
           },
         },
-      });
-
-      window._messifyBarChart = new Chart(document.getElementById("barChart"), {
-        type: "bar",
-        data: {
-          labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
-          datasets: [{
-            data: [4.3, 3.7, 4.6, 2.6],
-            backgroundColor: [C.a, C.a2, C.g, C.r],
-            borderRadius: 8,
-            borderSkipped: false
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: C.bg, borderColor: "rgba(249,115,22,.25)",
-              borderWidth: 1, titleColor: "#f0f4ff", bodyColor: C.muted
-            }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { family: "DM Sans", size: 11 } } },
-            y: { min: 0, max: 5, grid: { color: C.grid }, ticks: { font: { family: "DM Sans", size: 10 } } }
-          }
-        }
       });
 
       function toggleSidebar() {
@@ -1067,6 +1165,6 @@
         document.getElementById("sidebarOverlay").classList.toggle("show");
       }
     </script>
-  <script src="messify.js"></script>
-</body>
+    <script src="messify.js"></script>
+  </body>
 </html>
