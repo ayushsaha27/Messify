@@ -781,10 +781,8 @@
               </div>
             </div>
           </div>
-          <div class="wk-pills">
-            <div class="wp">Wk 10</div>
-            <div class="wp">Wk 11</div>
-            <div class="wp active">Wk 12</div>
+          <div class="wk-pills" id="wk-pills">
+            <div class="wp active" id="currWeek">Loading...</div>
           </div>
         </div>
 
@@ -794,7 +792,7 @@
             <div class="ss-label">Overall Avg</div>
           </div>
           <div class="ss">
-            <div class="ss-val">4,218</div>
+            <div class="ss-val" id="ss-submissions">0</div>
             <div class="ss-label">Submissions</div>
           </div>
           <div class="ss">
@@ -813,7 +811,7 @@
 
         <div class="card heat-card">
           <div class="card-header">
-            <div class="card-title">Meal Quality Heatmap — Week 12</div>
+            <div class="card-title" id="heatmap-title">Meal Quality Heatmap</div>
             <div class="heat-legend">
               <span>Low</span>
               <div class="hl-strip">
@@ -861,79 +859,34 @@
           </div>
         </div>
 
-        <div class="insights-row">
-          <div class="insight-card">
-            <div class="ic-icon">🔴</div>
-            <div class="ic-title">Dinner needs urgent review</div>
-            <div class="ic-body">
-              Wednesday dinner below 2.5 for 4 consecutive weeks. Oil quality
-              and undercooking are top recurring complaints.
-            </div>
-            <div class="ic-tag tag-danger">⚠ Critical</div>
+        <div class="insights-row" id="insights-row">
+          <div class="insight-card" id="insight-worst">
+            <div class="ic-icon" id="insight-worst-icon">📊</div>
+            <div class="ic-title" id="insight-worst-title">Submit feedback to see insights</div>
+            <div class="ic-body" id="insight-worst-body">Insights will appear here once students start submitting weekly ratings.</div>
+            <div class="ic-tag tag-danger" id="insight-worst-tag">No data yet</div>
           </div>
-          <div class="insight-card">
-            <div class="ic-icon">🟢</div>
-            <div class="ic-title">Snacks consistently excellent</div>
-            <div class="ic-body">
-              Snacks averaged 4.5+ for 8 weeks. Students frequently praise
-              evening tea and samosa quality.
-            </div>
-            <div class="ic-tag tag-success">✓ Performing well</div>
+          <div class="insight-card" id="insight-best">
+            <div class="ic-icon" id="insight-best-icon">📊</div>
+            <div class="ic-title" id="insight-best-title">Best performing meal</div>
+            <div class="ic-body" id="insight-best-body">The best rated meal this week will be shown here.</div>
+            <div class="ic-tag tag-success" id="insight-best-tag">No data yet</div>
           </div>
-          <div class="insight-card">
-            <div class="ic-icon">🟡</div>
-            <div class="ic-title">Lunch quality declining</div>
-            <div class="ic-body">
-              Lunch dropped from 4.0 to 3.2 over 3 weeks. Recurring complaints
-              about oil and vegetable freshness.
-            </div>
-            <div class="ic-tag tag-warning">↓ Declining trend</div>
+          <div class="insight-card" id="insight-overall">
+            <div class="ic-icon" id="insight-overall-icon">📊</div>
+            <div class="ic-title" id="insight-overall-title">Overall performance</div>
+            <div class="ic-body" id="insight-overall-body">The overall weekly average and trend will be shown here.</div>
+            <div class="ic-tag tag-warning" id="insight-overall-tag">No data yet</div>
           </div>
         </div>
 
-        <div class="card comments-card">
+        <div class="card comments-card" id="comments-card">
           <div class="card-header">
-            <div class="card-title">💬 Student Comments — Week 12</div>
-            <span style="font-size: 12px; color: var(--muted)"
-              >Anonymous · 4,218 submissions</span
-            >
+            <div class="card-title" id="comments-title">💬 Student Comments</div>
+            <span style="font-size: 12px; color: var(--muted)" id="comments-meta">Anonymous · 0 submissions</span>
           </div>
-          <div class="comment-item">
-            <div class="ca">A</div>
-            <div>
-              <div class="c-body">
-                The breakfast on Monday was amazing — poha was freshly made and
-                the chutney was excellent. Please maintain this quality!
-              </div>
-              <div class="c-meta">
-                Monday · Breakfast <span class="sent pos">Positive</span>
-              </div>
-            </div>
-          </div>
-          <div class="comment-item">
-            <div class="ca">B</div>
-            <div>
-              <div class="c-body">
-                Dinner on Tuesday was horrible. Dal was watery and roti was
-                hard. This has been a problem for weeks, please fix it urgently.
-              </div>
-              <div class="c-meta">
-                Tuesday · Dinner <span class="sent neg">Negative</span>
-              </div>
-            </div>
-          </div>
-          <div class="comment-item">
-            <div class="ca">C</div>
-            <div>
-              <div class="c-body">
-                Found something suspicious in Wednesday lunch rice. This is a
-                serious hygiene issue and needs immediate attention.
-              </div>
-              <div class="c-meta">
-                Wednesday · Lunch
-                <span class="sent neg">Negative · URGENT</span>
-              </div>
-            </div>
+          <div id="comments-empty" class="comment-item" style="padding:24px;color:var(--muted);text-align:center">
+            No written comments yet this week. Comments will appear here once students submit feedback with written responses.
           </div>
         </div>
       </div>

@@ -142,6 +142,42 @@ async function computeAnalytics(weekKey) {
       date: f.submitted_at,
     }));
 
+  // ── DYNAMIC INSIGHTS GENERATION ──
+  const insights = [];
+  const highest = mealAvg[sorted[0]];
+  const lowest = mealAvg[sorted[sorted.length - 1]];
+  const bestMeal = sorted[0];
+  const worstMeal = sorted[sorted.length - 1];
+
+  if (highest >= 4.0) {
+    insights.push({
+      icon: '🟢', title: `${bestMeal.charAt(0).toUpperCase() + bestMeal.slice(1)} is excellent`,
+      body: `Averaging ${highest}/5 stars. Students are highly satisfied with this meal.`,
+      tagClass: 'tag-success', tagText: '✓ Performing well'
+    });
+  }
+  if (lowest <= 3.0 && lowest > 0) {
+    insights.push({
+      icon: '🔴', title: `${worstMeal.charAt(0).toUpperCase() + worstMeal.slice(1)} needs urgent review`,
+      body: `Dropped to a critical ${lowest}/5 stars. Please review student comments to identify the issue.`,
+      tagClass: 'tag-danger', tagText: '⚠ Critical'
+    });
+  } else if (lowest > 3.0 && lowest <= 3.5) {
+    insights.push({
+      icon: '🟡', title: `${worstMeal.charAt(0).toUpperCase() + worstMeal.slice(1)} quality dipping`,
+      body: `Currently at ${lowest}/5 stars. Minor improvements and attention are needed.`,
+      tagClass: 'tag-warning', tagText: '↓ Declining trend'
+    });
+  }
+
+  if (insights.length === 0 && feedbacks.length > 0) {
+    insights.push({
+      icon: '📊', title: 'Data Collection Active',
+      body: `${feedbacks.length} students have submitted feedback this week. Keep monitoring.`,
+      tagClass: 'tag-warning', tagText: 'Active'
+    });
+  }
+
   return {
     weekKey,
     weekLabel: feedbacks[0].week_label,
@@ -153,6 +189,7 @@ async function computeAnalytics(weekKey) {
     worstMeal: sorted[sorted.length - 1],
     heatmap,
     comments,
+    insights // Return the dynamic insights to the frontend
   };
 }
 
@@ -507,7 +544,6 @@ app.get("/api/admin/complaints", requireAdmin, async (req, res) => {
       .select("user_name user_email week_label issues submitted_at")
       .lean();
 
-    // FIX: Map submitted_at to submittedAt for the frontend to read correctly
     const formatted = data.map((d) => ({
       name: d.user_name,
       email: d.user_email,
@@ -557,7 +593,6 @@ app.get("/api/admin/export-pdf", requireAdmin, async (req, res) => {
       <body><h2>No submissions for ${week}</h2><p>No students have submitted feedback yet.</p><button onclick="window.close()">Close</button></body></html>`);
     }
 
-    // Build rating distribution from embedded meal_ratings
     const allFeedbacks = await Feedback.find({ week_key: week }).lean();
     const dist = {
       breakfast: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },

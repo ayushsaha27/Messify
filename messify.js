@@ -5,7 +5,25 @@
 // ═══════════════════════════════════════════════════════════
 (function () {
   "use strict";
+  function updateGlobalWeek() {
+    const weekElem = document.getElementById("currWeek");
+    if (weekElem) {
+      const d = new Date();
+      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+      const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+      
+      weekElem.textContent = "Week " + weekNo + ", " + d.getFullYear();
+    }
+  }
 
+  // Run immediately when the script loads
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", updateGlobalWeek);
+  } else {
+    updateGlobalWeek();
+  }
   // ── Read logged-in user from localStorage ──────────────
   var user = null;
   try {
@@ -288,44 +306,108 @@
           window._messifyBarChart.update();
         }
 
-        // ── Anonymous comments (no names) ──
-        var commCard = document.querySelector(".comments-card");
-        if (commCard && d.comments && d.comments.length > 0) {
-          commCard.querySelectorAll(".comment-item").forEach(function (i) {
-            i.remove();
-          });
-          d.comments.slice(0, 8).forEach(function (c, idx) {
-            var letter = String.fromCharCode(65 + idx);
-            if (c.liked)
-              commCard.innerHTML += buildComment(
-                letter,
-                c.liked,
-                "Positive",
-                "pos",
-              );
-            if (c.issue)
-              commCard.innerHTML += buildComment(
-                letter,
-                c.issue,
-                "Negative",
-                "neg",
-              );
-          });
+        // ── Real-time insights from actual data ──
+        var mealLabel = { breakfast:'Breakfast', lunch:'Lunch', snacks:'Snacks', dinner:'Dinner' };
+
+        // Worst meal insight
+        var wIcon  = document.getElementById('insight-worst-icon');
+        var wTitle = document.getElementById('insight-worst-title');
+        var wBody  = document.getElementById('insight-worst-body');
+        var wTag   = document.getElementById('insight-worst-tag');
+        if (wIcon && d.worstMeal) {
+          var wScore = d.mealAvg[d.worstMeal];
+          var wSeverity = wScore < 2.5 ? '🔴' : wScore < 3.5 ? '🟡' : '🟢';
+          var wLevel = wScore < 2.5 ? 'Critical' : wScore < 3.5 ? 'Needs improvement' : 'Acceptable';
+          wIcon.textContent  = wSeverity;
+          wTitle.textContent = mealLabel[d.worstMeal] + ' needs attention';
+          wBody.textContent  = mealLabel[d.worstMeal] + ' has the lowest average this week at ' + wScore + '/5. Check student complaints for specific issues.';
+          wTag.textContent   = wScore < 2.5 ? '⚠ Critical' : wScore < 3.5 ? '↓ Below average' : '→ Average';
+          wTag.className     = 'ic-tag ' + (wScore < 2.5 ? 'tag-danger' : wScore < 3.5 ? 'tag-warning' : 'tag-success');
+        }
+
+        // Best meal insight
+        var bIcon  = document.getElementById('insight-best-icon');
+        var bTitle = document.getElementById('insight-best-title');
+        var bBody  = document.getElementById('insight-best-body');
+        var bTag   = document.getElementById('insight-best-tag');
+        if (bIcon && d.bestMeal) {
+          var bScore = d.mealAvg[d.bestMeal];
+          bIcon.textContent  = bScore >= 4 ? '🟢' : '🟡';
+          bTitle.textContent = mealLabel[d.bestMeal] + ' is the best this week';
+          bBody.textContent  = mealLabel[d.bestMeal] + ' scored ' + bScore + '/5 this week — the highest among all meals. Keep up the quality!';
+          bTag.textContent   = bScore >= 4 ? '✓ Performing well' : '→ Moderate';
+          bTag.className     = 'ic-tag ' + (bScore >= 4 ? 'tag-success' : 'tag-warning');
+        }
+
+        // Overall insight
+        var oIcon  = document.getElementById('insight-overall-icon');
+        var oTitle = document.getElementById('insight-overall-title');
+        var oBody  = document.getElementById('insight-overall-body');
+        var oTag   = document.getElementById('insight-overall-tag');
+        if (oIcon) {
+          var avg = d.overallAvg;
+          var total = d.total;
+          oIcon.textContent  = avg >= 4 ? '📈' : avg >= 3 ? '📊' : '📉';
+          oTitle.textContent = 'Overall average: ' + avg + ' / 5';
+          oBody.textContent  = total + ' student' + (total === 1 ? '' : 's') + ' submitted feedback this week. ' +
+            (avg >= 4 ? 'Excellent overall quality — keep it up!' :
+             avg >= 3 ? 'Good quality overall with room for improvement.' :
+             'Quality needs significant improvement this week.');
+          oTag.textContent   = avg >= 4 ? '↑ Excellent' : avg >= 3 ? '→ Good' : '↓ Needs work';
+          oTag.className     = 'ic-tag ' + (avg >= 4 ? 'tag-success' : avg >= 3 ? 'tag-warning' : 'tag-danger');
+        }
+
+        // ── Real comments header update ──
+        var commTitle = document.getElementById('comments-title');
+        var commMeta  = document.getElementById('comments-meta');
+        if (commTitle) commTitle.textContent = '💬 Student Comments — ' + d.weekLabel;
+        if (commMeta)  commMeta.textContent  = 'Anonymous · ' + d.total + ' submission' + (d.total === 1 ? '' : 's');
+
+        // ── Real anonymous comments — only from actual users ──
+        var commCard = document.getElementById('comments-card');
+        var emptyMsg = document.getElementById('comments-empty');
+        if (commCard) {
+          // Remove old comment items (but keep header and empty msg)
+          commCard.querySelectorAll('.comment-item').forEach(function (i) { i.remove(); });
+
+          var hasComments = d.comments && d.comments.length > 0;
+          var totalComments = 0;
+
+          if (hasComments) {
+            d.comments.slice(0, 8).forEach(function (c, idx) {
+              var letter = String.fromCharCode(65 + idx);
+              if (c.liked) {
+                commCard.innerHTML += buildComment(letter, c.liked, 'Positive', 'pos');
+                totalComments++;
+              }
+              if (c.issue) {
+                commCard.innerHTML += buildComment(letter, c.issue, 'Negative', 'neg');
+                totalComments++;
+              }
+            });
+          }
+
+          // Show or hide empty message
+          var emptyEl = document.getElementById('comments-empty');
+          if (emptyEl) {
+            emptyEl.style.display = totalComments > 0 ? 'none' : 'block';
+          }
         }
       })
       .catch(function (e) {
         console.log("Reports analytics error:", e);
       });
 
-    // ── Update academic year in header ──
+    // ── Update academic year + week pills in reports header ──
     fetch("/api/week/current")
-      .then(function (r) {
-        return r.json();
-      })
+      .then(function (r) { return r.json(); })
       .then(function (wi) {
         if (!wi.success) return;
+        // Academic year
         var acadEl = document.getElementById("acad-year");
         if (acadEl) acadEl.textContent = wi.acadYear;
+        // Week pills: show last 3 weeks dynamically
+        buildWeekPills('wk-pills', wi.weekNum, wi.year);
       })
       .catch(function () {});
 
@@ -356,6 +438,30 @@
   //  Detect by presence of mealScores div + admin role
   // ═══════════════════════════════════════════════════════
   if (document.getElementById("mealScores") && userRole === "admin") {
+
+    // ── Update admin date/week header in real-time ──
+    fetch("/api/week/current")
+      .then(function (r) { return r.json(); })
+      .then(function (wi) {
+        if (!wi.success) return;
+        // Update ph-sub: "Week 13 · 24 Mar–30 Mar 2026 · NIST University"
+        var phSub = document.getElementById('admin-ph-sub');
+        if (phSub) phSub.textContent = wi.label + ' · ' + wi.range + ' · NIST University';
+        // Update chart title
+        var chartTitle = document.getElementById('admin-chart-title');
+        if (chartTitle) chartTitle.textContent = 'Daily Ratings — ' + wi.label;
+        // Fetch all-weeks data to build the week dropdown
+        fetch("/api/analytics/all-weeks")
+          .then(function(r2) { return r2.json(); })
+          .then(function(allRes) {
+            buildWeekSelect('admin-week-select', allRes.success ? allRes.data : [], wi);
+          })
+          .catch(function(){
+            buildWeekSelect('admin-week-select', [], wi);
+          });
+      })
+      .catch(function () {});
+
     // Current week analytics → KPIs, doughnut, meal scores
     fetch("/api/analytics/current")
       .then(function (r) {
@@ -599,4 +705,19 @@
       "</div></div>"
     );
   }
+})();
+// --- FIX: Global Week Auto-Update ---
+(function updateWeekDisplay() {
+    const weekElem = document.getElementById("currWeek");
+    if (!weekElem) return; 
+
+    const d = new Date();
+    // Calculate ISO week number
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+    
+    // This updates the text automatically
+    weekElem.textContent = "Week " + weekNo + ", " + d.getFullYear();
 })();

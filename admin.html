@@ -772,16 +772,12 @@
             </button>
             <div>
               <div class="ph-title">Admin <em>Dashboard</em></div>
-              <div class="ph-sub">
-                Week 12 · March 10–16, 2025 · NIST University
-              </div>
+              <div class="ph-sub" id="admin-ph-sub">Loading... · NIST University</div>
             </div>
           </div>
           <div class="ph-right">
-            <select class="week-select">
-              <option>Week 12 (Mar 10–16)</option>
-              <option>Week 11 (Mar 3–9)</option>
-              <option>Week 10 (Feb 24–Mar 2)</option>
+            <select class="week-select" id="admin-week-select">
+              <option id="currWeek">Loading week...</option>
             </select>
             <button class="btn-primary">⬇ Export PDF</button>
           </div>
@@ -817,7 +813,7 @@
         <div class="charts-row">
           <div class="chart-card">
             <div class="cc-header">
-              <div class="cc-title">Daily Ratings — Week 12</div>
+              <div class="cc-title" id="admin-chart-title">Daily Ratings</div>
               <div class="cc-legend">
                 <div class="cc-leg">
                   <div class="cc-dot" style="background: #f97316"></div>
