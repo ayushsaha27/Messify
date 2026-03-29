@@ -195,6 +195,18 @@
         color: var(--accent);
       }
       .nav-email { font-size: 12px; color: var(--muted); }
+      .admin-pill {
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        color: var(--accent2);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        animation: fadeUp 0.3s ease both;
+      }
       .menu-btn {
         display: none;
         align-items: center;
@@ -300,12 +312,12 @@
 
       .summary-strip {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 12px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
         margin-bottom: 24px;
         animation: fadeUp 0.6s 0.05s ease both;
       }
-      @media (max-width: 900px) { .summary-strip { grid-template-columns: repeat(3, 1fr); } }
+      @media (max-width: 900px) { .summary-strip { grid-template-columns: repeat(2, 1fr); } }
       @media (max-width: 500px) { .summary-strip { grid-template-columns: repeat(2, 1fr); } }
       .ss {
         background: var(--surface);
@@ -641,6 +653,22 @@
         color: var(--muted2);
         line-height: 1.6;
       }
+      .hc-none {
+        font-size: 12px;
+        color: var(--muted);
+        font-style: italic;
+      }
+      .hist-rated-badge {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 12px;
+        padding: 4px 10px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        display: inline-block;
+      }
+      .hist-rated-badge strong { color: var(--accent); }
       .hist-loading {
         padding: 48px 24px;
         text-align: center;
@@ -731,12 +759,25 @@
 
           <div class="charts-row">
             <div class="card" style="padding: 20px 22px">
-              <div class="card-title" style="margin-bottom: 16px">📈 Average Rating Trend</div>
-              <canvas id="trendChart" height="100"></canvas>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <div class="card-title">📈 Average Rating Trend</div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                  <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:20px;height:3px;background:#f97316;border-radius:2px;"></div>Overall</div>
+                  <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:20px;height:2px;border-top:2.5px dashed #22c55e;"></div>🌿 Veg</div>
+                  <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:20px;height:2px;border-top:2.5px dashed #fdba74;"></div>🍗 Non-Veg</div>
+                </div>
+              </div>
+              <canvas id="trendChart" height="110"></canvas>
             </div>
             <div class="card" style="padding: 20px 22px">
-              <div class="card-title" style="margin-bottom: 16px">📊 Meal Comparison</div>
-              <canvas id="barChart" height="130"></canvas>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <div class="card-title">📊 Meal Comparison</div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                  <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(34,197,94,.8);"></div>🌿 Veg</div>
+                  <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(249,115,22,.8);"></div>🍗 Non-Veg</div>
+                </div>
+              </div>
+              <canvas id="barChart" height="145"></canvas>
             </div>
           </div>
 
@@ -910,6 +951,167 @@
         if (params.get("view") === "history")
           document.addEventListener("DOMContentLoaded", () => switchView("history"));
       })();
+
+      // ═══════════════════════════════════════════════════════
+      //  CHART.JS INITIALIZATION — reports page
+      //  Both charts show ALL-USERS aggregated data.
+      //  Demo data shown on load; real data pushed by messify.js
+      //  once /api/analytics/current and /api/analytics/all-weeks respond.
+      // ═══════════════════════════════════════════════════════
+      (function initReportsCharts() {
+        var canvasTrend = document.getElementById("trendChart");
+        var canvasBar   = document.getElementById("barChart");
+        if (!canvasTrend || !canvasBar) return;
+        if (typeof Chart === "undefined") return;
+
+        var C = {
+          accent : "#f97316",
+          grid   : "rgba(255,255,255,.05)",
+          bg     : "#111827",
+          muted  : "#6b7a99",
+          veg    : "#22c55e",
+          nv     : "#fdba74",
+        };
+        Chart.defaults.color = C.muted;
+        Chart.defaults.borderColor = C.grid;
+
+        // ── TREND CHART ──
+        // Dataset 0 = Overall avg (all users, all meals)
+        // Dataset 1 = Veg avg    (all users who ate veg, across breakfast/lunch/dinner)
+        // Dataset 2 = Non-Veg avg (all users who ate non-veg)
+        // All data points are the mean of every student submission for that week.
+        window._messifyTrendChart = new Chart(canvasTrend, {
+          type: "line",
+          data: {
+            labels: ["Wk1","Wk2","Wk3","Wk4","Wk5","Wk6","Wk7","Wk8","Wk9","Wk10","Wk11","Wk12"],
+            datasets: [
+              {
+                label: "Overall Avg",
+                data: [3.5,3.6,3.4,3.7,3.8,3.6,3.9,4.0,3.8,3.9,3.8,4.1],
+                borderColor: C.accent,
+                backgroundColor: "rgba(249,115,22,.10)",
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: C.accent,
+                borderWidth: 2.5,
+                fill: true,
+              },
+              {
+                label: "🌿 Veg Avg",
+                data: [3.7,3.8,3.6,3.9,4.0,3.8,4.1,4.2,4.0,4.1,4.0,4.3],
+                borderColor: C.veg,
+                backgroundColor: "transparent",
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: C.veg,
+                borderWidth: 1.8,
+                borderDash: [5,3],
+                fill: false,
+              },
+              {
+                label: "🍗 Non-Veg Avg",
+                data: [3.2,3.3,3.1,3.4,3.5,3.3,3.6,3.7,3.5,3.6,3.5,3.8],
+                borderColor: C.nv,
+                backgroundColor: "transparent",
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: C.nv,
+                borderWidth: 1.8,
+                borderDash: [2,3],
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: C.bg,
+                borderColor: "rgba(249,115,22,.25)",
+                borderWidth: 1,
+                callbacks: {
+                  label: function(ctx) {
+                    if (ctx.raw === null) return ctx.dataset.label + ": no data";
+                    return ctx.dataset.label + ": " + ctx.raw + "/5";
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { family: "DM Sans", size: 10 } },
+              },
+              y: {
+                min: 0,
+                max: 5,
+                grid: { color: C.grid },
+                ticks: { font: { family: "DM Sans", size: 10 } },
+              },
+            },
+          },
+        });
+
+        // ── BAR CHART ──
+        // Dataset 0 = Veg avg per meal   (all students who chose veg for that meal)
+        // Dataset 1 = Non-Veg avg per meal (all students who chose non-veg)
+        // Snacks is always veg — Non-Veg bar is null for Snacks.
+        window._messifyBarChart = new Chart(canvasBar, {
+          type: "bar",
+          data: {
+            labels: ["Breakfast","Lunch","Snacks","Dinner"],
+            datasets: [
+              {
+                label: "🌿 Veg",
+                data: [4.4, 3.8, 4.6, 2.8],
+                backgroundColor: "rgba(34,197,94,.78)",
+                borderRadius: 6,
+                borderSkipped: false,
+              },
+              {
+                label: "🍗 Non-Veg",
+                data: [4.0, 3.4, null, 2.3],
+                backgroundColor: "rgba(249,115,22,.78)",
+                borderRadius: 6,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: C.bg,
+                borderColor: "rgba(249,115,22,.25)",
+                borderWidth: 1,
+                titleColor: "#f0f4ff",
+                bodyColor: C.muted,
+                callbacks: {
+                  label: function(ctx) {
+                    if (ctx.raw === null) return ctx.dataset.label + ": N/A (Snacks = veg only)";
+                    return ctx.dataset.label + ": " + ctx.raw + "/5";
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { family: "DM Sans", size: 11 } },
+              },
+              y: {
+                min: 0,
+                max: 5,
+                grid: { color: C.grid },
+                ticks: { font: { family: "DM Sans", size: 10 } },
+              },
+            },
+          },
+        });
+      })();
+
     </script>
   </body>
 </html>

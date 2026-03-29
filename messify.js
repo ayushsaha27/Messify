@@ -642,12 +642,20 @@
           });
         }
 
+        // Bar chart: Dataset[0]=Veg avg, Dataset[1]=Non-Veg avg — aggregated across ALL users
         if (window._messifyBarChart) {
+          var vb = d.vegBreakdown || {};
           window._messifyBarChart.data.datasets[0].data = [
-            d.mealAvg.breakfast,
-            d.mealAvg.lunch,
+            vb.breakfast ? vb.breakfast.vegAvg    : d.mealAvg.breakfast,
+            vb.lunch     ? vb.lunch.vegAvg        : d.mealAvg.lunch,
             d.mealAvg.snacks,
-            d.mealAvg.dinner,
+            vb.dinner    ? vb.dinner.vegAvg       : d.mealAvg.dinner,
+          ];
+          window._messifyBarChart.data.datasets[1].data = [
+            vb.breakfast ? (vb.breakfast.nonVegAvg || null) : null,
+            vb.lunch     ? (vb.lunch.nonVegAvg     || null) : null,
+            null,
+            vb.dinner    ? (vb.dinner.nonVegAvg    || null) : null,
           ];
           window._messifyBarChart.update();
         }
@@ -684,15 +692,36 @@
       })
       .then(function (res) {
         if (!res.success || !res.data.length) return;
+        // Trend chart: Dataset[0]=Overall, Dataset[1]=Veg avg, Dataset[2]=Non-Veg avg
+        // All values are the mean across ALL users for that week.
         if (window._messifyTrendChart) {
-          window._messifyTrendChart.data.labels = res.data.map(function (w) {
+          window._messifyTrendChart.data.labels = res.data.map(function(w) {
             return w.weekLabel;
           });
-          window._messifyTrendChart.data.datasets[0].data = res.data.map(
-            function (w) {
-              return w.overallAvg;
-            },
-          );
+          // Overall avg — all meals, all users
+          window._messifyTrendChart.data.datasets[0].data = res.data.map(function(w) {
+            return w.overallAvg;
+          });
+          // Veg avg — average of veg ratings for breakfast/lunch/dinner across all users
+          window._messifyTrendChart.data.datasets[1].data = res.data.map(function(w) {
+            var vb = w.vegBreakdown;
+            if (!vb) return null;
+            var vals = ["breakfast","lunch","dinner"]
+              .map(function(m) { return vb[m] ? vb[m].vegAvg : 0; })
+              .filter(function(v) { return v > 0; });
+            if (!vals.length) return null;
+            return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
+          });
+          // Non-Veg avg — average of non-veg ratings for breakfast/lunch/dinner across all users
+          window._messifyTrendChart.data.datasets[2].data = res.data.map(function(w) {
+            var vb = w.vegBreakdown;
+            if (!vb) return null;
+            var vals = ["breakfast","lunch","dinner"]
+              .map(function(m) { return vb[m] ? vb[m].nonVegAvg : 0; })
+              .filter(function(v) { return v > 0; });
+            if (!vals.length) return null;
+            return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
+          });
           window._messifyTrendChart.update();
         }
       })
