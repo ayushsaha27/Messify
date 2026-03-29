@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Messify – Weekly Reports</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      ::-webkit-scrollbar { display: none; }
+      * { -ms-overflow-style: none; scrollbar-width: none; }
+
+      :root {
+        --bg: #0b0f1a;
+        --surface: #111827;
+        --surface2: #1a2235;
+        --surface3: #222e45;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --accent: #f97316;
+        --accent2: #fb923c;
+        --accent3: #fdba74;
+        --text: #f0f4ff;
+        --muted: #6b7a99;
+        --muted2: #8b9ab8;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #eab308;
+        --info: #60a5fa;
+      }
+
+      html, body {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Enhanced Animations */
+      @keyframes pageFade {
+        0% { opacity: 0; filter: blur(12px); transform: translateY(12px) scale(0.98); }
+        100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+      }
+
+      @keyframes gentleMorph {
+        0% { border-radius: 18px; background: radial-gradient(circle at 20% 30%, rgba(249,115,22,0.02), transparent); }
+        100% { border-radius: 24px; background: radial-gradient(circle at 80% 70%, rgba(249,115,22,0.04), transparent); }
+      }
+
+      @keyframes floatBG {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(20px, 15px) scale(1.05); }
+      }
+
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes cardIn {
+        from { opacity: 0; transform: translateY(24px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      body {
+        animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+      }
+
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        opacity: 0.2;
+        animation: floatBG 18s ease-in-out infinite alternate;
+      }
+      .blob-1 { width: 560px; height: 560px; background: #f97316; top: -160px; left: -140px; }
+      .blob-2 { width: 400px; height: 400px; background: #3b82f6; bottom: -100px; right: -80px; animation-delay: -5s; }
+      .blob-3 { width: 280px; height: 280px; background: #ec4899; top: 40%; left: 55%; animation-delay: -9s; }
+
+      .grid-lines {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      /* NAV */
+      .topnav {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        height: 62px;
+        background: rgba(11, 15, 26, 0.92);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        flex: 1;
+        transition: transform 0.2s ease;
+      }
+      .nav-logo:hover { transform: scale(1.02); }
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+      }
+      .logo-text {
+        font-family: "Syne", sans-serif;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+      .logo-text span { color: var(--accent); }
+      .nav-links {
+        display: flex;
+        gap: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .nav-link {
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+      .nav-link:hover { background: var(--surface2); color: var(--muted2); }
+      .nav-link.active {
+        background: rgba(249, 115, 22, 0.12);
+        color: var(--accent);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex: 1;
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .nav-email { font-size: 12px; color: var(--muted); }
+      .menu-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 9px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s;
+      }
+      .menu-btn:hover { background: var(--surface3); border-color: rgba(249, 115, 22, 0.3); }
+
+      .layout {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: calc(100vh - 62px);
+        align-items: start;
+      }
+      .sidebar {
+        border-right: 1px solid var(--border);
+        padding: 24px 14px;
+        background: rgba(11, 15, 26, 0.6);
+        transition: transform 0.3s ease;
+        position: sticky;
+        top: 62px;
+        height: calc(100vh - 61px);
+        overflow-y: auto;
+      }
+      .sb-section {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0 10px;
+        margin: 18px 0 6px;
+      }
+      .sb-section:first-child { margin-top: 0; }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 2px;
+      }
+      .sb-item:hover { background: var(--surface2); color: var(--text); }
+      .sb-item.active {
+        background: rgba(249, 115, 22, 0.12);
+        color: var(--accent);
+        border: 1px solid rgba(249, 115, 22, 0.15);
+      }
+      .sb-item .ic { font-size: 15px; width: 18px; text-align: center; }
+
+      .main { padding: 40px 36px 80px 36px; }
+
+      @media (max-width: 1000px) {
+        .menu-btn { display: flex; }
+        .layout { grid-template-columns: 1fr; }
+      }
+      @media (min-width: 1001px) {
+        .menu-btn { display: none; }
+        .sidebar-overlay { display: none !important; }
+      }
+
+      .ph {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 14px;
+        animation: fadeUp 0.6s ease both;
+      }
+      .ph-left { display: flex; align-items: center; gap: 14px; }
+      .ph-title {
+        font-family: "Syne", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, #ffffff, var(--accent3));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .ph-title em {
+        color: var(--accent);
+        font-style: normal;
+        background: none;
+        -webkit-background-clip: unset;
+      }
+      .ph-sub { font-size: 13px; color: var(--muted); }
+
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+        animation: fadeUp 0.6s 0.05s ease both;
+      }
+      @media (max-width: 900px) { .summary-strip { grid-template-columns: repeat(3, 1fr); } }
+      @media (max-width: 500px) { .summary-strip { grid-template-columns: repeat(2, 1fr); } }
+      .ss {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px 18px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+      .ss:hover { transform: translateY(-2px); border-color: rgba(249, 115, 22, 0.2); }
+      .ss-val {
+        font-family: "Syne", sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 2px;
+      }
+      .ss-label {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        animation: gentleMorph 4s infinite alternate ease-in-out;
+      }
+      .card:hover { transform: translateY(-2px); border-color: rgba(249, 115, 22, 0.2); }
+
+      .card-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .card-title { font-family: "Syne", sans-serif; font-size: 14px; font-weight: 700; }
+
+      .heat-card { animation: fadeUp 0.6s 0.1s ease both; margin-bottom: 20px; }
+      .heat-legend {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .hl-strip { display: flex; gap: 3px; }
+      .hl-cell { width: 18px; height: 12px; border-radius: 3px; }
+
+      .heat-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 5px;
+      }
+      .heat-table th {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        text-align: center;
+      }
+      .heat-table th:first-child { text-align: left; width: 55px; }
+      .heat-table td {
+        padding: 0;
+        text-align: center;
+        border-radius: 10px;
+        height: 44px;
+        transition: all 0.2s ease;
+        cursor: default;
+      }
+      .heat-table td:hover {
+        transform: scale(1.06);
+        box-shadow: 0 0 14px rgba(249, 115, 22, 0.3);
+      }
+      .heat-table td:first-child {
+        background: transparent !important;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted2);
+        text-align: left;
+        padding: 0 8px;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      .hval {
+        font-family: "Syne", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: #f0f4ff;
+      }
+
+      .charts-row {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+        animation: fadeUp 0.6s 0.15s ease both;
+      }
+      @media (max-width: 800px) { .charts-row { grid-template-columns: 1fr; } }
+
+      .comments-card { animation: fadeUp 0.6s 0.25s ease both; }
+      .comment-item {
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        transition: all 0.2s ease;
+      }
+      .comment-item:hover { background: rgba(249, 115, 22, 0.03); }
+      .comment-item:last-child { border-bottom: none; }
+      .ca {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent3);
+        flex-shrink: 0;
+      }
+      .c-body {
+        font-size: 13px;
+        color: var(--muted2);
+        line-height: 1.6;
+      }
+      .c-meta {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .sent {
+        padding: 1px 8px;
+        border-radius: 100px;
+        font-size: 10px;
+        font-weight: 600;
+      }
+      .pos { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
+      .neg { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+
+      .view-toggle {
+        display: flex;
+        gap: 6px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 4px;
+      }
+      .vt-btn {
+        padding: 7px 18px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .vt-btn.active {
+        background: var(--surface);
+        color: var(--accent);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      #historyView { display: none; }
+      #weeklyView { display: block; }
+
+      .hist-empty {
+        padding: 60px 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .hist-empty .he-icon { font-size: 40px; margin-bottom: 12px; }
+      .hist-empty strong { color: var(--muted2); }
+
+      .hist-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        animation: fadeUp 0.4s ease both;
+        transition: all 0.3s ease;
+      }
+      .hist-card:hover { border-color: rgba(249, 115, 22, 0.22); transform: translateY(-2px); }
+
+      .hist-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 22px;
+        cursor: pointer;
+        gap: 12px;
+      }
+      .hist-header:hover .hh-arrow { color: var(--accent); }
+      .hh-left { display: flex; align-items: center; gap: 14px; }
+      .hh-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .hh-week {
+        font-family: "Syne", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .hh-range { font-size: 11px; color: var(--muted); }
+      .hh-right { display: flex; align-items: center; gap: 14px; }
+      .hh-avg {
+        font-family: "Syne", sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .hh-arrow {
+        font-size: 16px;
+        color: var(--muted);
+        transition: all 0.25s ease;
+      }
+      .hist-card.open .hh-arrow { transform: rotate(180deg); color: var(--accent); }
+      .hist-body {
+        display: none;
+        border-top: 1px solid var(--border);
+        padding: 18px 22px 22px;
+      }
+      .hist-card.open .hist-body { display: block; }
+      .hist-meal-pills {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .hmp {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        padding: 5px 13px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .hmp .hmp-score { color: var(--accent); font-family: "Syne", sans-serif; }
+      .hist-mini-heat {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+        margin-bottom: 16px;
+      }
+      .hist-mini-heat th {
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 6px;
+        text-align: center;
+      }
+      .hist-mini-heat th:first-child { text-align: left; width: 44px; }
+      .hist-mini-heat td {
+        height: 34px;
+        border-radius: 8px;
+        text-align: center;
+        cursor: default;
+        transition: transform 0.15s;
+      }
+      .hist-mini-heat td:first-child {
+        background: transparent !important;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted2);
+        text-align: left;
+        padding: 0 6px;
+      }
+      .hist-mini-heat td:hover { transform: scale(1.1); }
+      .hmhval {
+        font-family: "Syne", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #f0f4ff;
+      }
+      .hist-comments {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 6px;
+      }
+      @media (max-width: 600px) { .hist-comments { grid-template-columns: 1fr; } }
+      .hc-box {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+      }
+      .hc-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .hc-text {
+        font-size: 12px;
+        color: var(--muted2);
+        line-height: 1.6;
+      }
+      .hist-loading {
+        padding: 48px 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .spin-icon {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-layer">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+    <div class="grid-lines"></div>
+
+    <nav class="topnav">
+      <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🍽</div>
+        <div class="logo-text">Messi<span>fy</span></div>
+      </a>
+      <div class="nav-links" id="dynamic-nav-links"></div>
+      <div class="nav-right" id="nav-right">
+        <div class="nav-user">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <span class="nav-email" id="nav-email">Loading...</span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="layout">
+      <div class="sidebar" id="sidebar"></div>
+
+      <div class="main">
+        <div class="ph">
+          <div class="ph-left">
+            <div>
+              <div class="ph-title" id="page-title">Weekly <em>Reports</em></div>
+              <div class="ph-sub">Academic Year <span id="acad-year">2024–25</span></div>
+            </div>
+          </div>
+          <div class="view-toggle">
+            <button class="vt-btn active" id="btn-weekly" onclick="switchView('weekly')">📊 Weekly Report</button>
+            <button class="vt-btn" id="btn-history" onclick="switchView('history')">📋 My History</button>
+          </div>
+        </div>
+
+        <div id="weeklyView">
+          <div class="summary-strip">
+            <div class="ss"><div class="ss-val" id="rep-avg" style="color: var(--accent)">--</div><div class="ss-label">Overall Avg</div></div>
+            <div class="ss"><div class="ss-val" id="rep-subs">--</div><div class="ss-label">Submissions</div></div>
+            <div class="ss"><div class="ss-val" id="rep-best" style="color: var(--success)">--</div><div class="ss-label">Best Performing</div></div>
+            <div class="ss"><div class="ss-val" id="rep-worst" style="color: var(--danger)">--</div><div class="ss-label">Needs Attention</div></div>
+          </div>
+
+          <div class="card heat-card">
+            <div class="card-header">
+              <div class="card-title">Meal Quality Heatmap</div>
+              <div class="heat-legend">
+                <span>Low</span>
+                <div class="hl-strip">
+                  <div class="hl-cell" style="background: rgba(239, 68, 68, 0.55)"></div>
+                  <div class="hl-cell" style="background: rgba(234, 179, 8, 0.5)"></div>
+                  <div class="hl-cell" style="background: rgba(249, 115, 22, 0.5)"></div>
+                  <div class="hl-cell" style="background: rgba(34, 197, 94, 0.45)"></div>
+                  <div class="hl-cell" style="background: rgba(34, 197, 94, 0.8)"></div>
+                </div>
+                <span>High</span>
+              </div>
+            </div>
+            <div style="padding: 16px 18px; overflow-x: auto">
+              <table class="heat-table" id="heatTable"></table>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="card" style="padding: 20px 22px">
+              <div class="card-title" style="margin-bottom: 16px">📈 Average Rating Trend</div>
+              <canvas id="trendChart" height="100"></canvas>
+            </div>
+            <div class="card" style="padding: 20px 22px">
+              <div class="card-title" style="margin-bottom: 16px">📊 Meal Comparison</div>
+              <canvas id="barChart" height="130"></canvas>
+            </div>
+          </div>
+
+          <div class="card comments-card">
+            <div class="card-header">
+              <div class="card-title">💬 Student Comments</div>
+              <span style="font-size: 12px; color: var(--muted)">Anonymous</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="historyView">
+          <div class="hist-loading" id="hist-loading">
+            <div class="spin-icon">⏳</div>
+            <div>Loading your submission history...</div>
+          </div>
+          <div id="hist-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var messifyUser = null;
+      try { messifyUser = JSON.parse(localStorage.getItem("messify_user")); } catch (e) {}
+      if (!messifyUser || !messifyUser.email) { window.location.href = "index.html"; }
+
+      if (messifyUser) {
+        var _ini = (messifyUser.name || messifyUser.email).split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+        var av = document.getElementById("nav-avatar");
+        var em = document.getElementById("nav-email");
+        if (av) av.textContent = _ini;
+        if (em) em.textContent = messifyUser.email;
+      }
+
+      function logoutUser(event) {
+        if (event) event.preventDefault();
+        localStorage.removeItem("messify_user");
+        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+          .then(function(){ window.location.href = "index.html"; })
+          .catch(function(){ window.location.href = "index.html"; });
+      }
+    </script>
+    <script src="messify.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => { if (typeof initReportsPage === "function") initReportsPage(); });
+
+      var _historyLoaded = false;
+
+      function switchView(view) {
+        var weekly = document.getElementById("weeklyView");
+        var history = document.getElementById("historyView");
+        var btnW = document.getElementById("btn-weekly");
+        var btnH = document.getElementById("btn-history");
+        var title = document.getElementById("page-title");
+
+        if (view === "weekly") {
+          weekly.style.display = "block";
+          history.style.display = "none";
+          btnW.classList.add("active");
+          btnH.classList.remove("active");
+          title.innerHTML = "Weekly <em>Reports</em>";
+          window.history.replaceState(null, "", "reports.html");
+          document.querySelectorAll("#sidebar .sb-item").forEach(function(el){
+            if(el.getAttribute("href") === "reports.html") el.classList.add("active");
+            if(el.getAttribute("href") === "reports.html?view=history") el.classList.remove("active");
+          });
+        } else {
+          weekly.style.display = "none";
+          history.style.display = "block";
+          btnW.classList.remove("active");
+          btnH.classList.add("active");
+          title.innerHTML = "My <em>History</em>";
+          window.history.replaceState(null, "", "reports.html?view=history");
+          document.querySelectorAll("#sidebar .sb-item").forEach(function(el){
+            if(el.getAttribute("href") === "reports.html?view=history") el.classList.add("active");
+            if(el.getAttribute("href") === "reports.html") el.classList.remove("active");
+          });
+          if (!_historyLoaded) loadHistory();
+        }
+      }
+
+      function loadHistory() {
+        _historyLoaded = true;
+        var user = null;
+        try { user = JSON.parse(localStorage.getItem("messify_user")); } catch(e) {}
+        var email = user ? user.email : "";
+        if (!email) return;
+
+        var loading = document.getElementById("hist-loading");
+        var content = document.getElementById("hist-content");
+
+        fetch("/api/feedback/history?email=" + encodeURIComponent(email))
+          .then((r) => r.json())
+          .then((res) => {
+            if (loading) loading.style.display = "none";
+            if (!res.success || !res.data || res.data.length === 0) {
+              content.innerHTML = '<div class="hist-empty"><div class="he-icon">📭</div><div><strong>No submissions yet.</strong><br>Your feedback history will appear here once you submit your first weekly feedback.</div></div>';
+              return;
+            }
+            content.innerHTML = "";
+            res.data.forEach((entry, idx) => content.appendChild(buildHistoryCard(entry, idx)));
+          })
+          .catch(() => {
+            if (loading) loading.style.display = "none";
+            content.innerHTML = '<div class="hist-empty"><div class="he-icon">⚠️</div><div><strong>Could not load history.</strong><br>Make sure the server is running.</div></div>';
+          });
+      }
+
+      function scColor(v) {
+        if (v >= 4.5) return "rgba(34,197,94,.7)";
+        if (v >= 3.8) return "rgba(34,197,94,.38)";
+        if (v >= 3.0) return "rgba(234,179,8,.42)";
+        if (v >= 2.5) return "rgba(249,115,22,.45)";
+        return "rgba(239,68,68,.55)";
+      }
+      function avgColor(v) {
+        if (!v) return "var(--muted)";
+        if (v >= 4) return "var(--success)";
+        if (v >= 3) return "var(--warning)";
+        return "var(--danger)";
+      }
+
+      function buildHistoryCard(entry, idx) {
+        var card = document.createElement("div");
+        card.className = "hist-card";
+        card.style.animationDelay = idx * 0.06 + "s";
+        var avgDisp = entry.overallAvg !== null ? entry.overallAvg : "--";
+        var avgClr = entry.overallAvg !== null ? avgColor(entry.overallAvg) : "var(--muted)";
+        var submittedDate = entry.submitted_at ? new Date(entry.submitted_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
+
+        var header = document.createElement("div");
+        header.className = "hist-header";
+        header.innerHTML = '<div class="hh-left"><div class="hh-icon">📅</div><div><div class="hh-week">' + (entry.week_label || entry.week_key) + '</div><div class="hh-range">' + (entry.week_range || "") + (submittedDate ? " &nbsp;·&nbsp; Submitted " + submittedDate : "") + '</div></div></div><div class="hh-right"><div class="hh-avg" style="color:' + avgClr + '">' + avgDisp + '<span style="font-size:12px;color:var(--muted);font-weight:400"> /5</span></div><div class="hh-arrow">▾</div></div>';
+        header.addEventListener("click", () => card.classList.toggle("open"));
+
+        var body = document.createElement("div");
+        body.className = "hist-body";
+        var MEALS_INFO = [{ key: "breakfast", icon: "🌅", label: "Breakfast" }, { key: "lunch", icon: "🍱", label: "Lunch" }, { key: "snacks", icon: "🫖", label: "Snacks" }, { key: "dinner", icon: "🌙", label: "Dinner" }];
+        var MEAL_KEYS_MAP = { breakfast: "b", lunch: "l", snacks: "s", dinner: "d" };
+        var DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+        var pillsHTML = '<div class="hist-meal-pills">';
+        MEALS_INFO.forEach((m) => {
+          var avg = entry.mealAvg && entry.mealAvg[m.key] !== null ? entry.mealAvg[m.key] : "--";
+          pillsHTML += '<div class="hmp">' + m.icon + " " + m.label + ' <span class="hmp-score">' + avg + "</span></div>";
+        });
+        pillsHTML += "</div>";
+
+        var heatHTML = '<table class="hist-mini-heat"><thead><tr><th></th>' + MEALS_INFO.map(m => "<th>" + m.icon + " " + m.label + "</th>").join("") + '</tr></thead><tbody>';
+        DAYS.forEach((day) => {
+          heatHTML += "<tr><td>" + day + "</td>";
+          MEALS_INFO.forEach((m) => {
+            var v = entry.heatmap && entry.heatmap[day] ? entry.heatmap[day][MEAL_KEYS_MAP[m.key]] : 0;
+            heatHTML += v > 0 ? '<td style="background:' + scColor(v) + '"><span class="hmhval">' + v + "</span></td>" : '<td style="background:var(--surface2)"><span class="hmhval" style="color:var(--muted)">—</span></td>';
+          });
+          heatHTML += "</tr>";
+        });
+        heatHTML += "</tbody></table>";
+
+        var badgeHTML = '<div class="hist-rated-badge">Rated <strong>' + (entry.total_rated || 0) + " / 28</strong> meal slots</div>";
+        var commHTML = '<div class="hist-comments"><div class="hc-box"><div class="hc-label">😊 What I enjoyed</div>' + (entry.liked ? '<div class="hc-text">' + entry.liked.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</div>" : '<div class="hc-none">Nothing noted.</div>') + '</div><div class="hc-box"><div class="hc-label">🔧 What needed improvement</div>' + (entry.issues ? '<div class="hc-text">' + entry.issues.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</div>" : '<div class="hc-none">Nothing noted.</div>') + "</div></div>";
+
+        body.innerHTML = pillsHTML + badgeHTML + heatHTML + commHTML;
+        card.appendChild(header);
+        card.appendChild(body);
+        return card;
+      }
+
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get("view") === "history")
+          document.addEventListener("DOMContentLoaded", () => switchView("history"));
+      })();
+    </script>
+  </body>
+</html>

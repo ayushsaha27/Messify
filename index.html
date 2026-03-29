@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Messify – NIST University</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0b0f1a;
+        --surface: #111827;
+        --surface2: #1a2235;
+        --border: rgba(255, 255, 255, 0.07);
+        --accent: #f97316;
+        --accent2: #fb923c;
+        --accent3: #fdba74;
+        --text: #f0f4ff;
+        --muted: #6b7a99;
+        --success: #22c55e;
+        --google-red: #ea4335;
+      }
+
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Enhanced Animations */
+      @keyframes pageFade {
+        0% {
+          opacity: 0;
+          filter: blur(12px);
+          transform: translateY(12px) scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes floatBG {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(20px, 15px) scale(1.05);
+        }
+      }
+
+      @keyframes cardIn {
+        0% {
+          opacity: 0;
+          transform: translateY(30px) scale(0.96);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      body {
+        animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+      }
+
+      /* Background */
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        opacity: 0.2;
+        animation: floatBG 18s ease-in-out infinite alternate;
+      }
+      .blob-1 {
+        width: 560px;
+        height: 560px;
+        background: #f97316;
+        top: -160px;
+        left: -140px;
+      }
+      .blob-2 {
+        width: 400px;
+        height: 400px;
+        background: #3b82f6;
+        bottom: -100px;
+        right: -80px;
+        animation-delay: -5s;
+      }
+      .blob-3 {
+        width: 280px;
+        height: 280px;
+        background: #ec4899;
+        top: 40%;
+        left: 55%;
+        animation-delay: -9s;
+      }
+
+      .grid-lines {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 48px 48px;
+      }
+
+      /* Layout */
+      .page {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
+        .left-panel {
+          display: none;
+        }
+        .right-panel {
+          padding: 32px 20px;
+          min-height: 100vh;
+          align-items: flex-start;
+          padding-top: max(48px, env(safe-area-inset-top, 48px));
+        }
+        .card {
+          padding: 32px 24px;
+          border-radius: 24px;
+        }
+        .input-group input {
+          font-size: 16px !important;
+        }
+        .btn-primary,
+        .btn-google {
+          padding: 15px;
+          font-size: 15px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .right-panel {
+          padding: 24px 12px;
+        }
+        .card {
+          padding: 28px 16px;
+        }
+        .form-heading {
+          font-size: 19px;
+        }
+      }
+
+      /* Left Panel */
+      .left-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 60px 64px;
+        border-right: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .left-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(249, 115, 22, 0.06) 0%,
+          transparent 60%
+        );
+        pointer-events: none;
+      }
+
+      .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(249, 115, 22, 0.12);
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        border-radius: 100px;
+        padding: 6px 16px 6px 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--accent2);
+        margin-bottom: 40px;
+        animation: fadeUp 0.6s ease both;
+      }
+      .brand-badge .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
+        animation: pulse 2s infinite;
+      }
+
+      .left-title {
+        font-family: "Syne", sans-serif;
+        font-size: clamp(40px, 4.5vw, 58px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: 24px;
+        animation: fadeUp 0.6s 0.1s ease both;
+        background: linear-gradient(135deg, #ffffff, var(--accent3));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .left-title span {
+        color: var(--accent);
+        background: none;
+        -webkit-background-clip: unset;
+      }
+
+      .left-desc {
+        font-size: 16px;
+        line-height: 1.7;
+        color: var(--muted);
+        max-width: 380px;
+        margin-bottom: 52px;
+        animation: fadeUp 0.6s 0.2s ease both;
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 32px;
+        animation: fadeUp 0.6s 0.3s ease both;
+      }
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .stat-num {
+        font-family: "Syne", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .stat-num span {
+        color: var(--accent);
+      }
+      .stat-label {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .divider-v {
+        width: 1px;
+        background: var(--border);
+        align-self: stretch;
+      }
+
+      .meals-preview {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 52px;
+        animation: fadeUp 0.6s 0.4s ease both;
+      }
+      .meal-tag {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+      .meal-tag:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+      }
+
+      /* Right Panel */
+      .right-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 48px 40px;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 40px 36px;
+        box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
+        animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        transition: all 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(249, 115, 22, 0.2);
+      }
+
+      /* Tabs */
+      .tabs {
+        display: flex;
+        background: var(--surface2);
+        border-radius: 12px;
+        padding: 4px;
+        margin-bottom: 32px;
+        gap: 4px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 10px;
+        background: transparent;
+        border: none;
+        border-radius: 9px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.25s ease;
+      }
+      .tab-btn.active {
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+
+      .form-section {
+        display: none;
+      }
+      .form-section.active {
+        display: block;
+        animation: fadeUp 0.35s ease both;
+      }
+
+      .form-heading {
+        font-family: "Syne", sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        background: linear-gradient(135deg, #ffffff, var(--accent3));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .form-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+
+      /* Input Groups */
+      .input-group {
+        margin-bottom: 18px;
+      }
+      .input-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 8px;
+      }
+      .input-wrap {
+        position: relative;
+      }
+      .input-wrap .icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        pointer-events: none;
+        opacity: 0.5;
+      }
+      .input-group input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 13px 14px 13px 42px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        color: var(--text);
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      .input-group input::placeholder {
+        color: var(--muted);
+      }
+      .input-group input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+        transform: scale(1.01);
+      }
+
+      .domain-hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .domain-hint .tick {
+        color: var(--success);
+        font-size: 12px;
+      }
+
+      .or-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .or-divider::before,
+      .or-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .or-divider span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* Buttons */
+      .btn-google {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: #fff;
+        color: #1f2937;
+        border: none;
+        border-radius: 12px;
+        padding: 13px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+      }
+      .btn-google:hover {
+        background: #f3f4f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      }
+      .btn-google:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        width: 100%;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-family: "Syne", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+        margin-top: 8px;
+      }
+      .btn-primary:hover {
+        background: var(--accent2);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 28px rgba(249, 115, 22, 0.5);
+      }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .notice {
+        background: rgba(249, 115, 22, 0.08);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 12px;
+        color: var(--accent2);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        line-height: 1.5;
+      }
+
+      .card-footer {
+        margin-top: 28px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .card-footer a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+      .card-footer a:hover {
+        color: var(--accent2);
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 22px;
+        font-size: 14px;
+        color: var(--text);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .top-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 36px;
+      }
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .logo-text {
+        font-family: "Syne", sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .logo-text span {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-layer">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+    <div class="grid-lines"></div>
+
+    <div class="page">
+      <div class="left-panel">
+        <div class="brand-badge">
+          <span class="dot"></span> NIST University · Mess Portal
+        </div>
+
+        <h1 class="left-title">
+          Your voice<br />shapes the <span>food</span><br />you eat.
+        </h1>
+
+        <p class="left-desc">
+          Messify is NIST's centralized feedback system — submit weekly ratings,
+          flag issues, and help the mess committee make data-backed improvements
+          every single week.
+        </p>
+
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-num">5<span>k+</span></div>
+            <div class="stat-label">Students</div>
+          </div>
+          <div class="divider-v"></div>
+          <div class="stat">
+            <div class="stat-num">4</div>
+            <div class="stat-label">Meals / Day</div>
+          </div>
+          <div class="divider-v"></div>
+          <div class="stat">
+            <div class="stat-num">1<span>/wk</span></div>
+            <div class="stat-label">Submission</div>
+          </div>
+        </div>
+
+        <div class="meals-preview">
+          <div class="meal-tag"><span class="icon">🌅</span> Breakfast</div>
+          <div class="meal-tag"><span class="icon">🍱</span> Lunch</div>
+          <div class="meal-tag"><span class="icon">🫖</span> Snacks</div>
+          <div class="meal-tag"><span class="icon">🌙</span> Dinner</div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="card">
+          <div class="top-logo">
+            <div class="logo-icon">🍽</div>
+            <div class="logo-text">Messi<span>fy</span></div>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">
+              Login
+            </button>
+            <button class="tab-btn" onclick="switchTab('register')">
+              Register
+            </button>
+          </div>
+
+          <div class="form-section active" id="tab-login">
+            <div class="form-heading">Welcome back 👋</div>
+            <div class="form-sub">
+              Sign in to submit your weekly mess feedback.
+            </div>
+
+            <div class="notice">
+              <span class="notice-icon">🔒</span>
+              Only <strong>@nist.edu</strong> email addresses are permitted.
+            </div>
+
+            <button class="btn-google" onclick="handleGoogleAuth('login')">
+              <svg
+                class="google-logo"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Continue with Google (@nist.edu)
+            </button>
+
+            <div class="or-divider"><span>or sign in with email</span></div>
+
+            <div class="input-group">
+              <label>College Email</label>
+              <div class="input-wrap">
+                <span class="icon">✉️</span>
+                <input
+                  type="email"
+                  id="login-email"
+                  placeholder="yourname@nist.edu"
+                />
+              </div>
+              <div class="domain-hint">
+                <span class="tick">✓</span> Must be a valid @nist.edu address
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Password</label>
+              <div class="input-wrap">
+                <span class="icon">🔑</span>
+                <input type="password" id="login-pass" placeholder="••••••••" />
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()">
+              Sign In →
+            </button>
+
+            <div class="card-footer">
+              Don't have an account?
+              <a
+                href="#"
+                onclick="
+                  switchTab('register');
+                  return false;
+                "
+                >Register here</a
+              >
+            </div>
+          </div>
+
+          <div class="form-section" id="tab-register">
+            <div class="form-heading">Create account 🎓</div>
+            <div class="form-sub">Register with your NIST college email.</div>
+
+            <button class="btn-google" onclick="handleGoogleAuth('register')">
+              <svg
+                class="google-logo"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Register with Google (@nist.edu)
+            </button>
+
+            <div class="or-divider"><span>or register manually</span></div>
+
+            <div class="input-group">
+              <label>Full Name</label>
+              <div class="input-wrap">
+                <span class="icon">👤</span>
+                <input type="text" id="reg-name" placeholder="Rahul Sharma" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>College Email</label>
+              <div class="input-wrap">
+                <span class="icon">✉️</span>
+                <input
+                  type="email"
+                  id="reg-email"
+                  placeholder="yourname@nist.edu"
+                />
+              </div>
+              <div class="domain-hint">
+                <span class="tick">✓</span> Only @nist.edu emails are accepted
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Password</label>
+              <div class="input-wrap">
+                <span class="icon">🔑</span>
+                <input
+                  type="password"
+                  id="reg-pass"
+                  placeholder="Min. 8 characters"
+                />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Confirm Password</label>
+              <div class="input-wrap">
+                <span class="icon">🔒</span>
+                <input
+                  type="password"
+                  id="reg-confirm"
+                  placeholder="Repeat password"
+                />
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleRegister()">
+              Create Account →
+            </button>
+
+            <div class="card-footer">
+              Already registered?
+              <a
+                href="#"
+                onclick="
+                  switchTab('login');
+                  return false;
+                "
+                >Sign in</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">
+      <span class="toast-icon" id="toast-icon"></span>
+      <span id="toast-msg"></span>
+    </div>
+
+    <script>
+      (function () {
+        var user = null;
+        try {
+          user = JSON.parse(localStorage.getItem("messify_user"));
+        } catch (e) {}
+        if (user && user.email) {
+          if (user.role === "admin") {
+            window.location.href = "admin.html";
+          } else {
+            window.location.href = "feedback.html";
+          }
+        }
+      })();
+
+      function switchTab(tab) {
+        document.querySelectorAll(".tab-btn").forEach(function (b, i) {
+          b.classList.toggle(
+            "active",
+            (tab === "login" && i === 0) || (tab === "register" && i === 1),
+          );
+        });
+        document.querySelectorAll(".form-section").forEach(function (s) {
+          s.classList.remove("active");
+        });
+        document.getElementById("tab-" + tab).classList.add("active");
+      }
+
+      function showToast(msg, type) {
+        type = type || "error";
+        var t = document.getElementById("toast");
+        document.getElementById("toast-msg").textContent = msg;
+        document.getElementById("toast-icon").textContent =
+          type === "success" ? "✅" : "⚠️";
+        t.className = "toast " + type;
+        t.classList.add("show");
+        setTimeout(function () {
+          t.classList.remove("show");
+        }, 3500);
+      }
+
+      function isNistEmail(email) {
+        return email.trim().toLowerCase().endsWith("@nist.edu");
+      }
+
+      function saveUserAndRedirect(user) {
+        localStorage.setItem("messify_user", JSON.stringify(user));
+        if (user.role === "admin") {
+          window.location.href = "admin.html";
+        } else {
+          window.location.href = "feedback.html";
+        }
+      }
+
+      function handleGoogleAuth(mode) {
+        window.location.href = "/auth/google";
+      }
+
+      function handleLogin() {
+        var email = document.getElementById("login-email").value.trim();
+        var pass = document.getElementById("login-pass").value;
+        if (!email || !pass) {
+          showToast("Please fill in all fields.");
+          return;
+        }
+        if (!isNistEmail(email)) {
+          showToast("Only @nist.edu emails are allowed!");
+          return;
+        }
+
+        showToast("Signing in…", "success");
+
+        fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email: email, password: pass }),
+        })
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (data) {
+            if (data.success) {
+              saveUserAndRedirect(data.user);
+            } else {
+              showToast(
+                data.message || "Login failed. Please check your credentials.",
+              );
+            }
+          })
+          .catch(function () {
+            showToast("Server error. Make sure your backend is running.");
+          });
+      }
+
+      function handleRegister() {
+        var name = document.getElementById("reg-name").value.trim();
+        var email = document.getElementById("reg-email").value.trim();
+        var pass = document.getElementById("reg-pass").value;
+        var confirm = document.getElementById("reg-confirm").value;
+
+        if (!name || !email || !pass || !confirm) {
+          showToast("Please fill in all fields.");
+          return;
+        }
+        if (!isNistEmail(email)) {
+          showToast("Only @nist.edu emails are allowed!");
+          return;
+        }
+        if (pass.length < 8) {
+          showToast("Password must be at least 8 characters.");
+          return;
+        }
+        if (pass !== confirm) {
+          showToast("Passwords do not match!");
+          return;
+        }
+
+        showToast("Creating account…", "success");
+
+        fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ name: name, email: email, password: pass }),
+        })
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (data) {
+            if (data.success) {
+              saveUserAndRedirect(data.user);
+            } else {
+              showToast(data.message || "Registration failed.");
+            }
+          })
+          .catch(function () {
+            showToast("Server error. Make sure your backend is running.");
+          });
+      }
+    </script>
+  </body>
+</html>

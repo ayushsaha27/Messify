@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Messify – Student Complaints</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      * {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      :root {
+        --bg: #0b0f1a;
+        --surface: #111827;
+        --surface2: #1a2235;
+        --surface3: #222e45;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --accent: #f97316;
+        --accent2: #fb923c;
+        --accent3: #fdba74;
+        --text: #f0f4ff;
+        --muted: #6b7a99;
+        --muted2: #8b9ab8;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #eab308;
+      }
+      html,
+      body {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        overflow-x: hidden;
+      }
+      @keyframes pageFade {
+        0% {
+          opacity: 0;
+          filter: blur(12px);
+          transform: translateY(12px) scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes gentleMorph {
+        0% {
+          border-radius: 18px;
+          background: radial-gradient(
+            circle at 20% 30%,
+            rgba(249, 115, 22, 0.02),
+            transparent
+          );
+        }
+        100% {
+          border-radius: 24px;
+          background: radial-gradient(
+            circle at 80% 70%,
+            rgba(249, 115, 22, 0.04),
+            transparent
+          );
+        }
+      }
+      @keyframes floatBG {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(20px, 15px) scale(1.05);
+        }
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      body {
+        animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+      }
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        opacity: 0.2;
+        animation: floatBG 18s ease-in-out infinite alternate;
+      }
+      .blob-1 {
+        width: 560px;
+        height: 560px;
+        background: #f97316;
+        top: -160px;
+        left: -140px;
+      }
+      .blob-2 {
+        width: 400px;
+        height: 400px;
+        background: #3b82f6;
+        bottom: -100px;
+        right: -80px;
+        animation-delay: -5s;
+      }
+      .grid-lines {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 48px 48px;
+      }
+
+      .topnav {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        height: 62px;
+        background: rgba(11, 15, 26, 0.92);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        flex: 1;
+        transition: transform 0.2s ease;
+      }
+      .nav-logo:hover {
+        transform: scale(1.02);
+      }
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+      }
+      .logo-text {
+        font-family: "Syne", sans-serif;
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .logo-text span {
+        color: var(--accent);
+      }
+      .nav-links {
+        display: flex;
+        gap: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .nav-link {
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+      .nav-link.active {
+        background: rgba(249, 115, 22, 0.12);
+        color: var(--accent);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex: 1;
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .nav-email {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .admin-pill {
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        color: var(--accent2);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .menu-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .menu-btn svg {
+        width: 20px;
+        height: 20px;
+        color: var(--muted);
+      }
+
+      .layout {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: calc(100vh - 61px);
+      }
+      .sidebar {
+        border-right: 1px solid var(--border);
+        padding: 24px 14px;
+        background: rgba(11, 15, 26, 0.4);
+        position: sticky;
+        top: 62px;
+        height: calc(100vh - 61px);
+      }
+      .sb-section {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0 10px;
+        margin: 18px 0 6px;
+      }
+      .sb-section:first-child {
+        margin-top: 0;
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 2px;
+      }
+      .sb-item.active {
+        background: rgba(249, 115, 22, 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(249, 115, 22, 0.15);
+      }
+
+      .content {
+        padding: 32px 36px;
+        max-width: 1000px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .ph {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 14px;
+        animation: fadeUp 0.6s ease both;
+      }
+      .ph-title {
+        font-family: "Syne", sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, #ffffff, var(--accent3));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .ph-title em {
+        color: var(--accent);
+        font-style: normal;
+        background: none;
+        -webkit-background-clip: unset;
+      }
+      .ph-sub {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        animation: gentleMorph 4s infinite alternate ease-in-out;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(249, 115, 22, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .complaint-item {
+        animation: slideIn 0.4s ease both;
+      }
+
+      @media (max-width: 1000px) {
+        .menu-btn {
+          display: flex;
+        }
+        .nav-links,
+        .nav-email {
+          display: none;
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (min-width: 1001px) {
+        .menu-btn {
+          display: none;
+        }
+        .sidebar-overlay {
+          display: none !important;
+        }
+      }
+      @media (max-width: 600px) {
+        .content {
+          padding: 16px 12px 80px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-layer">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+    <div class="grid-lines"></div>
+
+    <nav class="topnav">
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        onclick="toggleSidebar()"
+        aria-label="Open menu"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          width="20"
+          height="20"
+        >
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🍽</div>
+        <div class="logo-text">Messi<span>fy</span></div>
+      </a>
+      <div class="nav-links" id="dynamic-nav-links">
+        <a href="reports.html" class="nav-link">Reports</a>
+        <a href="admin.html" class="nav-link active">Admin</a>
+      </div>
+      <div class="nav-right" id="nav-right">
+        <div class="nav-user">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <span class="nav-email" id="nav-email">Loading...</span>
+        </div>
+        <span class="admin-pill">⚙️ Admin Panel</span>
+      </div>
+    </nav>
+
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="toggleSidebar()"
+    ></div>
+
+    <div class="layout">
+      <div class="sidebar" id="sidebar"></div>
+
+      <div class="content">
+        <div class="ph">
+          <div style="display: flex; align-items: center; gap: 14px">
+            <div>
+              <div class="ph-title">Student <em>Complaints</em></div>
+              <div class="ph-sub">
+                Viewing all submitted issues and feedback in real-time
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div id="full-complaints-list">
+            <div
+              style="color: var(--muted); text-align: center; padding: 40px 0"
+            >
+              Loading complaints from database...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var mu = null;
+        try {
+          mu = JSON.parse(localStorage.getItem("messify_user"));
+        } catch (e) {}
+        if (!mu || !mu.email || mu.role !== "admin") {
+          window.location.href = "index.html";
+          return;
+        }
+
+        var av = document.getElementById("nav-avatar");
+        var em = document.getElementById("nav-email");
+        if (av)
+          av.textContent = (mu.name || mu.email)
+            .split(" ")
+            .map(function (w) {
+              return w[0];
+            })
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+        if (em) em.textContent = mu.email;
+
+        fetch("/api/admin/complaints", {
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-email": mu.email,
+          },
+        })
+          .then(function (r) {
+            return r.json();
+          })
+          .then(function (res) {
+            var list = document.getElementById("full-complaints-list");
+            if (!res.success || !res.data || res.data.length === 0) {
+              list.innerHTML =
+                '<div style="color: var(--muted); text-align: center; padding: 40px 0;">✅ No complaints found in the database.</div>';
+              return;
+            }
+
+            list.innerHTML = "";
+            res.data.forEach(function (c, idx) {
+              var dt = new Date(c.submittedAt).toLocaleString("en-IN", {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              var txt = c.text.toLowerCase();
+              var icon =
+                txt.indexOf("oil") > -1
+                  ? "🦠"
+                  : txt.indexOf("cook") > -1 || txt.indexOf("dal") > -1
+                    ? "🍛"
+                    : txt.indexOf("salt") > -1 || txt.indexOf("hard") > -1
+                      ? "🧂"
+                      : "⚠️";
+
+              list.innerHTML += `
+              <div class="complaint-item" style="padding: 20px 0; border-bottom: 1px solid var(--border); display: flex; gap: 16px; align-items: flex-start; transition: all 0.2s ease; animation-delay: ${idx * 0.05}s;">
+                <div style="background: rgba(239, 68, 68, 0.1); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                  ${icon}
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-size: 15px; color: #f0f4ff; line-height: 1.6; margin-bottom: 8px; font-weight: 500;">
+                    ${c.text.replace(/</g, "&lt;")}
+                  </div>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--muted);">
+                    <span style="background: var(--surface2); padding: 4px 10px; border-radius: 6px; color: var(--accent3);">👤 ${c.name} (${c.email})</span>
+                    <span style="background: var(--surface2); padding: 4px 10px; border-radius: 6px;">📅 ${c.week}</span>
+                    <span style="background: var(--surface2); padding: 4px 10px; border-radius: 6px;">🕒 ${dt}</span>
+                  </div>
+                </div>
+              </div>`;
+            });
+          })
+          .catch(function () {
+            document.getElementById("full-complaints-list").innerHTML =
+              '<div style="color: var(--danger); text-align: center; padding: 40px 0;">Error loading database connection. Is the backend running?</div>';
+          });
+      })();
+
+      function logoutUser(event) {
+        if (event) event.preventDefault();
+        localStorage.removeItem("messify_user");
+        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+          .then(function () {
+            window.location.href = "index.html";
+          })
+          .catch(function () {
+            window.location.href = "index.html";
+          });
+      }
+    </script>
+    <script src="messify.js"></script>
+  </body>
+</html>
