@@ -478,10 +478,10 @@ app.post("/api/feedback/submit", async (req, res) => {
         message: "You have already submitted feedback this week.",
       });
     const rated = Object.values(ratings).filter((v) => Number(v) > 0).length;
-    if (rated < 14)
+    if (rated < 1)
       return res.json({
         success: false,
-        message: "Please rate at least 14 meals.",
+        message: "Please rate at least one meal before submitting.",
       });
 
     const meal_ratings = [];

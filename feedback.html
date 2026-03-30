@@ -699,6 +699,53 @@
         gap: 10px;
       }
       .toast.show { transform: translateX(-50%) translateY(0); }
+
+      /* ── LOCKED DAY ROW ── */
+      .day-locked td {
+        opacity: 0.35;
+        pointer-events: none;
+      }
+      .day-locked td:first-child {
+        opacity: 1 !important;
+      }
+      .day-label-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .day-lock-badge {
+        font-size: 10px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        color: var(--muted);
+        padding: 1px 6px;
+        border-radius: 100px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+      }
+      .day-unlocked-badge {
+        font-size: 10px;
+        background: rgba(34,197,94,0.1);
+        border: 1px solid rgba(34,197,94,0.25);
+        color: #4ade80;
+        padding: 1px 6px;
+        border-radius: 100px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+      }
+      .day-today-badge {
+        font-size: 10px;
+        background: rgba(249,115,22,0.12);
+        border: 1px solid rgba(249,115,22,0.3);
+        color: var(--accent);
+        padding: 1px 6px;
+        border-radius: 100px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+      }
     </style>
   </head>
   <body>
@@ -759,7 +806,7 @@
         </div>
         <div class="prog-wrap">
           <div class="prog-top">
-            <span>Rating progress</span><strong id="prog-text">0 / 28 meals rated</strong>
+            <span>Rating progress</span><strong id="prog-text">0 / ? meals rated</strong>
           </div>
           <div class="prog-track">
             <div class="prog-fill" id="prog-fill" style="width: 0%"></div>
@@ -799,7 +846,7 @@
           </div>
         </div>
         <div class="submit-row">
-          <div class="sr-info">Rated <strong id="rated-count">0</strong> / 28 meal slots</div>
+          <div class="sr-info">Rated <strong id="rated-count">0</strong> / ? unlocked meal slots</div>
           <button class="btn-primary" onclick="submitFeedback()">Submit Feedback →</button>
         </div>
       </div>
@@ -852,39 +899,122 @@
         });
       });
 
+      // ── DAY-UNLOCK LOGIC ──
+      // Monday=0 … Sunday=6 in our week. JS getDay(): Sun=0,Mon=1…Sat=6
+      // We convert so Mon=0, Tue=1, … Sun=6
+      function getTodayDayIndex() {
+        var jsDay = new Date().getDay(); // 0=Sun,1=Mon,...6=Sat
+        // Convert: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
+        return jsDay === 0 ? 6 : jsDay - 1;
+      }
+
+      // Returns how many days from start of week are unlocked (1–7).
+      // On Monday → 1, Tuesday → 2, … Sunday → 7
+      function getUnlockedCount() {
+        return getTodayDayIndex() + 1; // 1-based
+      }
+
+      // An array of which day-indices (0=Mon…6=Sun) are unlocked
+      function getUnlockedDayIndices() {
+        var count = getUnlockedCount();
+        var arr = [];
+        for (var i = 0; i < count; i++) arr.push(i);
+        return arr;
+      }
+
+      // Total unlockable slots = unlockedDays × 4 meals
+      function getTotalUnlockedSlots() {
+        return getUnlockedCount() * meals.length;
+      }
+
       function buildTable(){
         var tb = document.getElementById("ratingBody");
-        days.forEach(function(day){
+        var unlockedIndices = getUnlockedDayIndices();
+        var todayIdx = getTodayDayIndex();
+
+        days.forEach(function(day, dayIdx){
+          var isUnlocked = unlockedIndices.indexOf(dayIdx) !== -1;
+          var isToday    = dayIdx === todayIdx;
+
           var tr = document.createElement("tr");
+          tr.dataset.day = day;
+          if (!isUnlocked) tr.classList.add("day-locked");
+
+          // Day label cell
           var td0 = document.createElement("td");
-          td0.textContent = day;
+          var labelWrap = document.createElement("div");
+          labelWrap.className = "day-label-wrap";
+          var daySpan = document.createElement("span");
+          daySpan.textContent = day;
+          labelWrap.appendChild(daySpan);
+
+          if (isToday) {
+            var badge = document.createElement("span");
+            badge.className = "day-today-badge";
+            badge.textContent = "Today";
+            labelWrap.appendChild(badge);
+          } else if (isUnlocked) {
+            var badge = document.createElement("span");
+            badge.className = "day-unlocked-badge";
+            badge.textContent = "Open";
+            labelWrap.appendChild(badge);
+          } else {
+            var badge = document.createElement("span");
+            badge.className = "day-lock-badge";
+            badge.textContent = "🔒 Future";
+            labelWrap.appendChild(badge);
+          }
+          td0.appendChild(labelWrap);
           tr.appendChild(td0);
 
           meals.forEach(function(meal){
             var td = document.createElement("td");
             var key = day + "_" + meal;
 
-            var wrap = document.createElement("div");
-            wrap.className = "stars";
-            for(var s=1; s<=5; s++){
-              var star = document.createElement("span");
-              star.className = "star";
-              star.textContent = "★";
-              star.dataset.key = key;
-              star.dataset.val = s;
-              star.addEventListener("click", (function(k,v){ return function(){ setRating(k,v); }; })(key,s));
-              star.addEventListener("mouseover", (function(k,v){ return function(){ previewStars(k,v); }; })(key,s));
-              star.addEventListener("mouseout", (function(k){ return function(){ renderStars(k); }; })(key));
-              wrap.appendChild(star);
-            }
-            td.appendChild(wrap);
+            if (!isUnlocked) {
+              // Locked cell — show dim placeholder
+              var placeholder = document.createElement("div");
+              placeholder.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:4px;";
+              var dimStars = document.createElement("div");
+              dimStars.className = "stars";
+              dimStars.style.opacity = "0.25";
+              for (var s = 1; s <= 5; s++) {
+                var ds = document.createElement("span");
+                ds.className = "star";
+                ds.textContent = "★";
+                ds.style.fontSize = "18px";
+                dimStars.appendChild(ds);
+              }
+              placeholder.appendChild(dimStars);
+              td.appendChild(placeholder);
+            } else {
+              var wrap = document.createElement("div");
+              wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:5px;";
 
-            var typeWrap = document.createElement("div");
-            typeWrap.className = "veg-toggle";
-            typeWrap.dataset.key = key;
-            typeWrap.innerHTML = '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' + key + "', 'veg')\">🌿 Veg</span>" +
-              '<span class="vt-nv" data-type="non-veg" onclick="setFoodType(\'' + key + "', 'non-veg')\">🍗 NV</span>";
-            td.appendChild(typeWrap);
+              var starsDiv = document.createElement("div");
+              starsDiv.className = "stars";
+              for(var s=1; s<=5; s++){
+                var star = document.createElement("span");
+                star.className = "star";
+                star.textContent = "★";
+                star.dataset.key = key;
+                star.dataset.val = s;
+                star.addEventListener("click", (function(k,v){ return function(){ setRating(k,v); }; })(key,s));
+                star.addEventListener("mouseover", (function(k,v){ return function(){ previewStars(k,v); }; })(key,s));
+                star.addEventListener("mouseout", (function(k){ return function(){ renderStars(k); }; })(key));
+                starsDiv.appendChild(star);
+              }
+              wrap.appendChild(starsDiv);
+
+              var typeWrap = document.createElement("div");
+              typeWrap.className = "veg-toggle";
+              typeWrap.dataset.key = key;
+              typeWrap.innerHTML =
+                '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' + key + "', 'veg')\">🌿 Veg</span>" +
+                '<span class="vt-nv" data-type="non-veg" onclick="setFoodType(\'' + key + "', 'non-veg')\">🍗 NV</span>";
+              wrap.appendChild(typeWrap);
+              td.appendChild(wrap);
+            }
             tr.appendChild(td);
           });
           tb.appendChild(tr);
@@ -893,6 +1023,7 @@
       }
 
       function setRating(k,v){
+        if(window.isFormLocked) return;
         window.ratings[k] = v;
         renderStars(k);
         updateProg();
@@ -925,10 +1056,23 @@
         });
       }
       function updateProg(){
-        var n = Object.values(window.ratings).filter(function(v){ return v > 0; }).length;
-        document.getElementById("prog-fill").style.width = Math.round((n/28)*100) + "%";
-        document.getElementById("prog-text").textContent = n + " / 28 meals rated";
-        document.getElementById("rated-count").textContent = n;
+        // Count only rated slots that belong to unlocked days
+        var unlockedIndices = getUnlockedDayIndices();
+        var totalSlots = getTotalUnlockedSlots();
+        var ratedSlots = 0;
+        days.forEach(function(day, idx){
+          if (unlockedIndices.indexOf(idx) === -1) return;
+          meals.forEach(function(meal){
+            if ((window.ratings[day + "_" + meal] || 0) > 0) ratedSlots++;
+          });
+        });
+        var pct = totalSlots > 0 ? Math.round((ratedSlots / totalSlots) * 100) : 0;
+        document.getElementById("prog-fill").style.width = pct + "%";
+        document.getElementById("prog-text").textContent = ratedSlots + " / " + totalSlots + " unlocked meals rated";
+        document.getElementById("rated-count").textContent = ratedSlots;
+        // Update the submit info text to show unlocked total
+        var srInfo = document.querySelector(".sr-info");
+        if (srInfo) srInfo.innerHTML = 'Rated <strong id="rated-count">' + ratedSlots + '</strong> / ' + totalSlots + ' unlocked meal slots';
       }
 
       buildTable();

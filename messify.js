@@ -457,12 +457,13 @@
             var progFill = document.getElementById("prog-fill");
             var progText = document.getElementById("prog-text");
             var rCount = document.getElementById("rated-count");
+            var totalSlots = (typeof getTotalUnlockedSlots === "function") ? getTotalUnlockedSlots() : 28;
             if (progFill)
               progFill.style.width =
-                Math.round((ratedCountNum / 28) * 100) + "%";
+                Math.round((ratedCountNum / totalSlots) * 100) + "%";
             if (progText)
               progText.textContent =
-                "Submitted — " + ratedCountNum + " / 28 meals rated";
+                "Submitted — " + ratedCountNum + " meals rated";
             if (rCount) rCount.textContent = ratedCountNum;
 
             var liked = document.getElementById("liked");
@@ -481,11 +482,21 @@
       if (submitBtn.disabled) return;
       var ratings = window.ratings || {};
       var foodTypes = window.foodTypes || {};
-      var n = Object.values(ratings).filter(function (v) {
-        return v > 0;
-      }).length;
-      if (n < 14) {
-        showToast("Please rate at least 14 meals before submitting.", "error");
+      // Count only unlocked-day slots that have been rated
+      var unlockedRated = 0;
+      if (typeof getUnlockedDayIndices === "function" && typeof days !== "undefined" && typeof meals !== "undefined") {
+        var uIdx = getUnlockedDayIndices();
+        days.forEach(function(day, idx) {
+          if (uIdx.indexOf(idx) === -1) return;
+          meals.forEach(function(meal) {
+            if ((ratings[day + "_" + meal] || 0) > 0) unlockedRated++;
+          });
+        });
+      } else {
+        unlockedRated = Object.values(ratings).filter(function(v){ return v > 0; }).length;
+      }
+      if (unlockedRated < 1) {
+        showToast("Please rate at least one meal before submitting.", "error");
         return;
       }
       var liked = document.getElementById("liked")
@@ -644,18 +655,19 @@
 
         // Bar chart: Dataset[0]=Veg avg, Dataset[1]=Non-Veg avg — aggregated across ALL users
         if (window._messifyBarChart) {
-          var vb = d.vegBreakdown || {};
+          var vAvg = d.mealVegAvg || {};
+          var nvAvg = d.mealNvAvg || {};
           window._messifyBarChart.data.datasets[0].data = [
-            vb.breakfast ? vb.breakfast.vegAvg    : d.mealAvg.breakfast,
-            vb.lunch     ? vb.lunch.vegAvg        : d.mealAvg.lunch,
-            d.mealAvg.snacks,
-            vb.dinner    ? vb.dinner.vegAvg       : d.mealAvg.dinner,
+            vAvg.breakfast || null,
+            vAvg.lunch     || null,
+            vAvg.snacks    || null,
+            vAvg.dinner    || null,
           ];
           window._messifyBarChart.data.datasets[1].data = [
-            vb.breakfast ? (vb.breakfast.nonVegAvg || null) : null,
-            vb.lunch     ? (vb.lunch.nonVegAvg     || null) : null,
+            nvAvg.breakfast || null,
+            nvAvg.lunch     || null,
             null,
-            vb.dinner    ? (vb.dinner.nonVegAvg    || null) : null,
+            nvAvg.dinner    || null,
           ];
           window._messifyBarChart.update();
         }
@@ -702,22 +714,22 @@
           window._messifyTrendChart.data.datasets[0].data = res.data.map(function(w) {
             return w.overallAvg;
           });
-          // Veg avg — average of veg ratings for breakfast/lunch/dinner across all users
+          // Veg avg — average of veg ratings across all meals and all users
           window._messifyTrendChart.data.datasets[1].data = res.data.map(function(w) {
-            var vb = w.vegBreakdown;
-            if (!vb) return null;
-            var vals = ["breakfast","lunch","dinner"]
-              .map(function(m) { return vb[m] ? vb[m].vegAvg : 0; })
+            var vAvg = w.mealVegAvg;
+            if (!vAvg) return null;
+            var vals = ["breakfast","lunch","snacks","dinner"]
+              .map(function(m) { return vAvg[m] || 0; })
               .filter(function(v) { return v > 0; });
             if (!vals.length) return null;
             return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
           });
-          // Non-Veg avg — average of non-veg ratings for breakfast/lunch/dinner across all users
+          // Non-Veg avg — average of non-veg ratings across all meals and all users
           window._messifyTrendChart.data.datasets[2].data = res.data.map(function(w) {
-            var vb = w.vegBreakdown;
-            if (!vb) return null;
+            var nvAvg = w.mealNvAvg;
+            if (!nvAvg) return null;
             var vals = ["breakfast","lunch","dinner"]
-              .map(function(m) { return vb[m] ? vb[m].nonVegAvg : 0; })
+              .map(function(m) { return nvAvg[m] || 0; })
               .filter(function(v) { return v > 0; });
             if (!vals.length) return null;
             return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
