@@ -499,6 +499,7 @@
         display: flex;
         flex-direction: column;
         transition: all 0.3s ease;
+        overflow: hidden;
       }
       .chart-card:hover {
         transform: translateY(-2px);
@@ -506,9 +507,9 @@
       }
       .chart-wrapper {
         position: relative;
-        flex: 1;
         width: 100%;
-        min-height: 250px;
+        height: 260px;
+        min-height: 0;
       }
       .cc-header {
         display: flex;
@@ -856,7 +857,16 @@
             <div class="cc-header">
               <div class="cc-title">Meal Distribution</div>
             </div>
-            <div class="chart-wrapper"><canvas id="doughnut"></canvas></div>
+            <div class="chart-wrapper" style="display:flex; gap:10px; align-items:center; height:260px;">
+              <div style="flex:1; position:relative; height:200px; max-height:200px;">
+                <canvas id="doughnutVeg"></canvas>
+                <div style="text-align:center; font-size:12px; margin-top:8px; color:var(--muted)">🌿 Veg</div>
+              </div>
+              <div style="flex:1; position:relative; height:200px; max-height:200px;">
+                <canvas id="doughnutNv"></canvas>
+                <div style="text-align:center; font-size:12px; margin-top:8px; color:var(--muted)">🍗 Non-Veg</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1043,84 +1053,66 @@
         },
       );
 
-      // ── MEAL DISTRIBUTION DOUGHNUT CHART (Veg vs Non-Veg per meal) ──
-      window._messifyDoughnutChart = new Chart(
-        document.getElementById("doughnut"),
+      // ── MEAL DISTRIBUTION DOUGHNUT CHART (Split Veg vs Non-Veg per meal) ──
+      var doughnutCommonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "60%",
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: C.bg,
+            borderColor: "rgba(249,115,22,.25)",
+            borderWidth: 1,
+            titleColor: "#f0f4ff",
+            bodyColor: C.muted,
+            callbacks: {
+              title: function(items) {
+                var meals = ["Breakfast", "Lunch", "Snacks", "Dinner"];
+                return meals[items[0].dataIndex] || "";
+              },
+              label: function(ctx) {
+                var val = ctx.raw;
+                return val ? "Rating: " + val + " / 5" : "No data";
+              }
+            }
+          }
+        }
+      };
+
+      window._messifyDoughnutChartVeg = new Chart(
+        document.getElementById("doughnutVeg"),
         {
           type: "doughnut",
           data: {
             labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
-            datasets: [
-              {
-                label: "🌿 Veg Avg",
+            datasets: [{
                 data: [0, 0, 0, 0],
-                backgroundColor: [
-                  "rgba(134,239,172,0.85)",
-                  "rgba(74,222,128,0.80)",
-                  "rgba(34,197,94,0.75)",
-                  "rgba(22,163,74,0.80)"
-                ],
+                backgroundColor: ["rgba(134,239,172,0.85)", "rgba(74,222,128,0.80)", "rgba(34,197,94,0.75)", "rgba(22,163,74,0.80)"],
                 borderColor: "rgba(255,255,255,0.08)",
                 borderWidth: 2,
-                hoverOffset: 8,
-              },
-              {
-                label: "🍗 Non-Veg Avg",
-                data: [0, 0, 0, 0],
-                backgroundColor: [
-                  "rgba(253,186,116,0.85)",
-                  "rgba(251,146,60,0.80)",
-                  "rgba(249,115,22,0.75)",
-                  "rgba(234,88,12,0.80)"
-                ],
-                borderColor: "rgba(255,255,255,0.08)",
-                borderWidth: 2,
-                hoverOffset: 8,
-              }
-            ],
+                hoverOffset: 4,
+            }],
           },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: "58%",
-            plugins: {
-              legend: {
-                display: true,
-                position: "bottom",
-                labels: {
-                  font: { family: "DM Sans", size: 11 },
-                  color: C.muted,
-                  padding: 12,
-                  boxWidth: 10,
-                  generateLabels: function() {
-                    return [
-                      { text: "🌿 Veg", fillStyle: "rgba(134,239,172,0.85)", strokeStyle: "transparent", lineWidth: 0, fontColor: C.muted },
-                      { text: "🍗 Non-Veg", fillStyle: "rgba(253,186,116,0.85)", strokeStyle: "transparent", lineWidth: 0, fontColor: C.muted },
-                    ];
-                  }
-                }
-              },
-              tooltip: {
-                backgroundColor: C.bg,
-                borderColor: "rgba(249,115,22,.25)",
-                borderWidth: 1,
-                titleColor: "#f0f4ff",
-                bodyColor: C.muted,
-                callbacks: {
-                  title: function(items) {
-                    var meals = ["Breakfast", "Lunch", "Snacks", "Dinner"];
-                    return meals[items[0].dataIndex] || "";
-                  },
-                  label: function(ctx) {
-                    var isVeg = ctx.datasetIndex === 0;
-                    var val = ctx.raw;
-                    if (!val) return (isVeg ? "🌿 Veg" : "🍗 Non-Veg") + ": No data";
-                    return (isVeg ? "🌿 Veg" : "🍗 Non-Veg") + ": " + val + " / 5";
-                  }
-                }
-              }
-            }
-          }
+          options: doughnutCommonOptions
+        }
+      );
+
+      window._messifyDoughnutChartNv = new Chart(
+        document.getElementById("doughnutNv"),
+        {
+          type: "doughnut",
+          data: {
+            labels: ["Breakfast", "Lunch", "Snacks", "Dinner"],
+            datasets: [{
+                data: [0, 0, 0, 0],
+                backgroundColor: ["rgba(253,186,116,0.85)", "rgba(251,146,60,0.80)", "rgba(249,115,22,0.75)", "rgba(234,88,12,0.80)"],
+                borderColor: "rgba(255,255,255,0.08)",
+                borderWidth: 2,
+                hoverOffset: 4,
+            }],
+          },
+          options: doughnutCommonOptions
         }
       );
 

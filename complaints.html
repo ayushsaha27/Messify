@@ -516,6 +516,7 @@
             "Content-Type": "application/json",
             "x-user-email": mu.email,
           },
+          credentials: "include"
         })
           .then(function (r) {
             return r.json();

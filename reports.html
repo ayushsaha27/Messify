@@ -723,7 +723,7 @@
               <div class="ph-sub">Academic Year <span id="acad-year">2024–25</span></div>
             </div>
           </div>
-          <div class="view-toggle">
+          <div class="view-toggle" id="view-toggle-wrap">
             <button class="vt-btn active" id="btn-weekly" onclick="switchView('weekly')">📊 Weekly Report</button>
             <button class="vt-btn" id="btn-history" onclick="switchView('history')">📋 My History</button>
           </div>
@@ -786,6 +786,10 @@
               <div class="card-title">💬 Student Comments</div>
               <span style="font-size: 12px; color: var(--muted)">Anonymous</span>
             </div>
+            <div id="comments-placeholder" style="padding: 32px 24px; text-align: center; color: var(--muted); font-size: 13px;">
+              <div style="font-size: 28px; margin-bottom: 10px;">💬</div>
+              No student comments yet for this week.
+            </div>
           </div>
         </div>
 
@@ -803,6 +807,16 @@
       var messifyUser = null;
       try { messifyUser = JSON.parse(localStorage.getItem("messify_user")); } catch (e) {}
       if (!messifyUser || !messifyUser.email) { window.location.href = "index.html"; }
+
+      // Hide "My History" toggle button and sidebar item for admins (they don't submit ratings)
+      if (messifyUser && messifyUser.role === "admin") {
+        var histBtn = document.getElementById("btn-history");
+        if (histBtn) histBtn.style.display = "none";
+        // Also guard against direct URL ?view=history for admins
+        if (window.location.search.includes("view=history")) {
+          window.history.replaceState(null, "", "reports.html");
+        }
+      }
 
       if (messifyUser) {
         var _ini = (messifyUser.name || messifyUser.email).split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);

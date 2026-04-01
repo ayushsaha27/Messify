@@ -33,7 +33,6 @@
         .nav-email { display: none !important; }
         .nav-right { flex: 0; }
 
-        /* Hamburger — always visible, correct size */
         .menu-btn {
           display: flex !important;
           align-items: center;
@@ -50,7 +49,6 @@
 
       /* ── SIDEBAR DRAWER ── */
       @media (max-width: 1000px) {
-        /* ✅ FIX: z-index auto prevents the dark overlay bug */
         .layout { 
           grid-template-columns: 1fr !important; 
           z-index: auto !important; 
@@ -81,7 +79,6 @@
           transform: translateX(0) !important;
         }
 
-        /* Overlay */
         .sidebar-overlay {
           position: fixed !important;
           inset: 0 !important;
@@ -99,7 +96,6 @@
           display: block !important;
         }
 
-        /* Sidebar items — bigger tap targets on mobile */
         .sb-item {
           padding: 13px 14px !important;
           font-size: 14px !important;
@@ -110,7 +106,6 @@
         }
         .sb-section { margin: 20px 0 8px !important; font-size: 10px !important; }
 
-        /* Main content — full width */
         .main { padding: 20px 16px 80px !important; }
       }
 
@@ -121,12 +116,6 @@
           transform: none !important;
           position: sticky !important;
         }
-      }
-
-      /* ── TOPNAV ADMIN PILL ── */
-      @media (max-width: 640px) {
-        .admin-pill { display: none !important; }
-        .nav-avatar { width: 34px !important; height: 34px !important; }
       }
 
       /* ── FEEDBACK PAGE ── */
@@ -147,7 +136,6 @@
         .fb-grid { grid-template-columns: 1fr !important; padding: 16px !important; }
       }
 
-      /* Rating table — horizontal scroll on small screens */
       @media (max-width: 640px) {
         .card.grid-card { overflow: hidden; }
         .card.grid-card > .card-header { padding: 14px 16px !important; }
@@ -164,93 +152,27 @@
         .veg-toggle span { font-size: 8px !important; padding: 2px 4px !important; }
       }
 
-      /* ── REPORTS PAGE ── */
-      @media (max-width: 860px) {
-        .ph {
-          flex-direction: column !important;
-          align-items: flex-start !important;
-          gap: 16px !important;
-        }
-        .view-toggle { width: 100% !important; }
-        .vt-btn { flex: 1 !important; text-align: center !important; }
-
-        .summary-strip { grid-template-columns: repeat(2,1fr) !important; gap: 10px !important; }
-        .charts-row { grid-template-columns: 1fr !important; }
-        .heat-card .card-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
-      }
-      @media (max-width: 480px) {
-        .summary-strip { grid-template-columns: 1fr 1fr !important; }
-        .ss { padding: 12px 14px !important; }
-        .ss-val { font-size: 18px !important; }
-        .heat-table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
-        .ph-title { font-size: 22px !important; }
-        .hist-comments { grid-template-columns: 1fr !important; }
-        .hist-meal-pills { gap: 6px !important; }
-        .hmp { font-size: 11px !important; padding: 4px 10px !important; }
-      }
-
-      /* ── ADMIN PAGE ── */
-      @media (max-width: 860px) {
-        .kpi-grid { grid-template-columns: repeat(2,1fr) !important; gap: 10px !important; }
-        .admin-charts-row { grid-template-columns: 1fr !important; }
-        .adm-ph { flex-direction: column !important; gap: 12px !important; }
-        .adm-ph .adm-actions { flex-wrap: wrap !important; }
-      }
-      @media (max-width: 480px) {
-        .kpi-grid { grid-template-columns: 1fr 1fr !important; }
-        .kpi-card { padding: 14px 16px !important; }
-        .adm-tabs { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; white-space: nowrap !important; }
-      }
-
-      /* ── COMPLAINTS PAGE ── */
-      @media (max-width: 640px) {
-        .comp-form-grid { grid-template-columns: 1fr !important; }
-        .comp-list-item { flex-direction: column !important; gap: 8px !important; }
-      }
-
-      /* ── INDEX / LOGIN PAGE ── */
-      @media (max-width: 860px) {
-        .left-panel { display: none !important; }
-        .right-panel { padding: 32px 20px !important; }
-        .card { padding: 32px 24px !important; border-radius: 20px !important; }
-      }
-      @media (max-width: 400px) {
-        .right-panel { padding: 20px 12px !important; }
-        .card { padding: 28px 18px !important; }
-      }
+      /* ── ADMIN SCORES VEG PILLS ── */
+      .si-veg-row { display: flex; gap: 8px; margin-top: 4px; }
+      .si-veg-pill { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+      .veg-pill { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+      .nv-pill { background: rgba(249,115,22,0.1); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
 
       /* ── UNIVERSAL IMPROVEMENTS ── */
-      /* Prevent text size inflation on iOS */
       body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-
-      /* Larger tap targets for all buttons */
       @media (max-width: 1000px) {
         button, a, [role="button"] { touch-action: manipulation; }
         input, textarea, select {
-          font-size: 16px !important; /* prevents iOS zoom on focus */
+          font-size: 16px !important; 
           border-radius: 12px !important;
         }
         .btn-primary, .btn-google {
           padding: 15px 20px !important;
           font-size: 15px !important;
         }
-      }
-
-      /* Smooth scroll everywhere */
-      * { scroll-behavior: smooth; }
-
-      /* Bottom padding for content so it doesn't hide behind phone chrome */
-      @media (max-width: 1000px) {
         .main { padding-bottom: calc(80px + var(--safe-bottom)) !important; }
       }
-
-      /* ── SWIPE HINT ANIMATION on first open ── */
-      @keyframes sidebarBounce {
-        0%   { transform: translateX(0); }
-        30%  { transform: translateX(12px); }
-        60%  { transform: translateX(-4px); }
-        100% { transform: translateX(0); }
-      }
+      * { scroll-behavior: smooth; }
     `;
     document.head.appendChild(style);
   })();
@@ -300,7 +222,7 @@
   }
 
   // ── GLOBAL WEEK DATA FETCH ──
-  fetch("/api/week/current")
+  fetch("/api/week/current", { credentials: "include" })
     .then(function (r) {
       return r.json();
     })
@@ -369,7 +291,7 @@
       `;
     }
   } else if (userRole === "student" || userRole === "") {
-    // ── UPDATED STUDENT VIEW: REMOVED TRENDS AND SETTINGS ──
+    // ── UPDATED STUDENT VIEW ──
     var studentNavLinks =
       document.getElementById("dynamic-nav-links") ||
       document.querySelector(".nav-links");
@@ -392,6 +314,7 @@
         <a class="sb-item ${isHist ? "active" : ""}" href="reports.html?view=history">
           <span class="ic">📋</span> My History
         </a>
+        <a class="sb-item" href="#"><span class="ic">🧾</span> Mess Bill</a>
         <div class="sb-section">Account</div>
         <a class="sb-item" href="#" onclick="logoutUser(event)">
           <span class="ic">🚪</span> Logout
@@ -405,7 +328,7 @@
   // ═══════════════════════════════════════════════════════
   var submitBtn = document.querySelector('[onclick*="submitFeedback"]');
   if (submitBtn) {
-    fetch("/api/feedback/status?email=" + encodeURIComponent(userEmail))
+    fetch("/api/feedback/status?email=" + encodeURIComponent(userEmail), { credentials: "include" })
       .then(function (r) {
         return r.json();
       })
@@ -482,7 +405,7 @@
       if (submitBtn.disabled) return;
       var ratings = window.ratings || {};
       var foodTypes = window.foodTypes || {};
-      // Count only unlocked-day slots that have been rated
+      
       var unlockedRated = 0;
       if (typeof getUnlockedDayIndices === "function" && typeof days !== "undefined" && typeof meals !== "undefined") {
         var uIdx = getUnlockedDayIndices();
@@ -512,6 +435,7 @@
       fetch("/api/feedback/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           email: userEmail,
           name: userName,
@@ -554,7 +478,7 @@
     var btn = document.querySelector('[onclick*="submitFeedback"]');
     if (btn) {
       btn.disabled = true;
-      btn.textContent = "✅ Submitted this week";
+      btn.textContent = "You have already submitted";
       btn.style.opacity = "0.65";
       btn.style.cursor = "not-allowed";
       btn.style.background = "var(--surface2)";
@@ -593,7 +517,7 @@
   //  REPORTS & ADMIN CHARTS LOGIC
   // ═══════════════════════════════════════════════════════
   if (document.getElementById("heatTable")) {
-    fetch("/api/analytics/current")
+    fetch("/api/analytics/current", { credentials: "include" })
       .then(function (r) {
         return r.json();
       })
@@ -653,7 +577,6 @@
           });
         }
 
-        // Bar chart: Dataset[0]=Veg avg, Dataset[1]=Non-Veg avg — aggregated across ALL users
         if (window._messifyBarChart) {
           var vAvg = d.mealVegAvg || {};
           var nvAvg = d.mealNvAvg || {};
@@ -666,7 +589,7 @@
           window._messifyBarChart.data.datasets[1].data = [
             nvAvg.breakfast || null,
             nvAvg.lunch     || null,
-            null,
+            nvAvg.snacks    || null,
             nvAvg.dinner    || null,
           ];
           window._messifyBarChart.update();
@@ -677,6 +600,9 @@
           commCard.querySelectorAll(".comment-item").forEach(function (i) {
             i.remove();
           });
+          // Remove the "no comments yet" placeholder if real comments exist
+          var placeholder = document.getElementById("comments-placeholder");
+          if (placeholder) placeholder.remove();
           d.comments.slice(0, 8).forEach(function (c, idx) {
             var letter = String.fromCharCode(65 + idx);
             if (c.liked)
@@ -698,23 +624,19 @@
       })
       .catch(function (e) {});
 
-    fetch("/api/analytics/all-weeks")
+    fetch("/api/analytics/all-weeks", { credentials: "include" })
       .then(function (r) {
         return r.json();
       })
       .then(function (res) {
         if (!res.success || !res.data.length) return;
-        // Trend chart: Dataset[0]=Overall, Dataset[1]=Veg avg, Dataset[2]=Non-Veg avg
-        // All values are the mean across ALL users for that week.
         if (window._messifyTrendChart) {
           window._messifyTrendChart.data.labels = res.data.map(function(w) {
             return w.weekLabel;
           });
-          // Overall avg — all meals, all users
           window._messifyTrendChart.data.datasets[0].data = res.data.map(function(w) {
             return w.overallAvg;
           });
-          // Veg avg — average of veg ratings across all meals and all users
           window._messifyTrendChart.data.datasets[1].data = res.data.map(function(w) {
             var vAvg = w.mealVegAvg;
             if (!vAvg) return null;
@@ -724,7 +646,6 @@
             if (!vals.length) return null;
             return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
           });
-          // Non-Veg avg — average of non-veg ratings across all meals and all users
           window._messifyTrendChart.data.datasets[2].data = res.data.map(function(w) {
             var nvAvg = w.mealNvAvg;
             if (!nvAvg) return null;
@@ -741,7 +662,7 @@
   }
 
   if (document.getElementById("mealScores") && userRole === "admin") {
-    fetch("/api/analytics/current")
+    fetch("/api/analytics/current", { credentials: "include" })
       .then(function (r) {
         return r.json();
       })
@@ -759,7 +680,6 @@
         var kSubs = document.getElementById("adm-kpi-subs");
         var kWorst = document.getElementById("adm-kpi-worst");
         var kWLbl = document.getElementById("adm-kpi-worst-lbl");
-        var kCompBox = document.getElementById("adm-kpi-complaints-box");
 
         if (kAvg) kAvg.textContent = d.overallAvg;
         if (kSubs) kSubs.textContent = d.total.toLocaleString();
@@ -767,20 +687,24 @@
         if (kWLbl && d.worstMeal)
           kWLbl.textContent = "Worst — " + mealNames[d.worstMeal];
 
-        if (window._messifyDoughnutChart) {
-          window._messifyDoughnutChart.data.datasets[0].data = [
+        // ── DOUGHNUT DATA BINDING ──
+        if (window._messifyDoughnutChartVeg) {
+          window._messifyDoughnutChartVeg.data.datasets[0].data = [
             d.mealVegAvg.breakfast,
             d.mealVegAvg.lunch,
             d.mealVegAvg.snacks,
             d.mealVegAvg.dinner,
           ];
-          window._messifyDoughnutChart.data.datasets[1].data = [
+          window._messifyDoughnutChartVeg.update();
+        }
+        if (window._messifyDoughnutChartNv) {
+          window._messifyDoughnutChartNv.data.datasets[0].data = [
             d.mealNvAvg.breakfast,
             d.mealNvAvg.lunch,
             d.mealNvAvg.snacks,
             d.mealNvAvg.dinner,
           ];
-          window._messifyDoughnutChart.update();
+          window._messifyDoughnutChartNv.update();
         }
 
         var ms = document.getElementById("mealScores");
@@ -848,7 +772,7 @@
       })
       .catch(function () {});
 
-    fetch("/api/analytics/all-weeks")
+    fetch("/api/analytics/all-weeks", { credentials: "include" })
       .then(function (r) {
         return r.json();
       })
@@ -920,7 +844,7 @@
       })
       .catch(function () {});
 
-    fetch("/api/admin/complaints", { headers: adminHeaders() })
+    fetch("/api/admin/complaints", { headers: adminHeaders(), credentials: "include" })
       .then(function (r) {
         return r.json();
       })
@@ -929,8 +853,8 @@
 
         var kComp = document.getElementById("adm-kpi-complaints");
         var kCompBox = document.getElementById("adm-kpi-complaints-box");
-        if (kComp) kComp.textContent = res.count;
-        if (kCompBox) kCompBox.textContent = res.count;
+        if (kComp) kComp.textContent = res.count || res.data.length;
+        if (kCompBox) kCompBox.textContent = res.count || res.data.length;
 
         if (res.data.length > 0) {
           var listContainer = document.getElementById("admin-complaints-list");
@@ -1001,7 +925,6 @@
     document.body.style.overflow = "hidden";
     document.body.style.touchAction = "none";
     if (menuBtn) menuBtn.innerHTML = ICON_CLOSE;
-    // trap focus inside sidebar on accessibility
     sidebar.setAttribute("aria-expanded", "true");
   }
 
@@ -1028,7 +951,6 @@
     }
   };
 
-  // ── SWIPE-TO-CLOSE gesture ───────────────────────────────
   (function initSwipe() {
     var touchStartX = 0;
     var touchStartY = 0;
@@ -1051,7 +973,6 @@
         var dy = e.touches[0].clientY - touchStartY;
         var sidebar = document.getElementById("sidebar");
 
-        // Swipe right from left edge (<= 30px) to open sidebar on mobile
         if (
           window.innerWidth <= 1000 &&
           touchStartX <= 30 &&
@@ -1064,7 +985,6 @@
           _sidebarOpen();
         }
 
-        // Swipe left to close sidebar
         if (
           window.innerWidth <= 1000 &&
           dx < -50 &&
@@ -1080,18 +1000,15 @@
     );
   })();
 
-  // Overlay click also closes
   document.addEventListener("click", function (e) {
     var overlay = document.getElementById("sidebarOverlay");
     if (overlay && e.target === overlay) _sidebarClose();
   });
 
-  // Escape key closes sidebar
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") _sidebarClose();
   });
 
-  // ── RESIZE: close sidebar when going desktop ─────────────
   window.addEventListener("resize", function () {
     if (window.innerWidth > 1000) {
       _sidebarClose();
@@ -1100,7 +1017,6 @@
     }
   });
 
-  // ── WRAP rating table for horizontal scroll on mobile ────
   document.addEventListener("DOMContentLoaded", function () {
     var ratingTable = document.querySelector(".rating-table");
     if (ratingTable && !ratingTable.closest(".rating-table-wrap")) {
@@ -1111,7 +1027,6 @@
       wrap.appendChild(ratingTable);
     }
 
-    // Wrap heat table in reports for horizontal scroll
     var heatTable = document.querySelector(".heat-table");
     if (heatTable && !heatTable.closest(".heat-table-wrap")) {
       var hWrap = document.createElement("div");
@@ -1122,11 +1037,9 @@
       hWrap.appendChild(heatTable);
     }
 
-    // Ensure menu btn always shows correct icon
     var menuBtn = document.getElementById("menuBtn");
     if (menuBtn) menuBtn.innerHTML = ICON_MENU;
 
-    // ✅ FIXED: Event delegation to guarantee sidebar links navigate
     var sidebar = document.getElementById("sidebar");
     if (sidebar) {
       sidebar.addEventListener("click", function (e) {
@@ -1134,10 +1047,10 @@
         if (link && window.innerWidth <= 1000) {
           var targetUrl = link.getAttribute("href");
           if (targetUrl && targetUrl !== "#") {
-            e.preventDefault(); // Stop standard broken cancel
-            _sidebarClose(); // Slide the menu closed
+            e.preventDefault(); 
+            _sidebarClose(); 
             setTimeout(function () {
-              window.location.href = targetUrl; // Force navigation manually
+              window.location.href = targetUrl; 
             }, 180);
           } else {
             setTimeout(_sidebarClose, 80);
