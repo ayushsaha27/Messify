@@ -328,7 +328,9 @@
   // ═══════════════════════════════════════════════════════
   var submitBtn = document.querySelector('[onclick*="submitFeedback"]');
   if (submitBtn) {
-    fetch("/api/feedback/status?email=" + encodeURIComponent(userEmail), { credentials: "include" })
+    fetch("/api/feedback/status?email=" + encodeURIComponent(userEmail), {
+      credentials: "include",
+    })
       .then(function (r) {
         return r.json();
       })
@@ -363,6 +365,10 @@
                   s.style.color = "";
                   s.style.filter = "";
                 }
+
+                // Visually freeze the submitted stars
+                s.style.cursor = "default";
+                s.style.pointerEvents = "none";
               });
 
               var tgs = document.querySelectorAll(
@@ -372,6 +378,11 @@
                 t.classList.remove("active");
                 if (t.dataset.type === (r.food_type || "veg"))
                   t.classList.add("active");
+
+                // Visually freeze the Veg/NV toggle
+                t.style.cursor = "not-allowed";
+                t.style.pointerEvents = "none";
+                t.style.opacity = t.classList.contains("active") ? "1" : "0.2";
               });
 
               if (r.rating > 0) ratedCountNum++;
@@ -380,7 +391,10 @@
             var progFill = document.getElementById("prog-fill");
             var progText = document.getElementById("prog-text");
             var rCount = document.getElementById("rated-count");
-            var totalSlots = (typeof getTotalUnlockedSlots === "function") ? getTotalUnlockedSlots() : 28;
+            var totalSlots =
+              typeof getTotalUnlockedSlots === "function"
+                ? getTotalUnlockedSlots()
+                : 28;
             if (progFill)
               progFill.style.width =
                 Math.round((ratedCountNum / totalSlots) * 100) + "%";
@@ -395,8 +409,17 @@
             if (issues) issues.value = data.savedData.issues || "";
           }
 
-          lockFeedbackForm();
-          showToast("Viewing your submitted ratings for this week.", "success");
+          // Change button to "Update" instead of locking the form
+          if (submitBtn) {
+            submitBtn.textContent = "Update Feedback →";
+          }
+          var badge = document.querySelector(".wb-badge");
+          if (badge) {
+            badge.textContent = "🔄 Progress Saved";
+            badge.style.cssText =
+              "background:rgba(59, 130, 246, 0.1);border:1px solid rgba(59, 130, 246, 0.25);color:#60a5fa;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
+          }
+          showToast("Loaded your saved progress for this week.", "success");
         }
       })
       .catch(function () {});
@@ -405,18 +428,24 @@
       if (submitBtn.disabled) return;
       var ratings = window.ratings || {};
       var foodTypes = window.foodTypes || {};
-      
+
       var unlockedRated = 0;
-      if (typeof getUnlockedDayIndices === "function" && typeof days !== "undefined" && typeof meals !== "undefined") {
+      if (
+        typeof getUnlockedDayIndices === "function" &&
+        typeof days !== "undefined" &&
+        typeof meals !== "undefined"
+      ) {
         var uIdx = getUnlockedDayIndices();
-        days.forEach(function(day, idx) {
+        days.forEach(function (day, idx) {
           if (uIdx.indexOf(idx) === -1) return;
-          meals.forEach(function(meal) {
+          meals.forEach(function (meal) {
             if ((ratings[day + "_" + meal] || 0) > 0) unlockedRated++;
           });
         });
       } else {
-        unlockedRated = Object.values(ratings).filter(function(v){ return v > 0; }).length;
+        unlockedRated = Object.values(ratings).filter(function (v) {
+          return v > 0;
+        }).length;
       }
       if (unlockedRated < 1) {
         showToast("Please rate at least one meal before submitting.", "error");
@@ -451,8 +480,24 @@
         .then(function (data) {
           if (data.success) {
             var overlay = document.getElementById("successOverlay");
-            if (overlay) overlay.classList.add("show");
-            lockFeedbackForm();
+            if (overlay) {
+              // Allow dismissing the success overlay by clicking the background
+              overlay.onclick = function (e) {
+                if (e.target === overlay) overlay.classList.remove("show");
+              };
+              overlay.classList.add("show");
+            }
+
+            // Keep button enabled and switch to "Update" mode
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Update Feedback →";
+
+            var badge = document.querySelector(".wb-badge");
+            if (badge) {
+              badge.textContent = "🔄 Progress Saved";
+              badge.style.cssText =
+                "background:rgba(59, 130, 246, 0.1);border:1px solid rgba(59, 130, 246, 0.25);color:#60a5fa;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
+            }
           } else {
             showToast(
               data.message || "Submission failed. Please try again.",
@@ -582,15 +627,15 @@
           var nvAvg = d.mealNvAvg || {};
           window._messifyBarChart.data.datasets[0].data = [
             vAvg.breakfast || null,
-            vAvg.lunch     || null,
-            vAvg.snacks    || null,
-            vAvg.dinner    || null,
+            vAvg.lunch || null,
+            vAvg.snacks || null,
+            vAvg.dinner || null,
           ];
           window._messifyBarChart.data.datasets[1].data = [
             nvAvg.breakfast || null,
-            nvAvg.lunch     || null,
-            nvAvg.snacks    || null,
-            nvAvg.dinner    || null,
+            nvAvg.lunch || null,
+            nvAvg.snacks || null,
+            nvAvg.dinner || null,
           ];
           window._messifyBarChart.update();
         }
@@ -631,30 +676,60 @@
       .then(function (res) {
         if (!res.success || !res.data.length) return;
         if (window._messifyTrendChart) {
-          window._messifyTrendChart.data.labels = res.data.map(function(w) {
+          window._messifyTrendChart.data.labels = res.data.map(function (w) {
             return w.weekLabel;
           });
-          window._messifyTrendChart.data.datasets[0].data = res.data.map(function(w) {
-            return w.overallAvg;
-          });
-          window._messifyTrendChart.data.datasets[1].data = res.data.map(function(w) {
-            var vAvg = w.mealVegAvg;
-            if (!vAvg) return null;
-            var vals = ["breakfast","lunch","snacks","dinner"]
-              .map(function(m) { return vAvg[m] || 0; })
-              .filter(function(v) { return v > 0; });
-            if (!vals.length) return null;
-            return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
-          });
-          window._messifyTrendChart.data.datasets[2].data = res.data.map(function(w) {
-            var nvAvg = w.mealNvAvg;
-            if (!nvAvg) return null;
-            var vals = ["breakfast","lunch","dinner"]
-              .map(function(m) { return nvAvg[m] || 0; })
-              .filter(function(v) { return v > 0; });
-            if (!vals.length) return null;
-            return Math.round((vals.reduce(function(a,b){return a+b;},0) / vals.length) * 10) / 10;
-          });
+          window._messifyTrendChart.data.datasets[0].data = res.data.map(
+            function (w) {
+              return w.overallAvg;
+            },
+          );
+          window._messifyTrendChart.data.datasets[1].data = res.data.map(
+            function (w) {
+              var vAvg = w.mealVegAvg;
+              if (!vAvg) return null;
+              var vals = ["breakfast", "lunch", "snacks", "dinner"]
+                .map(function (m) {
+                  return vAvg[m] || 0;
+                })
+                .filter(function (v) {
+                  return v > 0;
+                });
+              if (!vals.length) return null;
+              return (
+                Math.round(
+                  (vals.reduce(function (a, b) {
+                    return a + b;
+                  }, 0) /
+                    vals.length) *
+                    10,
+                ) / 10
+              );
+            },
+          );
+          window._messifyTrendChart.data.datasets[2].data = res.data.map(
+            function (w) {
+              var nvAvg = w.mealNvAvg;
+              if (!nvAvg) return null;
+              var vals = ["breakfast", "lunch", "dinner"]
+                .map(function (m) {
+                  return nvAvg[m] || 0;
+                })
+                .filter(function (v) {
+                  return v > 0;
+                });
+              if (!vals.length) return null;
+              return (
+                Math.round(
+                  (vals.reduce(function (a, b) {
+                    return a + b;
+                  }, 0) /
+                    vals.length) *
+                    10,
+                ) / 10
+              );
+            },
+          );
           window._messifyTrendChart.update();
         }
       })
@@ -844,7 +919,10 @@
       })
       .catch(function () {});
 
-    fetch("/api/admin/complaints", { headers: adminHeaders(), credentials: "include" })
+    fetch("/api/admin/complaints", {
+      headers: adminHeaders(),
+      credentials: "include",
+    })
       .then(function (r) {
         return r.json();
       })
@@ -1047,10 +1125,10 @@
         if (link && window.innerWidth <= 1000) {
           var targetUrl = link.getAttribute("href");
           if (targetUrl && targetUrl !== "#") {
-            e.preventDefault(); 
-            _sidebarClose(); 
+            e.preventDefault();
+            _sidebarClose();
             setTimeout(function () {
-              window.location.href = targetUrl; 
+              window.location.href = targetUrl;
             }, 180);
           } else {
             setTimeout(_sidebarClose, 80);
