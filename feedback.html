@@ -859,7 +859,17 @@
           Thank you, <span id="success-name">there</span>! Your ratings for
           <span id="success-week">this week</span> have been recorded.
         </div>
-        <button class="btn-primary" onclick="location.href = 'reports.html'">View Reports →</button>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+          <button class="btn-primary" onclick="location.href = 'reports.html'">View Reports →</button>
+          <button onclick="document.getElementById('successOverlay').classList.remove('show')" 
+                  style="background: transparent; border: none; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 10px; transition: color 0.2s;" 
+                  onmouseover="this.style.color='var(--text)'" 
+                  onmouseout="this.style.color='var(--muted)'">
+            Close
+          </button>
+        </div>
+        
       </div>
     </div>
     <div class="toast" id="toast">
