@@ -171,103 +171,65 @@
         .left-panel {
           display: none;
         }
-
-        /* Full screen panel, vertically centered, safe-area aware */
         .right-panel {
+          padding: 32px 20px;
           min-height: 100vh;
-          align-items: center;
-          justify-content: flex-start;
-          padding: 0 20px 48px;
-          padding-top: max(52px, env(safe-area-inset-top, 52px));
+          align-items: flex-start;
+          padding-top: max(48px, env(safe-area-inset-top, 48px));
         }
-
-        /* Card: full available width, comfortable padding */
         .card {
-          width: 100%;
-          max-width: 420px;
           padding: 32px 24px;
-          border-radius: 20px;
-          /* disable the hover lift on mobile (no hover on touch) */
-          transition: none;
+          border-radius: 24px;
         }
-        .card:hover { transform: none; border-color: var(--border); }
-
-        /* 16px prevents iOS from auto-zooming on input focus */
         .input-group input {
           font-size: 16px !important;
         }
-
-        /* Larger tap targets */
         .btn-primary,
         .btn-google {
           padding: 15px;
           font-size: 15px;
-          min-height: 50px;
         }
-
-        /* ── Rich background so the page doesn't look bare ──
-           Two overlapping radial gradients give depth + warmth  */
+        /* Background: warm accent glow from top, matches the desktop feel */
         body {
-          background:
-            radial-gradient(
-              ellipse 130% 55% at 50% -8%,
-              rgba(249, 115, 22, 0.24) 0%,
-              rgba(11, 15, 26, 1) 52%
-            ),
-            radial-gradient(
-              ellipse 90% 45% at 85% 105%,
-              rgba(59, 130, 246, 0.14) 0%,
-              transparent 60%
-            ),
-            #0b0f1a;
+          background: radial-gradient(
+            ellipse 140% 50% at 50% -5%,
+            rgba(249, 115, 22, 0.18) 0%,
+            rgba(11, 15, 26, 1) 55%
+          ), #0b0f1a;
         }
-
-        /* Blobs: repositioned to frame the card from top & bottom */
         .bg-layer { opacity: 1; }
-        .blob { filter: blur(72px); opacity: 0.16; }
+        .blob { filter: blur(80px); opacity: 0.15; }
+        /* Blob 1: soft glow above the card from top-left */
         .blob-1 {
-          width: 340px; height: 340px;
-          top: -150px; left: 50%;
-          transform: translateX(-50%);
+          width: 300px;
+          height: 300px;
+          top: -120px;
+          left: -80px;
+          transform: none;
         }
+        /* Blob 2: subtle corner accent bottom-right, NOT centred
+           (centering it creates a horizontal bar across the page) */
         .blob-2 {
-          width: 260px; height: 260px;
-          bottom: -100px; right: -40px;
+          width: 240px;
+          height: 240px;
+          bottom: -80px;
+          right: -80px;
           transform: none;
         }
         .blob-3 { display: none; }
-
-        /* Grid lines slightly more visible so the dark bg has texture */
-        .grid-lines { opacity: 0.45; }
+        /* Keep the grid texture — it makes the dark bg look designed */
+        .grid-lines { opacity: 0.4; }
       }
 
       @media (max-width: 400px) {
         .right-panel {
-          padding-left: 14px;
-          padding-right: 14px;
+          padding: 24px 12px;
         }
         .card {
-          padding: 28px 18px;
+          padding: 28px 16px;
         }
         .form-heading {
           font-size: 19px;
-        }
-        .top-logo { margin-bottom: 24px; }
-      }
-
-      /* Toast: edge-to-edge instead of centered-with-translateX
-         (translateX(-50%) clips on very narrow phones)          */
-      @media (max-width: 600px) {
-        .toast {
-          left: 12px;
-          right: 12px;
-          width: auto;
-          transform: translateY(80px);
-          white-space: normal;
-          text-align: left;
-        }
-        .toast.show {
-          transform: translateY(0);
         }
       }
 
