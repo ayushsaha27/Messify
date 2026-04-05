@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Messify – Submit Feedback</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
@@ -46,8 +43,7 @@
         --warning: #eab308;
       }
 
-      html,
-      body {
+      html, body {
         min-height: 100vh;
         background: var(--bg);
         color: var(--text);
@@ -57,76 +53,33 @@
 
       /* Enhanced Animations */
       @keyframes pageFade {
-        0% {
-          opacity: 0;
-          filter: blur(12px);
-          transform: translateY(12px) scale(0.98);
-        }
-        100% {
-          opacity: 1;
-          filter: blur(0);
-          transform: translateY(0) scale(1);
-        }
+        0% { opacity: 0; filter: blur(12px); transform: translateY(12px) scale(0.98); }
+        100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
       }
 
       @keyframes gentleMorph {
-        0% {
-          border-radius: 18px;
-          background: radial-gradient(
-            circle at 20% 30%,
-            rgba(249, 115, 22, 0.02),
-            transparent
-          );
-        }
-        100% {
-          border-radius: 24px;
-          background: radial-gradient(
-            circle at 80% 70%,
-            rgba(249, 115, 22, 0.04),
-            transparent
-          );
-        }
+        0% { border-radius: 18px; background: radial-gradient(circle at 20% 30%, rgba(249,115,22,0.02), transparent); }
+        100% { border-radius: 24px; background: radial-gradient(circle at 80% 70%, rgba(249,115,22,0.04), transparent); }
       }
 
       @keyframes floatBG {
-        0% {
-          transform: translate(0, 0) scale(1);
-        }
-        100% {
-          transform: translate(20px, 15px) scale(1.05);
-        }
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(20px, 15px) scale(1.05); }
       }
 
       @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       @keyframes cardIn {
-        from {
-          opacity: 0;
-          transform: translateY(24px) scale(0.97);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
+        from { opacity: 0; transform: translateY(24px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
       }
 
       @keyframes starPulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.2);
-        }
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
       }
 
       body {
@@ -175,13 +128,8 @@
         position: fixed;
         inset: 0;
         z-index: 0;
-        background-image:
-          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-          linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.025) 1px,
-            transparent 1px
-          );
+        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
         background-size: 48px 48px;
       }
 
@@ -207,9 +155,7 @@
         flex: 1;
         transition: transform 0.2s ease;
       }
-      .nav-logo:hover {
-        transform: scale(1.02);
-      }
+      .nav-logo:hover { transform: scale(1.02); }
       .logo-icon {
         width: 32px;
         height: 32px;
@@ -227,9 +173,7 @@
         letter-spacing: -0.02em;
         color: var(--text);
       }
-      .logo-text span {
-        color: var(--accent);
-      }
+      .logo-text span { color: var(--accent); }
       .nav-links {
         display: flex;
         gap: 4px;
@@ -327,9 +271,7 @@
         padding: 0 10px;
         margin: 18px 0 6px;
       }
-      .sb-section:first-child {
-        margin-top: 0;
-      }
+      .sb-section:first-child { margin-top: 0; }
       .sb-item {
         display: flex;
         align-items: center;
@@ -364,20 +306,12 @@
       }
 
       @media (max-width: 1000px) {
-        .menu-btn {
-          display: flex;
-        }
-        .layout {
-          grid-template-columns: 1fr;
-        }
+        .menu-btn { display: flex; }
+        .layout { grid-template-columns: 1fr; }
       }
       @media (min-width: 1001px) {
-        .menu-btn {
-          display: none;
-        }
-        .sidebar-overlay {
-          display: none !important;
-        }
+        .menu-btn { display: none; }
+        .sidebar-overlay { display: none !important; }
       }
 
       .page-title-row {
@@ -398,9 +332,7 @@
         align-items: center;
         gap: 6px;
       }
-      .breadcrumb span {
-        color: var(--accent);
-      }
+      .breadcrumb span { color: var(--accent); }
       .page-title {
         font-family: "Syne", sans-serif;
         font-size: 26px;
@@ -448,10 +380,7 @@
         font-size: 15px;
         font-weight: 700;
       }
-      .card-hint {
-        font-size: 12px;
-        color: var(--muted);
-      }
+      .card-hint { font-size: 12px; color: var(--muted); }
 
       .week-banner {
         background: var(--surface);
@@ -512,9 +441,7 @@
         color: var(--muted);
         margin-bottom: 8px;
       }
-      .prog-top strong {
-        color: var(--accent);
-      }
+      .prog-top strong { color: var(--accent); }
       .prog-track {
         height: 4px;
         background: var(--surface2);
@@ -564,12 +491,8 @@
         font-weight: 600;
         color: var(--muted2);
       }
-      .rating-table tbody tr:last-child td {
-        border-bottom: none;
-      }
-      .rating-table tbody tr:hover td {
-        background: rgba(249, 115, 22, 0.03);
-      }
+      .rating-table tbody tr:last-child td { border-bottom: none; }
+      .rating-table tbody tr:hover td { background: rgba(249, 115, 22, 0.03); }
 
       .meal-head {
         display: flex;
@@ -577,9 +500,7 @@
         align-items: center;
         gap: 3px;
       }
-      .meal-head .me {
-        font-size: 18px;
-      }
+      .meal-head .me { font-size: 18px; }
       .meal-head .mn {
         font-size: 10px;
         font-weight: 500;
@@ -640,134 +561,6 @@
         border-color: rgba(249, 115, 22, 0.3);
       }
 
-      @media (max-width: 768px) {
-        .rating-table-wrap {
-          overflow-x: auto !important;
-          overflow-y: hidden !important;
-          padding: 0 6px 12px;
-          margin: 0 -6px;
-          scroll-snap-type: x mandatory;
-          scroll-padding-left: 6px;
-        }
-        .rating-table {
-          min-width: 100% !important;
-          border-collapse: separate;
-          border-spacing: 0;
-        }
-        .rating-table thead {
-          display: none;
-        }
-        .rating-table,
-        .rating-table tr,
-        .rating-table td {
-          display: block;
-          width: 100%;
-        }
-        .rating-table tbody {
-          display: flex;
-          gap: 12px;
-          padding: 0 2px 6px;
-        }
-        .rating-table tbody tr {
-          background: linear-gradient(
-            180deg,
-            rgba(26, 34, 53, 0.9),
-            rgba(17, 24, 39, 0.95)
-          );
-          border: 1px solid var(--border);
-          border-radius: 18px;
-          padding: 14px;
-          margin-bottom: 0;
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-          animation: fadeUp 0.45s ease both;
-          flex: 0 0 86%;
-          scroll-snap-align: start;
-        }
-        .rating-table tbody tr:last-child {
-          margin-right: 6px;
-        }
-        .rating-table tbody tr:nth-child(1) {
-          animation-delay: 0.02s;
-        }
-        .rating-table tbody tr:nth-child(2) {
-          animation-delay: 0.04s;
-        }
-        .rating-table tbody tr:nth-child(3) {
-          animation-delay: 0.06s;
-        }
-        .rating-table tbody tr:nth-child(4) {
-          animation-delay: 0.08s;
-        }
-        .rating-table tbody tr:nth-child(5) {
-          animation-delay: 0.1s;
-        }
-        .rating-table tbody tr:nth-child(6) {
-          animation-delay: 0.12s;
-        }
-        .rating-table tbody tr:nth-child(7) {
-          animation-delay: 0.14s;
-        }
-        .rating-table td {
-          border: none;
-          padding: 8px 0;
-          text-align: left;
-        }
-        .rating-table td.day-cell {
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--text);
-          padding-bottom: 10px;
-          margin-bottom: 8px;
-          border-bottom: 1px dashed var(--border);
-        }
-        .rating-table td.meal-cell {
-          background: rgba(17, 24, 39, 0.9);
-          border: 1px solid var(--border);
-          border-radius: 14px;
-          padding: 12px;
-          margin-top: 10px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .rating-table td.meal-cell > div {
-          align-items: flex-start !important;
-        }
-        .rating-table td.meal-cell::before {
-          content: attr(data-meal);
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: var(--muted);
-        }
-        .rating-table td.meal-cell .stars {
-          justify-content: flex-start;
-          gap: 8px;
-        }
-        .rating-table td.meal-cell .veg-toggle {
-          justify-content: flex-start;
-          gap: 10px;
-        }
-        .star {
-          width: 44px;
-          height: 44px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-        }
-        .veg-toggle span {
-          min-height: 44px;
-          min-width: 72px;
-          padding: 8px 10px;
-          font-size: 11px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-
       .fb-card {
         animation: fadeUp 0.6s 0.2s ease both;
         margin-bottom: 20px;
@@ -790,9 +583,7 @@
         padding: 20px 24px;
       }
       @media (max-width: 600px) {
-        .fb-grid {
-          grid-template-columns: 1fr;
-        }
+        .fb-grid { grid-template-columns: 1fr; }
       }
       .fb-field label {
         display: block;
@@ -834,9 +625,7 @@
         font-size: 13px;
         color: var(--muted);
       }
-      .sr-info strong {
-        color: var(--accent);
-      }
+      .sr-info strong { color: var(--accent); }
       .btn-primary {
         background: var(--accent);
         color: #fff;
@@ -866,9 +655,7 @@
         justify-content: center;
         backdrop-filter: blur(16px);
       }
-      .success-overlay.show {
-        display: flex;
-      }
+      .success-overlay.show { display: flex; }
       .success-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -879,20 +666,14 @@
         box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
         animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .success-icon {
-        font-size: 56px;
-        margin-bottom: 16px;
-      }
+      .success-icon { font-size: 56px; margin-bottom: 16px; }
       .success-title {
         font-family: "Syne", sans-serif;
         font-size: 22px;
         font-weight: 800;
         margin-bottom: 8px;
       }
-      .success-title em {
-        color: var(--accent);
-        font-style: normal;
-      }
+      .success-title em { color: var(--accent); font-style: normal; }
       .success-sub {
         font-size: 13px;
         color: var(--muted);
@@ -901,7 +682,7 @@
       }
       .toast {
         position: fixed;
-        bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+        bottom: 28px;
         left: 50%;
         transform: translateX(-50%) translateY(80px);
         background: var(--surface);
@@ -917,9 +698,7 @@
         align-items: center;
         gap: 10px;
       }
-      .toast.show {
-        transform: translateX(-50%) translateY(0);
-      }
+      .toast.show { transform: translateX(-50%) translateY(0); }
 
       /* ── LOCKED DAY ROW ── */
       .day-locked td {
@@ -947,8 +726,8 @@
       }
       .day-unlocked-badge {
         font-size: 10px;
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.25);
+        background: rgba(34,197,94,0.1);
+        border: 1px solid rgba(34,197,94,0.25);
         color: #4ade80;
         padding: 1px 6px;
         border-radius: 100px;
@@ -958,14 +737,143 @@
       }
       .day-today-badge {
         font-size: 10px;
-        background: rgba(249, 115, 22, 0.12);
-        border: 1px solid rgba(249, 115, 22, 0.3);
+        background: rgba(249,115,22,0.12);
+        border: 1px solid rgba(249,115,22,0.3);
         color: var(--accent);
         padding: 1px 6px;
         border-radius: 100px;
         font-weight: 700;
         letter-spacing: 0.03em;
         white-space: nowrap;
+      }
+
+      /* ══════════════════════════════════════════
+         RESPONSIVE — FEEDBACK PAGE
+         All mobile fixes are here, clean & complete
+         ══════════════════════════════════════════ */
+
+      /* ── Week banner stacks on mobile ── */
+      @media (max-width: 700px) {
+        .week-banner {
+          flex-direction: column;
+          gap: 12px;
+          align-items: flex-start;
+          padding: 16px 18px;
+        }
+        .wb-badge { align-self: flex-start; }
+        .wb-title { font-size: 14px; }
+        .wb-sub   { font-size: 11px; }
+      }
+
+      /* ── Rating table: proper horizontal scroll ── */
+      /* The wrap div gets overflow-x, the table keeps a fixed minimum width
+         so stars + veg toggles never squish — user just scrolls sideways    */
+      .rating-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* show a subtle scrollbar so user knows it scrolls */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(249,115,22,0.35) transparent;
+        border-radius: 0 0 20px 20px; /* match card */
+        /* small visual hint — fades right edge */
+        -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+        mask-image: linear-gradient(to right, black 90%, transparent 100%);
+      }
+      /* When table can fit (wide screens), don't mask */
+      @media (min-width: 700px) {
+        .rating-table-wrap {
+          -webkit-mask-image: none;
+          mask-image: none;
+        }
+      }
+      .rating-table-wrap::-webkit-scrollbar {
+        height: 4px;
+      }
+      .rating-table-wrap::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .rating-table-wrap::-webkit-scrollbar-thumb {
+        background: rgba(249,115,22,0.35);
+        border-radius: 2px;
+      }
+
+      @media (max-width: 860px) {
+        /* Ensure the table has a comfortable minimum width —
+           stars + veg toggles need room, so we set a real min-width
+           instead of letting everything squish to 0              */
+        .rating-table {
+          min-width: 520px;
+        }
+        /* Stars: slightly smaller on mobile but still tappable  */
+        .star { font-size: 18px !important; }
+        .stars { gap: 2px !important; }
+        /* Veg/NV toggle: compact but readable                   */
+        .veg-toggle span {
+          font-size: 8px !important;
+          padding: 2px 5px !important;
+        }
+        /* Day column header + cells                             */
+        .rating-table th:first-child { padding-left: 14px !important; width: 54px; }
+        .rating-table td:first-child { padding-left: 14px !important; font-size: 12px !important; }
+        .rating-table td { padding: 10px 4px !important; }
+        .meal-head .me  { font-size: 15px !important; }
+        .meal-head .mn  { font-size: 9px  !important; }
+        .card-header    { flex-wrap: wrap; gap: 6px; }
+        .card-hint      { font-size: 11px; }
+        .page-title     { font-size: 21px; }
+      }
+
+      /* ── Submit row: stack vertically, button full-width ── */
+      @media (max-width: 700px) {
+        .submit-row {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 12px;
+        }
+        /* Button must keep its text visible — explicit padding + no overflow */
+        .submit-row .btn-primary {
+          width: 100%;
+          padding: 15px 20px;
+          font-size: 15px;
+          white-space: nowrap;     /* prevent text wrap / disappearing */
+          overflow: visible;
+          text-overflow: clip;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .sr-info { font-size: 12px; }
+      }
+
+      /* ── Success overlay card ── */
+      @media (max-width: 500px) {
+        .success-card {
+          padding: 32px 20px;
+          margin: 16px;
+          max-width: calc(100vw - 32px);
+        }
+        .success-icon  { font-size: 44px; }
+        .success-title { font-size: 18px; }
+      }
+
+      /* ── Progress bar top row ── */
+      @media (max-width: 420px) {
+        .prog-top { flex-direction: column; gap: 3px; }
+        .page-title { font-size: 18px; }
+      }
+
+      /* ── Toast: edge-to-edge on narrow screens ── */
+      @media (max-width: 600px) {
+        .toast {
+          left: 12px !important;
+          right: 12px !important;
+          width: auto !important;
+          transform: translateY(80px) !important;
+          /* override the translateX(-50%) from base style */
+        }
+        .toast.show {
+          transform: translateY(0) !important;
+        }
       }
     </style>
   </head>
@@ -978,22 +886,8 @@
     <div class="grid-lines"></div>
 
     <nav class="topnav">
-      <button
-        class="menu-btn"
-        id="menuBtn"
-        onclick="toggleSidebar()"
-        aria-label="Open menu"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          width="20"
-          height="20"
-        >
+      <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
           <line x1="3" y1="6" x2="21" y2="6" />
           <line x1="3" y1="12" x2="21" y2="12" />
           <line x1="3" y1="18" x2="21" y2="18" />
@@ -1013,11 +907,7 @@
       </div>
     </nav>
 
-    <div
-      class="sidebar-overlay"
-      id="sidebarOverlay"
-      onclick="toggleSidebar()"
-    ></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <div class="layout">
       <div class="sidebar" id="sidebar"></div>
 
@@ -1025,15 +915,12 @@
         <div class="page-title-row">
           <div class="title-row-inner">
             <div>
-              <div class="breadcrumb">
-                Dashboard <span>›</span> Submit Feedback
-              </div>
+              <div class="breadcrumb">Dashboard <span>›</span> Submit Feedback</div>
               <div class="page-title">Weekly <em>Feedback</em> Form</div>
             </div>
           </div>
           <div class="page-sub">
-            Rate each meal for every day this week. Your feedback is anonymous
-            to mess staff.
+            Rate each meal for every day this week. Your feedback is anonymous to mess staff.
           </div>
         </div>
         <div class="week-banner">
@@ -1041,17 +928,14 @@
             <div class="wb-icon">📅</div>
             <div>
               <div class="wb-title" id="wb-title">Loading week...</div>
-              <div class="wb-sub">
-                One submission per student · Deadline: Sunday 11:59 PM
-              </div>
+              <div class="wb-sub">One submission per student · Deadline: Sunday 11:59 PM</div>
             </div>
           </div>
           <div class="wb-badge">✓ Not yet submitted</div>
         </div>
         <div class="prog-wrap">
           <div class="prog-top">
-            <span>Rating progress</span
-            ><strong id="prog-text">0 / ? meals rated</strong>
+            <span>Rating progress</span><strong id="prog-text">0 / ? meals rated</strong>
           </div>
           <div class="prog-track">
             <div class="prog-fill" id="prog-fill" style="width: 0%"></div>
@@ -1060,36 +944,21 @@
         <div class="card grid-card">
           <div class="card-header">
             <div class="card-title">⭐ Meal Ratings — 1 to 5 stars</div>
-            <div class="card-hint">Click a star · Hover to preview</div>
+            <div class="card-hint">Click a star · Scroll sideways on mobile</div>
           </div>
+          <div class="rating-table-wrap">
           <table class="rating-table">
             <thead>
-              <tr>
-                <th>Day</th>
-                <th>
-                  <div class="meal-head">
-                    <span class="me">🌅</span><span class="mn">Breakfast</span>
-                  </div>
-                </th>
-                <th>
-                  <div class="meal-head">
-                    <span class="me">🍱</span><span class="mn">Lunch</span>
-                  </div>
-                </th>
-                <th>
-                  <div class="meal-head">
-                    <span class="me">🫖</span><span class="mn">Snacks</span>
-                  </div>
-                </th>
-                <th>
-                  <div class="meal-head">
-                    <span class="me">🌙</span><span class="mn">Dinner</span>
-                  </div>
-                </th>
+              <tr><th>Day</th>
+                <th><div class="meal-head"><span class="me">🌅</span><span class="mn">Breakfast</span></div></th>
+                <th><div class="meal-head"><span class="me">🍱</span><span class="mn">Lunch</span></div></th>
+                <th><div class="meal-head"><span class="me">🫖</span><span class="mn">Snacks</span></div></th>
+                <th><div class="meal-head"><span class="me">🌙</span><span class="mn">Dinner</span></div></th>
               </tr>
             </thead>
             <tbody id="ratingBody"></tbody>
           </table>
+          </div>
         </div>
         <div class="card fb-card">
           <div class="card-header">
@@ -1099,27 +968,17 @@
           <div class="fb-grid">
             <div class="fb-field">
               <label>What did you enjoy this week? 😊</label>
-              <textarea
-                id="liked"
-                placeholder="e.g. Monday breakfast was freshly made and hot..."
-              ></textarea>
+              <textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea>
             </div>
             <div class="fb-field">
               <label>What needs improvement? 🔧</label>
-              <textarea
-                id="issues"
-                placeholder="e.g. Tuesday dinner was undercooked..."
-              ></textarea>
+              <textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea>
             </div>
           </div>
         </div>
         <div class="submit-row">
-          <div class="sr-info">
-            Rated <strong id="rated-count">0</strong> / ? unlocked meal slots
-          </div>
-          <button class="btn-primary" onclick="submitFeedback()">
-            Submit Feedback →
-          </button>
+          <div class="sr-info">Rated <strong id="rated-count">0</strong> / ? unlocked meal slots</div>
+          <button class="btn-primary" onclick="submitFeedback()">Submit Feedback →</button>
         </div>
       </div>
     </div>
@@ -1131,39 +990,17 @@
           Thank you, <span id="success-name">there</span>! Your ratings for
           <span id="success-week">this week</span> have been recorded.
         </div>
-
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-          "
-        >
-          <button class="btn-primary" onclick="location.href = 'reports.html'">
-            View Reports →
-          </button>
-          <button
-            onclick="
-              document.getElementById('successOverlay').classList.remove('show')
-            "
-            style="
-              background: transparent;
-              border: none;
-              color: var(--muted);
-              font-family: &quot;Syne&quot;, sans-serif;
-              font-size: 14px;
-              font-weight: 700;
-              cursor: pointer;
-              padding: 10px;
-              transition: color 0.2s;
-            "
-            onmouseover="this.style.color = 'var(--text)'"
-            onmouseout="this.style.color = 'var(--muted)'"
-          >
+        
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+          <button class="btn-primary" onclick="location.href = 'reports.html'">View Reports →</button>
+          <button onclick="document.getElementById('successOverlay').classList.remove('show')" 
+                  style="background: transparent; border: none; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 10px; transition: color 0.2s;" 
+                  onmouseover="this.style.color='var(--text)'" 
+                  onmouseout="this.style.color='var(--muted)'">
             Close
           </button>
         </div>
+        
       </div>
     </div>
     <div class="toast" id="toast">
@@ -1172,22 +1009,11 @@
 
     <script>
       var messifyUser = null;
-      try {
-        messifyUser = JSON.parse(localStorage.getItem("messify_user"));
-      } catch (e) {}
-      if (!messifyUser || !messifyUser.email) {
-        window.location.href = "index.html";
-      }
+      try { messifyUser = JSON.parse(localStorage.getItem("messify_user")); } catch (e) {}
+      if (!messifyUser || !messifyUser.email) { window.location.href = "index.html"; }
 
       if (messifyUser) {
-        var _ini = (messifyUser.name || messifyUser.email)
-          .split(" ")
-          .map(function (w) {
-            return w[0];
-          })
-          .join("")
-          .toUpperCase()
-          .slice(0, 2);
+        var _ini = (messifyUser.name || messifyUser.email).split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
         var av = document.getElementById("nav-avatar");
         var em = document.getElementById("nav-email");
         if (av) av.textContent = _ini;
@@ -1198,27 +1024,17 @@
         if (event) event.preventDefault();
         localStorage.removeItem("messify_user");
         fetch("/api/auth/logout", { method: "POST", credentials: "include" })
-          .then(function () {
-            window.location.href = "index.html";
-          })
-          .catch(function () {
-            window.location.href = "index.html";
-          });
+          .then(function(){ window.location.href = "index.html"; })
+          .catch(function(){ window.location.href = "index.html"; });
       }
 
       var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       var meals = ["breakfast", "lunch", "snacks", "dinner"];
-      var mealLabels = {
-        breakfast: "🌅 Breakfast",
-        lunch: "🍱 Lunch",
-        snacks: "🫖 Snacks",
-        dinner: "🌙 Dinner",
-      };
       var ratings = {};
       var foodTypes = {};
 
-      days.forEach(function (d) {
-        meals.forEach(function (m) {
+      days.forEach(function(d){
+        meals.forEach(function(m){
           ratings[d + "_" + m] = 0;
           foodTypes[d + "_" + m] = "veg";
         });
@@ -1252,14 +1068,14 @@
         return getUnlockedCount() * meals.length;
       }
 
-      function buildTable() {
+      function buildTable(){
         var tb = document.getElementById("ratingBody");
         var unlockedIndices = getUnlockedDayIndices();
         var todayIdx = getTodayDayIndex();
 
-        days.forEach(function (day, dayIdx) {
+        days.forEach(function(day, dayIdx){
           var isUnlocked = unlockedIndices.indexOf(dayIdx) !== -1;
-          var isToday = dayIdx === todayIdx;
+          var isToday    = dayIdx === todayIdx;
 
           var tr = document.createElement("tr");
           tr.dataset.day = day;
@@ -1267,7 +1083,6 @@
 
           // Day label cell
           var td0 = document.createElement("td");
-          td0.className = "day-cell";
           var labelWrap = document.createElement("div");
           labelWrap.className = "day-label-wrap";
           var daySpan = document.createElement("span");
@@ -1293,17 +1108,14 @@
           td0.appendChild(labelWrap);
           tr.appendChild(td0);
 
-          meals.forEach(function (meal) {
+          meals.forEach(function(meal){
             var td = document.createElement("td");
-            td.className = "meal-cell meal-" + meal;
-            td.setAttribute("data-meal", mealLabels[meal] || meal);
             var key = day + "_" + meal;
 
             if (!isUnlocked) {
               // Locked cell — show dim placeholder
               var placeholder = document.createElement("div");
-              placeholder.style.cssText =
-                "display:flex;flex-direction:column;align-items:center;gap:4px;";
+              placeholder.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:4px;";
               var dimStars = document.createElement("div");
               dimStars.className = "stars";
               dimStars.style.opacity = "0.25";
@@ -1318,41 +1130,19 @@
               td.appendChild(placeholder);
             } else {
               var wrap = document.createElement("div");
-              wrap.style.cssText =
-                "display:flex;flex-direction:column;align-items:center;gap:5px;";
+              wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:5px;";
 
               var starsDiv = document.createElement("div");
               starsDiv.className = "stars";
-              for (var s = 1; s <= 5; s++) {
+              for(var s=1; s<=5; s++){
                 var star = document.createElement("span");
                 star.className = "star";
                 star.textContent = "★";
                 star.dataset.key = key;
                 star.dataset.val = s;
-                star.addEventListener(
-                  "click",
-                  (function (k, v) {
-                    return function () {
-                      setRating(k, v);
-                    };
-                  })(key, s),
-                );
-                star.addEventListener(
-                  "mouseover",
-                  (function (k, v) {
-                    return function () {
-                      previewStars(k, v);
-                    };
-                  })(key, s),
-                );
-                star.addEventListener(
-                  "mouseout",
-                  (function (k) {
-                    return function () {
-                      renderStars(k);
-                    };
-                  })(key),
-                );
+                star.addEventListener("click", (function(k,v){ return function(){ setRating(k,v); }; })(key,s));
+                star.addEventListener("mouseover", (function(k,v){ return function(){ previewStars(k,v); }; })(key,s));
+                star.addEventListener("mouseout", (function(k){ return function(){ renderStars(k); }; })(key));
                 starsDiv.appendChild(star);
               }
               wrap.appendChild(starsDiv);
@@ -1361,12 +1151,8 @@
               typeWrap.className = "veg-toggle";
               typeWrap.dataset.key = key;
               typeWrap.innerHTML =
-                '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' +
-                key +
-                "', 'veg')\">🌿 Veg</span>" +
-                '<span class="vt-nv" data-type="non-veg" onclick="setFoodType(\'' +
-                key +
-                "', 'non-veg')\">🍗 NV</span>";
+                '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' + key + "', 'veg')\">🌿 Veg</span>" +
+                '<span class="vt-nv" data-type="non-veg" onclick="setFoodType(\'' + key + "', 'non-veg')\">🍗 NV</span>";
               wrap.appendChild(typeWrap);
               td.appendChild(wrap);
             }
@@ -1377,75 +1163,57 @@
         updateProg();
       }
 
-      function setRating(k, v) {
-        if (window.isFormLocked) return;
+      function setRating(k,v){
+        if(window.isFormLocked) return;
         window.ratings[k] = v;
         renderStars(k);
         updateProg();
       }
 
-      function setFoodType(key, type) {
-        if (window.isFormLocked) return;
+      function setFoodType(key, type){
+        if(window.isFormLocked) return;
         window.foodTypes[key] = type;
-        var tgs = document.querySelectorAll(
-          '.veg-toggle[data-key="' + key + '"] span',
-        );
-        tgs.forEach(function (t) {
+        var tgs = document.querySelectorAll('.veg-toggle[data-key="' + key + '"] span');
+        tgs.forEach(function(t){
           t.classList.remove("active");
-          if (t.dataset.type === type) t.classList.add("active");
+          if(t.dataset.type === type) t.classList.add("active");
         });
       }
 
-      function previewStars(k, v) {
-        if (window.isFormLocked) return;
-        document
-          .querySelectorAll('[data-key="' + k + '"].star')
-          .forEach(function (s, i) {
-            s.style.color = i < v ? "var(--accent2)" : "var(--surface3)";
-            s.style.filter =
-              i < v ? "drop-shadow(0 0 3px rgba(249,115,22,.4))" : "";
-          });
+      function previewStars(k,v){
+        if(window.isFormLocked) return;
+        document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){
+          s.style.color = i < v ? "var(--accent2)" : "var(--surface3)";
+          s.style.filter = i < v ? "drop-shadow(0 0 3px rgba(249,115,22,.4))" : "";
+        });
       }
-      function renderStars(k) {
+      function renderStars(k){
         var v = window.ratings[k];
-        document
-          .querySelectorAll('[data-key="' + k + '"].star')
-          .forEach(function (s, i) {
-            s.style.color = "";
-            s.style.filter = "";
-            if (i < v) {
-              s.classList.add("on");
-            } else {
-              s.classList.remove("on");
-            }
-          });
+        document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){
+          s.style.color = "";
+          s.style.filter = "";
+          if(i < v){ s.classList.add("on"); }
+          else { s.classList.remove("on"); }
+        });
       }
-      function updateProg() {
+      function updateProg(){
         // Count only rated slots that belong to unlocked days
         var unlockedIndices = getUnlockedDayIndices();
         var totalSlots = getTotalUnlockedSlots();
         var ratedSlots = 0;
-        days.forEach(function (day, idx) {
+        days.forEach(function(day, idx){
           if (unlockedIndices.indexOf(idx) === -1) return;
-          meals.forEach(function (meal) {
+          meals.forEach(function(meal){
             if ((window.ratings[day + "_" + meal] || 0) > 0) ratedSlots++;
           });
         });
-        var pct =
-          totalSlots > 0 ? Math.round((ratedSlots / totalSlots) * 100) : 0;
+        var pct = totalSlots > 0 ? Math.round((ratedSlots / totalSlots) * 100) : 0;
         document.getElementById("prog-fill").style.width = pct + "%";
-        document.getElementById("prog-text").textContent =
-          ratedSlots + " / " + totalSlots + " unlocked meals rated";
+        document.getElementById("prog-text").textContent = ratedSlots + " / " + totalSlots + " unlocked meals rated";
         document.getElementById("rated-count").textContent = ratedSlots;
         // Update the submit info text to show unlocked total
         var srInfo = document.querySelector(".sr-info");
-        if (srInfo)
-          srInfo.innerHTML =
-            'Rated <strong id="rated-count">' +
-            ratedSlots +
-            "</strong> / " +
-            totalSlots +
-            " unlocked meal slots";
+        if (srInfo) srInfo.innerHTML = 'Rated <strong id="rated-count">' + ratedSlots + '</strong> / ' + totalSlots + ' unlocked meal slots';
       }
 
       buildTable();
