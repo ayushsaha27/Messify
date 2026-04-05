@@ -1,181 +1,8 @@
 // ═══════════════════════════════════════════════════════════
-//  messify.js — complete frontend connector + mobile system
-//  Place <script src="messify.js"></script> before </body>
-//  in feedback.html, reports.html, admin.html, complaints.html
+//  messify.js — clean frontend logic connector
 // ═══════════════════════════════════════════════════════════
 (function () {
   "use strict";
-
-  // ── INJECT GLOBAL MOBILE CSS ───────────────────────────
-  (function injectMobileStyles() {
-    var style = document.createElement("style");
-    style.id = "messify-mobile-styles";
-    style.textContent = `
-      /* ── SAFE AREA + BASE ── */
-      :root {
-        --nav-h: 62px;
-        --sidebar-w: 260px;
-        --safe-bottom: env(safe-area-inset-bottom, 0px);
-        --safe-left:   env(safe-area-inset-left,   0px);
-        --safe-right:  env(safe-area-inset-right,  0px);
-      }
-
-      /* ── TOPNAV MOBILE ── */
-      @media (max-width: 1000px) {
-        .topnav {
-          padding: 0 16px;
-          height: var(--nav-h);
-          gap: 10px;
-        }
-        .nav-logo { gap: 8px; }
-        .logo-text { font-size: 15px; }
-        .nav-links { display: none !important; }
-        .nav-email { display: none !important; }
-        .nav-right { flex: 0; }
-
-        .menu-btn {
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
-          width: 44px;
-          height: 44px;
-          min-width: 44px;
-          border-radius: 10px;
-          flex-shrink: 0;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .menu-btn svg { width: 20px; height: 20px; }
-      }
-
-      /* ── SIDEBAR DRAWER ── */
-      @media (max-width: 1000px) {
-        .layout { 
-          grid-template-columns: 1fr !important; 
-          z-index: auto !important; 
-          position: static !important; 
-        }
-
-        .sidebar {
-          position: fixed !important;
-          top: var(--nav-h) !important;
-          left: 0 !important;
-          bottom: 0 !important;
-          width: var(--sidebar-w) !important;
-          max-width: 80vw !important;
-          height: auto !important;
-          z-index: 300 !important;
-          transform: translateX(-110%) !important;
-          transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
-          overflow-y: auto !important;
-          -webkit-overflow-scrolling: touch;
-          border-right: 1px solid var(--border2) !important;
-          box-shadow: 6px 0 40px rgba(0,0,0,0.55) !important;
-          background: rgba(11,15,26,0.98) !important;
-          backdrop-filter: blur(24px);
-          padding: 20px 14px 40px !important;
-          padding-bottom: calc(40px + var(--safe-bottom)) !important;
-        }
-        .sidebar.open {
-          transform: translateX(0) !important;
-        }
-
-        .sidebar-overlay {
-          position: fixed !important;
-          inset: 0 !important;
-          top: var(--nav-h) !important;
-          background: rgba(0,0,0,0.6) !important;
-          z-index: 290 !important;
-          backdrop-filter: blur(2px);
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.3s ease;
-        }
-        .sidebar-overlay.show {
-          opacity: 1 !important;
-          pointer-events: auto !important;
-          display: block !important;
-        }
-
-        .sb-item {
-          padding: 13px 14px !important;
-          font-size: 14px !important;
-          border-radius: 12px !important;
-          margin-bottom: 4px !important;
-          min-height: 48px;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .sb-section { margin: 20px 0 8px !important; font-size: 10px !important; }
-
-        .main { padding: 20px 16px 80px !important; }
-      }
-
-      @media (min-width: 1001px) {
-        .sidebar-overlay { display: none !important; }
-        .menu-btn { display: none !important; }
-        .sidebar {
-          transform: none !important;
-          position: sticky !important;
-        }
-      }
-
-      /* ── FEEDBACK PAGE ── */
-      @media (max-width: 860px) {
-        .week-banner {
-          flex-direction: column !important;
-          gap: 12px !important;
-          align-items: flex-start !important;
-          padding: 16px 18px !important;
-        }
-        .wb-badge { align-self: flex-start !important; }
-        .submit-row {
-          flex-direction: column !important;
-          align-items: stretch !important;
-          gap: 14px !important;
-        }
-        .btn-primary { width: 100% !important; padding: 15px !important; font-size: 15px !important; }
-        .fb-grid { grid-template-columns: 1fr !important; padding: 16px !important; }
-      }
-
-      @media (max-width: 640px) {
-        .card.grid-card { overflow: hidden; }
-        .card.grid-card > .card-header { padding: 14px 16px !important; }
-        .rating-table-wrap {
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-          padding-bottom: 8px;
-        }
-        .rating-table { min-width: 480px; font-size: 12px; }
-        .rating-table th:first-child { padding-left: 12px !important; }
-        .rating-table td:first-child { padding-left: 12px !important; font-size: 12px !important; }
-        .star { font-size: 17px !important; }
-        .meal-head .me { font-size: 15px !important; }
-        .veg-toggle span { font-size: 8px !important; padding: 2px 4px !important; }
-      }
-
-      /* ── ADMIN SCORES VEG PILLS ── */
-      .si-veg-row { display: flex; gap: 8px; margin-top: 4px; }
-      .si-veg-pill { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-      .veg-pill { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
-      .nv-pill { background: rgba(249,115,22,0.1); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
-
-      /* ── UNIVERSAL IMPROVEMENTS ── */
-      body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-      @media (max-width: 1000px) {
-        button, a, [role="button"] { touch-action: manipulation; }
-        input, textarea, select {
-          font-size: 16px !important; 
-          border-radius: 12px !important;
-        }
-        .btn-primary, .btn-google {
-          padding: 15px 20px !important;
-          font-size: 15px !important;
-        }
-        .main { padding-bottom: calc(80px + var(--safe-bottom)) !important; }
-      }
-      * { scroll-behavior: smooth; }
-    `;
-    document.head.appendChild(style);
-  })();
 
   // ── Read logged-in user from localStorage ──────────────
   var user = null;
@@ -365,8 +192,6 @@
                   s.style.color = "";
                   s.style.filter = "";
                 }
-
-                // Visually freeze the submitted stars
                 s.style.cursor = "default";
                 s.style.pointerEvents = "none";
               });
@@ -378,8 +203,6 @@
                 t.classList.remove("active");
                 if (t.dataset.type === (r.food_type || "veg"))
                   t.classList.add("active");
-
-                // Visually freeze the Veg/NV toggle
                 t.style.cursor = "not-allowed";
                 t.style.pointerEvents = "none";
                 t.style.opacity = t.classList.contains("active") ? "1" : "0.2";
@@ -409,7 +232,6 @@
             if (issues) issues.value = data.savedData.issues || "";
           }
 
-          // Change button to "Update" instead of locking the form
           if (submitBtn) {
             submitBtn.textContent = "Update Feedback →";
           }
@@ -481,14 +303,11 @@
           if (data.success) {
             var overlay = document.getElementById("successOverlay");
             if (overlay) {
-              // Allow dismissing the success overlay by clicking the background
               overlay.onclick = function (e) {
                 if (e.target === overlay) overlay.classList.remove("show");
               };
               overlay.classList.add("show");
             }
-
-            // Keep button enabled and switch to "Update" mode
             submitBtn.disabled = false;
             submitBtn.textContent = "Update Feedback →";
 
@@ -516,46 +335,6 @@
           submitBtn.textContent = "Submit Feedback →";
         });
     };
-  }
-
-  function lockFeedbackForm() {
-    window.isFormLocked = true;
-    var btn = document.querySelector('[onclick*="submitFeedback"]');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = "You have already submitted";
-      btn.style.opacity = "0.65";
-      btn.style.cursor = "not-allowed";
-      btn.style.background = "var(--surface2)";
-      btn.style.color = "#4ade80";
-    }
-    var badge = document.querySelector(".wb-badge");
-    if (badge) {
-      badge.textContent = "✅ Submitted this week";
-      badge.style.cssText =
-        "background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:#f97316;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
-    }
-    var progText = document.getElementById("prog-text");
-    if (progText) progText.textContent = "Submitted — ratings are locked";
-
-    document.querySelectorAll(".star").forEach(function (s) {
-      s.style.cursor = "default";
-      s.style.pointerEvents = "none";
-    });
-    document.querySelectorAll(".veg-toggle span").forEach(function (s) {
-      s.style.cursor = "not-allowed";
-    });
-
-    var liked = document.getElementById("liked");
-    var issues = document.getElementById("issues");
-    if (liked) {
-      liked.disabled = true;
-      liked.style.opacity = "0.6";
-    }
-    if (issues) {
-      issues.disabled = true;
-      issues.style.opacity = "0.6";
-    }
   }
 
   // ═══════════════════════════════════════════════════════
@@ -645,25 +424,14 @@
           commCard.querySelectorAll(".comment-item").forEach(function (i) {
             i.remove();
           });
-          // Remove the "no comments yet" placeholder if real comments exist
           var placeholder = document.getElementById("comments-placeholder");
           if (placeholder) placeholder.remove();
           d.comments.slice(0, 8).forEach(function (c, idx) {
             var letter = String.fromCharCode(65 + idx);
             if (c.liked)
-              commCard.innerHTML += buildComment(
-                letter,
-                c.liked,
-                "Positive",
-                "pos",
-              );
+              commCard.innerHTML += buildComment(letter, c.liked, "Positive", "pos");
             if (c.issue)
-              commCard.innerHTML += buildComment(
-                letter,
-                c.issue,
-                "Negative",
-                "neg",
-              );
+              commCard.innerHTML += buildComment(letter, c.issue, "Negative", "neg");
           });
         }
       })
@@ -684,309 +452,10 @@
               return w.overallAvg;
             },
           );
-          window._messifyTrendChart.data.datasets[1].data = res.data.map(
-            function (w) {
-              var vAvg = w.mealVegAvg;
-              if (!vAvg) return null;
-              var vals = ["breakfast", "lunch", "snacks", "dinner"]
-                .map(function (m) {
-                  return vAvg[m] || 0;
-                })
-                .filter(function (v) {
-                  return v > 0;
-                });
-              if (!vals.length) return null;
-              return (
-                Math.round(
-                  (vals.reduce(function (a, b) {
-                    return a + b;
-                  }, 0) /
-                    vals.length) *
-                    10,
-                ) / 10
-              );
-            },
-          );
-          window._messifyTrendChart.data.datasets[2].data = res.data.map(
-            function (w) {
-              var nvAvg = w.mealNvAvg;
-              if (!nvAvg) return null;
-              var vals = ["breakfast", "lunch", "dinner"]
-                .map(function (m) {
-                  return nvAvg[m] || 0;
-                })
-                .filter(function (v) {
-                  return v > 0;
-                });
-              if (!vals.length) return null;
-              return (
-                Math.round(
-                  (vals.reduce(function (a, b) {
-                    return a + b;
-                  }, 0) /
-                    vals.length) *
-                    10,
-                ) / 10
-              );
-            },
-          );
           window._messifyTrendChart.update();
         }
       })
       .catch(function () {});
-  }
-
-  if (document.getElementById("mealScores") && userRole === "admin") {
-    fetch("/api/analytics/current", { credentials: "include" })
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (res) {
-        if (!res.success || res.empty) return;
-        var d = res.data;
-        var mealNames = {
-          breakfast: "Breakfast",
-          lunch: "Lunch",
-          snacks: "Snacks",
-          dinner: "Dinner",
-        };
-
-        var kAvg = document.getElementById("adm-kpi-avg");
-        var kSubs = document.getElementById("adm-kpi-subs");
-        var kWorst = document.getElementById("adm-kpi-worst");
-        var kWLbl = document.getElementById("adm-kpi-worst-lbl");
-
-        if (kAvg) kAvg.textContent = d.overallAvg;
-        if (kSubs) kSubs.textContent = d.total.toLocaleString();
-        if (kWorst && d.worstMeal) kWorst.textContent = d.mealAvg[d.worstMeal];
-        if (kWLbl && d.worstMeal)
-          kWLbl.textContent = "Worst — " + mealNames[d.worstMeal];
-
-        // ── DOUGHNUT DATA BINDING ──
-        if (window._messifyDoughnutChartVeg) {
-          window._messifyDoughnutChartVeg.data.datasets[0].data = [
-            d.mealVegAvg.breakfast,
-            d.mealVegAvg.lunch,
-            d.mealVegAvg.snacks,
-            d.mealVegAvg.dinner,
-          ];
-          window._messifyDoughnutChartVeg.update();
-        }
-        if (window._messifyDoughnutChartNv) {
-          window._messifyDoughnutChartNv.data.datasets[0].data = [
-            d.mealNvAvg.breakfast,
-            d.mealNvAvg.lunch,
-            d.mealNvAvg.snacks,
-            d.mealNvAvg.dinner,
-          ];
-          window._messifyDoughnutChartNv.update();
-        }
-
-        var ms = document.getElementById("mealScores");
-        if (ms) {
-          ms.innerHTML = "";
-          var sortedMeals = ["breakfast", "lunch", "snacks", "dinner"].sort(
-            function (a, b) {
-              return d.mealAvg[b] - d.mealAvg[a];
-            },
-          );
-          sortedMeals.forEach(function (m) {
-            var score = d.mealAvg[m];
-            var bc =
-              score >= 4 ? "#22c55e" : score >= 3 ? "#eab308" : "#ef4444";
-            var cls =
-              score >= 4 ? "score-hi" : score >= 3 ? "score-md" : "score-lo";
-            var tag =
-              score >= 4
-                ? "Performing well"
-                : score >= 3
-                  ? "Needs improvement"
-                  : "Critical — review needed";
-
-            var vegScore = d.mealVegAvg[m] || 0;
-            var nvScore = d.mealNvAvg[m] || 0;
-            var vegPill =
-              vegScore > 0
-                ? '<div class="si-veg-pill veg-pill">🌿 Veg: ' +
-                  vegScore +
-                  "</div>"
-                : "";
-            var nvPill =
-              nvScore > 0
-                ? '<div class="si-veg-pill nv-pill">🍗 NV: ' +
-                  nvScore +
-                  "</div>"
-                : "";
-            var pillsHtml =
-              vegPill || nvPill
-                ? '<div class="si-veg-row">' + vegPill + nvPill + "</div>"
-                : "";
-
-            ms.innerHTML +=
-              '<div class="score-item">' +
-              '<div class="si-info"><div class="si-name">' +
-              mealNames[m] +
-              "</div>" +
-              '<div class="si-sub">' +
-              tag +
-              "</div>" +
-              pillsHtml +
-              "</div>" +
-              '<div class="si-bar-bg"><div class="si-bar" style="width:' +
-              (score / 5) * 100 +
-              "%;background:" +
-              bc +
-              '"></div></div>' +
-              '<div class="si-score ' +
-              cls +
-              '">' +
-              score +
-              "</div></div>";
-          });
-        }
-      })
-      .catch(function () {});
-
-    fetch("/api/analytics/all-weeks", { credentials: "include" })
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (res) {
-        if (!res.success || !res.data.length) return;
-
-        if (window._messifyAdminLineChart) {
-          var weeks = res.data;
-          window._messifyAdminLineChart.data.labels = weeks.map(function (w) {
-            return w.weekLabel;
-          });
-
-          window._messifyAdminLineChart.data.datasets[0].data = weeks.map(
-            function (w) {
-              return w.mealAvg.breakfast;
-            },
-          );
-          window._messifyAdminLineChart.data.datasets[1].data = weeks.map(
-            function (w) {
-              return w.mealVegAvg.breakfast;
-            },
-          );
-          window._messifyAdminLineChart.data.datasets[2].data = weeks.map(
-            function (w) {
-              return w.mealNvAvg.breakfast;
-            },
-          );
-
-          window._messifyAdminLineChart.data.datasets[3].data = weeks.map(
-            function (w) {
-              return w.mealAvg.lunch;
-            },
-          );
-          window._messifyAdminLineChart.data.datasets[4].data = weeks.map(
-            function (w) {
-              return w.mealVegAvg.lunch;
-            },
-          );
-          window._messifyAdminLineChart.data.datasets[5].data = weeks.map(
-            function (w) {
-              return w.mealNvAvg.lunch;
-            },
-          );
-
-          window._messifyAdminLineChart.data.datasets[6].data = weeks.map(
-            function (w) {
-              return w.mealAvg.snacks;
-            },
-          );
-
-          window._messifyAdminLineChart.data.datasets[7].data = weeks.map(
-            function (w) {
-              return w.mealAvg.dinner;
-            },
-          );
-          window._messifyAdminLineChart.data.datasets[8].data = weeks.map(
-            function (w) {
-              return w.mealVegAvg.dinner;
-            },
-          );
-          window._messifyAdminLineChart.data.datasets[9].data = weeks.map(
-            function (w) {
-              return w.mealNvAvg.dinner;
-            },
-          );
-
-          window._messifyAdminLineChart.update();
-        }
-      })
-      .catch(function () {});
-
-    fetch("/api/admin/complaints", {
-      headers: adminHeaders(),
-      credentials: "include",
-    })
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (res) {
-        if (!res.success) return;
-
-        var kComp = document.getElementById("adm-kpi-complaints");
-        var kCompBox = document.getElementById("adm-kpi-complaints-box");
-        if (kComp) kComp.textContent = res.count || res.data.length;
-        if (kCompBox) kCompBox.textContent = res.count || res.data.length;
-
-        if (res.data.length > 0) {
-          var listContainer = document.getElementById("admin-complaints-list");
-          if (listContainer) {
-            listContainer.innerHTML = "";
-            res.data.slice(0, 5).forEach(function (c) {
-              var dt = new Date(c.submittedAt).toLocaleDateString("en-IN", {
-                weekday: "short",
-                day: "2-digit",
-                month: "short",
-              });
-              var txt = c.text.toLowerCase();
-              var icon =
-                txt.indexOf("oil") > -1
-                  ? "🦠"
-                  : txt.indexOf("cook") > -1 || txt.indexOf("dal") > -1
-                    ? "🍛"
-                    : txt.indexOf("salt") > -1 || txt.indexOf("hard") > -1
-                      ? "🧂"
-                      : "⚠️";
-              listContainer.innerHTML +=
-                '<div class="complaint-item" style="padding: 13px 22px; border-bottom: 1px solid var(--border); display: flex; gap: 11px; align-items: flex-start;">' +
-                '<div class="ci-ic" style="background:rgba(239,68,68,0.1); width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">' +
-                icon +
-                "</div>" +
-                '<div><div class="ci-text" style="font-size: 12px; color: var(--muted2); line-height: 1.6;">' +
-                escHtml(c.text) +
-                "</div>" +
-                '<div class="ci-meta" style="font-size: 11px; color: var(--muted); margin-top: 3px;">' +
-                dt +
-                "</div></div></div>";
-            });
-          }
-        }
-      })
-      .catch(function () {});
-  }
-
-  function buildComment(letter, text, sentiment, cls) {
-    return (
-      '<div class="comment-item">' +
-      '<div class="ca">' +
-      letter +
-      "</div>" +
-      '<div><div class="c-body">' +
-      escHtml(text) +
-      "</div>" +
-      '<div class="c-meta"><span class="sent ' +
-      cls +
-      '">' +
-      sentiment +
-      "</span></div>" +
-      "</div></div>"
-    );
   }
 
   // ── ICONS ────────────────────────────────────────────────
@@ -1096,15 +565,6 @@
   });
 
   document.addEventListener("DOMContentLoaded", function () {
-    var ratingTable = document.querySelector(".rating-table");
-    if (ratingTable && !ratingTable.closest(".rating-table-wrap")) {
-      var wrap = document.createElement("div");
-      wrap.className = "rating-table-wrap";
-      wrap.style.cssText = "overflow-x:auto;-webkit-overflow-scrolling:touch;";
-      ratingTable.parentNode.insertBefore(wrap, ratingTable);
-      wrap.appendChild(ratingTable);
-    }
-
     var heatTable = document.querySelector(".heat-table");
     if (heatTable && !heatTable.closest(".heat-table-wrap")) {
       var hWrap = document.createElement("div");
