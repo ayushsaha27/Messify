@@ -164,22 +164,28 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      @media (max-width: 860px) {
+      /* EXTENDED MOBILE BREAKPOINT to ensure tablets/phones only see the form */
+      @media (max-width: 1024px) {
         .page {
-          grid-template-columns: 1fr;
+          display: flex;
+          flex-direction: column;
         }
         .left-panel {
-          display: none;
+          display: none !important; /* Hides text panel entirely on mobile */
         }
         .right-panel {
+          width: 100%;
           padding: 32px 20px;
           min-height: 100vh;
-          align-items: flex-start;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           padding-top: max(48px, env(safe-area-inset-top, 48px));
         }
         .card {
           padding: 32px 24px;
           border-radius: 24px;
+          width: 100%;
         }
         .input-group input {
           font-size: 16px !important;
@@ -199,7 +205,6 @@
         }
         .bg-layer { opacity: 1; }
         .blob { filter: blur(80px); opacity: 0.15; }
-        /* Blob 1: soft glow above the card from top-left */
         .blob-1 {
           width: 300px;
           height: 300px;
@@ -207,8 +212,6 @@
           left: -80px;
           transform: none;
         }
-        /* Blob 2: subtle corner accent bottom-right, NOT centred
-           (centering it creates a horizontal bar across the page) */
         .blob-2 {
           width: 240px;
           height: 240px;
@@ -217,7 +220,6 @@
           transform: none;
         }
         .blob-3 { display: none; }
-        /* Keep the grid texture — it makes the dark bg look designed */
         .grid-lines { opacity: 0.4; }
       }
 
