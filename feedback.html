@@ -1,1177 +1,1111 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Messify – Submit Feedback</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+// ═══════════════════════════════════════════════════════════
+//  messify.js — complete frontend connector + mobile system
+//  Place <script src="messify.js"></script> before </body>
+//  in feedback.html, reports.html, admin.html, complaints.html
+// ═══════════════════════════════════════════════════════════
+(function () {
+  "use strict";
 
-      /* FIX: Only hide main page scrollbar, NOT all elements */
-      html::-webkit-scrollbar, body::-webkit-scrollbar {
-        display: none;
-      }
-      html, body {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-
+  // ── INJECT GLOBAL MOBILE CSS ───────────────────────────
+  (function injectMobileStyles() {
+    var style = document.createElement("style");
+    style.id = "messify-mobile-styles";
+    style.textContent = `
+      /* ── SAFE AREA + BASE ── */
       :root {
-        --bg: #0b0f1a;
-        --surface: #111827;
-        --surface2: #1a2235;
-        --surface3: #222e45;
-        --border: rgba(255, 255, 255, 0.07);
-        --border2: rgba(255, 255, 255, 0.12);
-        --accent: #f97316;
-        --accent2: #fb923c;
-        --accent3: #fdba74;
-        --text: #f0f4ff;
-        --muted: #6b7a99;
-        --muted2: #8b9ab8;
-        --success: #22c55e;
-        --danger: #ef4444;
-        --warning: #eab308;
+        --nav-h: 62px;
+        --sidebar-w: 260px;
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left:   env(safe-area-inset-left,   0px);
+        --safe-right:  env(safe-area-inset-right,  0px);
       }
 
-      html, body {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: "DM Sans", sans-serif;
-        overflow-x: hidden;
-      }
-
-      /* Enhanced Animations */
-      @keyframes pageFade {
-        0% { opacity: 0; filter: blur(12px); transform: translateY(12px) scale(0.98); }
-        100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
-      }
-
-      @keyframes gentleMorph {
-        0% { border-radius: 18px; background: radial-gradient(circle at 20% 30%, rgba(249,115,22,0.02), transparent); }
-        100% { border-radius: 24px; background: radial-gradient(circle at 80% 70%, rgba(249,115,22,0.04), transparent); }
-      }
-
-      @keyframes floatBG {
-        0% { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(20px, 15px) scale(1.05); }
-      }
-
-      @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes cardIn {
-        from { opacity: 0; transform: translateY(24px) scale(0.97); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-
-      @keyframes starPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-      }
-
-      body {
-        animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
-      }
-
-      .bg-layer {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        overflow: hidden;
-        pointer-events: none;
-      }
-      .blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(90px);
-        opacity: 0.2;
-        animation: floatBG 18s ease-in-out infinite alternate;
-      }
-      .blob-1 {
-        width: 560px;
-        height: 560px;
-        background: #f97316;
-        top: -160px;
-        left: -140px;
-      }
-      .blob-2 {
-        width: 400px;
-        height: 400px;
-        background: #3b82f6;
-        bottom: -100px;
-        right: -80px;
-        animation-delay: -5s;
-      }
-      .blob-3 {
-        width: 280px;
-        height: 280px;
-        background: #ec4899;
-        top: 40%;
-        left: 55%;
-        animation-delay: -9s;
-      }
-
-      .grid-lines {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-        background-size: 48px 48px;
-      }
-
-      /* NAV */
-      .topnav {
-        position: sticky;
-        top: 0;
-        z-index: 200;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 32px;
-        height: 62px;
-        background: rgba(11, 15, 26, 0.92);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border);
-      }
-      .nav-logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        flex: 1;
-        transition: transform 0.2s ease;
-      }
-      .nav-logo:hover { transform: scale(1.02); }
-      .logo-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        background: var(--accent);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 15px;
-      }
-      .logo-text {
-        font-family: "Syne", sans-serif;
-        font-size: 17px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: var(--text);
-      }
-      .logo-text span { color: var(--accent); }
-      .nav-links {
-        display: flex;
-        gap: 4px;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      .nav-link {
-        padding: 7px 14px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--muted);
-        text-decoration: none;
-        transition: all 0.2s;
-      }
-      .nav-link:hover {
-        background: var(--surface2);
-        color: var(--muted2);
-      }
-      .nav-link.active {
-        background: rgba(249, 115, 22, 0.12);
-        color: var(--accent);
-        border: 1px solid rgba(249, 115, 22, 0.2);
-      }
-      .nav-right {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 12px;
-        flex: 1;
-      }
-      .nav-user {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .nav-avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--accent);
-      }
-      .nav-email {
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .menu-btn {
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        border-radius: 9px;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: all 0.2s;
-      }
-      .menu-btn:hover {
-        background: var(--surface3);
-        border-color: rgba(249, 115, 22, 0.3);
-      }
-
-      .layout {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        grid-template-columns: 220px 1fr;
-        min-height: calc(100vh - 61px);
-        align-items: start;
-      }
-      .sidebar {
-        border-right: 1px solid var(--border);
-        padding: 24px 14px;
-        background: rgba(11, 15, 26, 0.4);
-        transition: transform 0.3s ease;
-        position: sticky;
-        top: 62px;
-        height: calc(100vh - 61px);
-        overflow-y: auto;
-      }
-      .sb-section {
-        font-size: 10px;
-        font-weight: 500;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        padding: 0 10px;
-        margin: 18px 0 6px;
-      }
-      .sb-section:first-child { margin-top: 0; }
-      .sb-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 10px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--muted);
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-bottom: 2px;
-      }
-      .sb-item:hover {
-        background: var(--surface2);
-        color: var(--text);
-      }
-      .sb-item.active {
-        background: rgba(249, 115, 22, 0.12);
-        color: var(--accent);
-        border: 1px solid rgba(249, 115, 22, 0.15);
-      }
-      .sb-item .ic {
-        font-size: 15px;
-        width: 18px;
-        text-align: center;
-      }
-
-      .main {
-        padding: 40px 36px 80px 36px;
-      }
-
+      /* ── TOPNAV MOBILE ── */
       @media (max-width: 1000px) {
-        .menu-btn { display: flex; }
-        .layout { grid-template-columns: 1fr; }
-      }
-      @media (min-width: 1001px) {
-        .menu-btn { display: none; }
-        .sidebar-overlay { display: none !important; }
-      }
-
-      .page-title-row {
-        margin-bottom: 32px;
-        animation: fadeUp 0.6s ease both;
-      }
-      .title-row-inner {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 5px;
-      }
-      .breadcrumb {
-        font-size: 12px;
-        color: var(--muted);
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .breadcrumb span { color: var(--accent); }
-      .page-title {
-        font-family: "Syne", sans-serif;
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.025em;
-        margin-bottom: 4px;
-        background: linear-gradient(135deg, #ffffff, var(--accent3));
-        background-clip: text;
-        -webkit-background-clip: text;
-        color: transparent;
-      }
-      .page-title em {
-        color: var(--accent);
-        font-style: normal;
-        background: none;
-        -webkit-background-clip: unset;
-      }
-      .page-sub {
-        font-size: 14px;
-        color: var(--muted);
-      }
-
-      .card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
-        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        animation: gentleMorph 4s infinite alternate ease-in-out;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(249, 115, 22, 0.2);
-      }
-
-      .card-header {
-        padding: 18px 24px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .card-title {
-        font-family: "Syne", sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-      }
-      .card-hint { font-size: 12px; color: var(--muted); }
-
-      .week-banner {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 20px 26px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 24px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-        animation: fadeUp 0.6s 0.05s ease both;
-      }
-      .wb-left {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .wb-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        background: rgba(249, 115, 22, 0.1);
-        border: 1px solid rgba(249, 115, 22, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-      }
-      .wb-title {
-        font-family: "Syne", sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-      }
-      .wb-sub {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 2px;
-      }
-      .wb-badge {
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.25);
-        color: #4ade80;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 6px 14px;
-        border-radius: 100px;
-      }
-
-      .prog-wrap {
-        margin-bottom: 24px;
-        animation: fadeUp 0.6s 0.1s ease both;
-      }
-      .prog-top {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        color: var(--muted);
-        margin-bottom: 8px;
-      }
-      .prog-top strong { color: var(--accent); }
-      .prog-track {
-        height: 4px;
-        background: var(--surface2);
-        border-radius: 2px;
-        overflow: hidden;
-      }
-      .prog-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--accent), var(--accent2));
-        border-radius: 2px;
-        transition: width 0.4s ease;
-      }
-
-      .grid-card {
-        animation: fadeUp 0.6s 0.15s ease both;
-        margin-bottom: 20px;
-      }
-      
-      /* THE NEW TABLE WRAPPER STYLES FOR VISIBLE SCROLLING */
-      .rating-table-wrap {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 8px; /* space for the custom scrollbar */
-        scrollbar-width: thin !important;
-        scrollbar-color: var(--accent) var(--surface2) !important;
-        -ms-overflow-style: auto !important;
-      }
-      
-      .rating-table-wrap::-webkit-scrollbar {
-        display: block !important;
-        height: 8px !important;
-      }
-      
-      .rating-table-wrap::-webkit-scrollbar-track {
-        background: var(--surface2) !important;
-        border-radius: 4px !important;
-      }
-      
-      .rating-table-wrap::-webkit-scrollbar-thumb {
-        background: var(--accent) !important;
-        border-radius: 4px !important;
-      }
-
-      .rating-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      .rating-table th {
-        padding: 12px 8px;
-        font-size: 11px;
-        font-weight: 500;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        text-align: center;
-        border-bottom: 1px solid var(--border);
-      }
-      .rating-table th:first-child {
-        text-align: left;
-        padding-left: 24px;
-        width: 62px;
-      }
-      .rating-table td {
-        padding: 12px 6px;
-        border-bottom: 1px solid var(--border);
-        text-align: center;
-        vertical-align: middle;
-      }
-      .rating-table td:first-child {
-        text-align: left;
-        padding-left: 24px;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--muted2);
-      }
-      .rating-table tbody tr:last-child td { border-bottom: none; }
-      .rating-table tbody tr:hover td { background: rgba(249, 115, 22, 0.03); }
-
-      .meal-head {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-      }
-      .meal-head .me { font-size: 18px; }
-      .meal-head .mn {
-        font-size: 10px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: var(--muted);
-      }
-
-      .stars {
-        display: inline-flex;
-        gap: 3px;
-        justify-content: center;
-      }
-      .star {
-        font-size: 20px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: var(--surface3);
-        line-height: 1;
-        user-select: none;
-      }
-      .star:hover {
-        transform: scale(1.25);
-        color: var(--accent2);
-      }
-      .star.on {
-        color: var(--accent);
-        filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.5));
-      }
-
-      .veg-toggle {
-        display: flex;
-        gap: 4px;
-        justify-content: center;
-        margin-top: 6px;
-      }
-      .veg-toggle span {
-        font-size: 9px;
-        font-weight: 600;
-        padding: 3px 6px;
-        border-radius: 4px;
-        cursor: pointer;
-        opacity: 0.4;
-        border: 1px solid transparent;
-        transition: all 0.2s;
-        text-transform: uppercase;
-      }
-      .vt-veg.active {
-        opacity: 1;
-        background: rgba(34, 197, 94, 0.1);
-        color: #4ade80;
-        border-color: rgba(34, 197, 94, 0.3);
-      }
-      .vt-nv.active {
-        opacity: 1;
-        background: rgba(249, 115, 22, 0.1);
-        color: #fb923c;
-        border-color: rgba(249, 115, 22, 0.3);
-      }
-
-      .fb-card {
-        animation: fadeUp 0.6s 0.2s ease both;
-        margin-bottom: 20px;
-      }
-      .fb-tag {
-        background: rgba(249, 115, 22, 0.1);
-        border: 1px solid rgba(249, 115, 22, 0.2);
-        color: var(--accent2);
-        font-size: 10px;
-        font-weight: 600;
-        padding: 2px 10px;
-        border-radius: 100px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
-      .fb-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        padding: 20px 24px;
-      }
-      @media (max-width: 600px) {
-        .fb-grid { grid-template-columns: 1fr; }
-      }
-      .fb-field label {
-        display: block;
-        font-size: 11px;
-        font-weight: 500;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        margin-bottom: 8px;
-      }
-      .fb-field textarea {
-        width: 100%;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 12px;
-        font-family: "DM Sans", sans-serif;
-        font-size: 13px;
-        color: var(--text);
-        outline: none;
-        resize: none;
-        min-height: 86px;
-        transition: all 0.2s ease;
-      }
-      .fb-field textarea:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
-        transform: scale(1.01);
-      }
-
-      .submit-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        animation: fadeUp 0.6s 0.25s ease both;
-      }
-      .sr-info {
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .sr-info strong { color: var(--accent); }
-      .btn-primary {
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        padding: 13px 28px;
-        font-family: "Syne", sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
-      }
-      .btn-primary:hover {
-        background: var(--accent2);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 28px rgba(249, 115, 22, 0.5);
-      }
-
-      .success-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(11, 15, 26, 0.92);
-        z-index: 300;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(16px);
-      }
-      .success-overlay.show { display: flex; }
-      .success-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 48px 40px;
-        text-align: center;
-        max-width: 380px;
-        box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
-        animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .success-icon { font-size: 56px; margin-bottom: 16px; }
-      .success-title {
-        font-family: "Syne", sans-serif;
-        font-size: 22px;
-        font-weight: 800;
-        margin-bottom: 8px;
-      }
-      .success-title em { color: var(--accent); font-style: normal; }
-      .success-sub {
-        font-size: 13px;
-        color: var(--muted);
-        line-height: 1.7;
-        margin-bottom: 24px;
-      }
-      .toast {
-        position: fixed;
-        bottom: 28px;
-        left: 50%;
-        transform: translateX(-50%) translateY(80px);
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 12px 22px;
-        font-size: 14px;
-        color: var(--text);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .toast.show { transform: translateX(-50%) translateY(0); }
-
-      /* ── LOCKED DAY ROW ── */
-      .day-locked td {
-        opacity: 0.35;
-        pointer-events: none;
-      }
-      .day-locked td:first-child {
-        opacity: 1 !important;
-      }
-      .day-label-wrap {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .day-lock-badge {
-        font-size: 10px;
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        color: var(--muted);
-        padding: 1px 6px;
-        border-radius: 100px;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-        white-space: nowrap;
-      }
-      .day-unlocked-badge {
-        font-size: 10px;
-        background: rgba(34,197,94,0.1);
-        border: 1px solid rgba(34,197,94,0.25);
-        color: #4ade80;
-        padding: 1px 6px;
-        border-radius: 100px;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-        white-space: nowrap;
-      }
-      .day-today-badge {
-        font-size: 10px;
-        background: rgba(249,115,22,0.12);
-        border: 1px solid rgba(249,115,22,0.3);
-        color: var(--accent);
-        padding: 1px 6px;
-        border-radius: 100px;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        white-space: nowrap;
-      }
-
-      /* ══════════════════════════════════════════
-         MOBILE RESPONSIVE — FEEDBACK PAGE
-         ══════════════════════════════════════════ */
-
-      @media (max-width: 1000px) {
-        .submit-row {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-        }
-        .submit-row .btn-primary {
-          width: 100%;
-          text-align: center;
-          white-space: nowrap;
-        }
-        .week-banner {
-          flex-direction: column;
+        .topnav {
+          padding: 0 16px;
+          height: var(--nav-h);
           gap: 10px;
-          align-items: flex-start;
-          padding: 16px 18px;
         }
-        .wb-badge { align-self: flex-start; }
+        .nav-logo { gap: 8px; }
+        .logo-text { font-size: 15px; }
+        .nav-links { display: none !important; }
+        .nav-email { display: none !important; }
+        .nav-right { flex: 0; }
+
+        .menu-btn {
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          min-width: 44px;
+          border-radius: 10px;
+          flex-shrink: 0;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .menu-btn svg { width: 20px; height: 20px; }
       }
 
-      @media (max-width: 860px) {
-        .card.grid-card {
-          overflow: visible !important;
+      /* ── SIDEBAR DRAWER ── */
+      @media (max-width: 1000px) {
+        .layout { 
+          grid-template-columns: 1fr !important; 
+          z-index: auto !important; 
+          position: static !important; 
         }
-        .rating-table-wrap {
-          overflow-x: auto !important;
-          overflow-y: visible !important;
+
+        .sidebar {
+          position: fixed !important;
+          top: var(--nav-h) !important;
+          left: 0 !important;
+          bottom: 0 !important;
+          width: var(--sidebar-w) !important;
+          max-width: 80vw !important;
+          height: auto !important;
+          z-index: 300 !important;
+          transform: translateX(-110%) !important;
+          transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+          overflow-y: auto !important;
           -webkit-overflow-scrolling: touch;
+          border-right: 1px solid var(--border2) !important;
+          box-shadow: 6px 0 40px rgba(0,0,0,0.55) !important;
+          background: rgba(11,15,26,0.98) !important;
+          backdrop-filter: blur(24px);
+          padding: 20px 14px 40px !important;
+          padding-bottom: calc(40px + var(--safe-bottom)) !important;
         }
-        .rating-table {
-          min-width: 560px !important;
-          font-size: 13px;
+        .sidebar.open {
+          transform: translateX(0) !important;
         }
-        .rating-table th:first-child { padding-left: 14px; width: 58px; }
-        .rating-table td:first-child { padding-left: 14px; font-size: 12px; }
-        .card-header { flex-wrap: wrap; gap: 6px; }
-        .card-hint   { font-size: 11px; }
-        .page-title  { font-size: 21px; }
-        .wb-title    { font-size: 14px; }
-        .wb-sub      { font-size: 11px; }
-      }
 
-      @media (max-width: 500px) {
-        .success-card {
-          padding: 32px 20px;
-          margin: 16px;
-          max-width: calc(100vw - 32px);
+        .sidebar-overlay {
+          position: fixed !important;
+          inset: 0 !important;
+          top: var(--nav-h) !important;
+          background: rgba(0,0,0,0.6) !important;
+          z-index: 290 !important;
+          backdrop-filter: blur(2px);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
         }
-        .page-title { font-size: 18px; }
-        .prog-top   { flex-direction: column; gap: 3px; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="bg-layer">
-      <div class="blob blob-1"></div>
-      <div class="blob blob-2"></div>
-      <div class="blob blob-3"></div>
-    </div>
-    <div class="grid-lines"></div>
+        .sidebar-overlay.show {
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          display: block !important;
+        }
 
-    <nav class="topnav">
-      <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      </button>
+        .sb-item {
+          padding: 13px 14px !important;
+          font-size: 14px !important;
+          border-radius: 12px !important;
+          margin-bottom: 4px !important;
+          min-height: 48px;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .sb-section { margin: 20px 0 8px !important; font-size: 10px !important; }
 
-      <a class="nav-logo" href="index.html">
-        <div class="logo-icon">🍽</div>
-        <div class="logo-text">Messi<span>fy</span></div>
-      </a>
-      <div class="nav-links" id="dynamic-nav-links"></div>
-      <div class="nav-right" id="nav-right">
-        <div class="nav-user">
-          <div class="nav-avatar" id="nav-avatar">?</div>
-          <span class="nav-email" id="nav-email">Loading...</span>
-        </div>
-      </div>
-    </nav>
-
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    <div class="layout">
-      <div class="sidebar" id="sidebar"></div>
-
-      <div class="main">
-        <div class="page-title-row">
-          <div class="title-row-inner">
-            <div>
-              <div class="breadcrumb">Dashboard <span>›</span> Submit Feedback</div>
-              <div class="page-title">Weekly <em>Feedback</em> Form</div>
-            </div>
-          </div>
-          <div class="page-sub">
-            Rate each meal for every day this week. Your feedback is anonymous to mess staff.
-          </div>
-        </div>
-        <div class="week-banner">
-          <div class="wb-left">
-            <div class="wb-icon">📅</div>
-            <div>
-              <div class="wb-title" id="wb-title">Loading week...</div>
-              <div class="wb-sub">One submission per student · Deadline: Sunday 11:59 PM</div>
-            </div>
-          </div>
-          <div class="wb-badge">✓ Not yet submitted</div>
-        </div>
-        <div class="prog-wrap">
-          <div class="prog-top">
-            <span>Rating progress</span><strong id="prog-text">0 / ? meals rated</strong>
-          </div>
-          <div class="prog-track">
-            <div class="prog-fill" id="prog-fill" style="width: 0%"></div>
-          </div>
-        </div>
-        <div class="card grid-card">
-          <div class="card-header">
-            <div class="card-title">⭐ Meal Ratings — 1 to 5 stars</div>
-            <div class="card-hint">Click a star · Hover to preview</div>
-          </div>
-          <div class="rating-table-wrap">
-          <table class="rating-table">
-            <thead>
-              <tr><th>Day</th>
-                <th><div class="meal-head"><span class="me">🌅</span><span class="mn">Breakfast</span></div></th>
-                <th><div class="meal-head"><span class="me">🍱</span><span class="mn">Lunch</span></div></th>
-                <th><div class="meal-head"><span class="me">🫖</span><span class="mn">Snacks</span></div></th>
-                <th><div class="meal-head"><span class="me">🌙</span><span class="mn">Dinner</span></div></th>
-              </tr>
-            </thead>
-            <tbody id="ratingBody"></tbody>
-          </table>
-          </div>
-        </div>
-        <div class="card fb-card">
-          <div class="card-header">
-            <div class="card-title">Written Feedback</div>
-            <span class="fb-tag">Optional</span>
-          </div>
-          <div class="fb-grid">
-            <div class="fb-field">
-              <label>What did you enjoy this week? 😊</label>
-              <textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea>
-            </div>
-            <div class="fb-field">
-              <label>What needs improvement? 🔧</label>
-              <textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="submit-row">
-          <div class="sr-info">Rated <strong id="rated-count">0</strong> / ? unlocked meal slots</div>
-          <button class="btn-primary" onclick="submitFeedback()">Submit Feedback →</button>
-        </div>
-      </div>
-    </div>
-    <div class="success-overlay" id="successOverlay">
-      <div class="success-card">
-        <div class="success-icon">🎉</div>
-        <div class="success-title">Feedback <em>Submitted!</em></div>
-        <div class="success-sub" id="success-sub">
-          Thank you, <span id="success-name">there</span>! Your ratings for
-          <span id="success-week">this week</span> have been recorded.
-        </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-          <button class="btn-primary" onclick="location.href = 'reports.html'">View Reports →</button>
-          <button onclick="document.getElementById('successOverlay').classList.remove('show')" 
-                  style="background: transparent; border: none; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 10px; transition: color 0.2s;" 
-                  onmouseover="this.style.color='var(--text)'" 
-                  onmouseout="this.style.color='var(--muted)'">
-            Close
-          </button>
-        </div>
-        
-      </div>
-    </div>
-    <div class="toast" id="toast">
-      <span class="ti" id="toast-icon"></span><span id="toast-msg"></span>
-    </div>
-
-    <script>
-      var messifyUser = null;
-      try { messifyUser = JSON.parse(localStorage.getItem("messify_user")); } catch (e) {}
-      if (!messifyUser || !messifyUser.email) { window.location.href = "index.html"; }
-
-      if (messifyUser) {
-        var _ini = (messifyUser.name || messifyUser.email).split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
-        var av = document.getElementById("nav-avatar");
-        var em = document.getElementById("nav-email");
-        if (av) av.textContent = _ini;
-        if (em) em.textContent = messifyUser.email;
+        .main { padding: 20px 16px 80px !important; }
       }
 
-      function logoutUser(event) {
-        if (event) event.preventDefault();
-        localStorage.removeItem("messify_user");
-        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
-          .then(function(){ window.location.href = "index.html"; })
-          .catch(function(){ window.location.href = "index.html"; });
+      @media (min-width: 1001px) {
+        .sidebar-overlay { display: none !important; }
+        .menu-btn { display: none !important; }
+        .sidebar {
+          transform: none !important;
+          position: sticky !important;
+        }
       }
 
-      var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      var meals = ["breakfast", "lunch", "snacks", "dinner"];
-      var ratings = {};
-      var foodTypes = {};
-
-      days.forEach(function(d){
-        meals.forEach(function(m){
-          ratings[d + "_" + m] = 0;
-          foodTypes[d + "_" + m] = "veg";
-        });
-      });
-
-      // ── DAY-UNLOCK LOGIC ──
-      // Monday=0 … Sunday=6 in our week. JS getDay(): Sun=0,Mon=1…Sat=6
-      // We convert so Mon=0, Tue=1, … Sun=6
-      function getTodayDayIndex() {
-        var jsDay = new Date().getDay(); // 0=Sun,1=Mon,...6=Sat
-        // Convert: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
-        return jsDay === 0 ? 6 : jsDay - 1;
+      /* ── FEEDBACK PAGE ── */
+      @media (max-width: 860px) {
+        .week-banner {
+          flex-direction: column !important;
+          gap: 12px !important;
+          align-items: flex-start !important;
+          padding: 16px 18px !important;
+        }
+        .wb-badge { align-self: flex-start !important; }
+        .submit-row {
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 14px !important;
+        }
+        .btn-primary { width: 100% !important; padding: 15px !important; font-size: 15px !important; }
+        .fb-grid { grid-template-columns: 1fr !important; padding: 16px !important; }
       }
 
-      // Returns how many days from start of week are unlocked (1–7).
-      // On Monday → 1, Tuesday → 2, … Sunday → 7
-      function getUnlockedCount() {
-        return getTodayDayIndex() + 1; // 1-based
+      /* Fixed mobile overrides to respect the new robust table structure */
+      @media (max-width: 640px) {
+        .card.grid-card > .card-header { padding: 14px 16px !important; }
+        .meal-head .me { font-size: 15px !important; }
       }
 
-      // An array of which day-indices (0=Mon…6=Sun) are unlocked
-      function getUnlockedDayIndices() {
-        var count = getUnlockedCount();
-        var arr = [];
-        for (var i = 0; i < count; i++) arr.push(i);
-        return arr;
+      /* ── ADMIN SCORES VEG PILLS ── */
+      .si-veg-row { display: flex; gap: 8px; margin-top: 4px; }
+      .si-veg-pill { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+      .veg-pill { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+      .nv-pill { background: rgba(249,115,22,0.1); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+
+      .chart-card { min-width: 0; }
+      .chart-wrapper { position: relative; min-width: 0; }
+      .chart-wrapper canvas { width: 100% !important; height: 100% !important; display: block; }
+
+      .toast { bottom: calc(24px + var(--safe-bottom)); }
+
+      /* ── UNIVERSAL IMPROVEMENTS ── */
+      body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      @media (max-width: 1000px) {
+        button, a, [role="button"] { touch-action: manipulation; }
+        .btn-primary, .btn-google, .menu-btn, .sb-item, .nav-link {
+          min-height: 44px;
+        }
+        .nav-link { display: inline-flex; align-items: center; }
+        input, textarea, select {
+          font-size: 16px !important; 
+          border-radius: 12px !important;
+        }
+        .btn-primary, .btn-google {
+          padding: 15px 20px !important;
+          font-size: 15px !important;
+        }
+        .main { padding-bottom: calc(80px + var(--safe-bottom)) !important; }
       }
+      * { scroll-behavior: smooth; }
+    `;
+    document.head.appendChild(style);
+  })();
 
-      // Total unlockable slots = unlockedDays × 4 meals
-      function getTotalUnlockedSlots() {
-        return getUnlockedCount() * meals.length;
-      }
+  // ── Read logged-in user from localStorage ──────────────
+  var user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("messify_user"));
+  } catch (e) {}
+  var userEmail = user ? user.email || "" : "";
+  var userName = user ? user.name || "" : "";
+  var userRole = user ? user.role || "" : "";
 
-      function buildTable(){
-        var tb = document.getElementById("ratingBody");
-        var unlockedIndices = getUnlockedDayIndices();
-        var todayIdx = getTodayDayIndex();
+  var userFirstName = userName ? userName.split(" ")[0] : "there";
 
-        days.forEach(function(day, dayIdx){
-          var isUnlocked = unlockedIndices.indexOf(dayIdx) !== -1;
-          var isToday    = dayIdx === todayIdx;
+  function adminHeaders() {
+    return { "Content-Type": "application/json", "x-user-email": userEmail };
+  }
 
-          var tr = document.createElement("tr");
-          tr.dataset.day = day;
-          if (!isUnlocked) tr.classList.add("day-locked");
+  function scColor(v) {
+    if (v >= 4.5) return "rgba(34,197,94,.7)";
+    if (v >= 3.8) return "rgba(34,197,94,.38)";
+    if (v >= 3.0) return "rgba(234,179,8,.42)";
+    if (v >= 2.5) return "rgba(249,115,22,.45)";
+    return "rgba(239,68,68,.55)";
+  }
 
-          // Day label cell
-          var td0 = document.createElement("td");
-          var labelWrap = document.createElement("div");
-          labelWrap.className = "day-label-wrap";
-          var daySpan = document.createElement("span");
-          daySpan.textContent = day;
-          labelWrap.appendChild(daySpan);
+  function escHtml(s) {
+    return (s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
 
-          if (isToday) {
-            var badge = document.createElement("span");
-            badge.className = "day-today-badge";
-            badge.textContent = "Today";
-            labelWrap.appendChild(badge);
-          } else if (isUnlocked) {
-            var badge = document.createElement("span");
-            badge.className = "day-unlocked-badge";
-            badge.textContent = "Open";
-            labelWrap.appendChild(badge);
-          } else {
-            var badge = document.createElement("span");
-            badge.className = "day-lock-badge";
-            badge.textContent = "🔒 Future";
-            labelWrap.appendChild(badge);
+  function showToast(msg, type) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    var icon = document.getElementById("toast-icon");
+    var msgEl = document.getElementById("toast-msg");
+    if (icon) icon.textContent = type === "success" ? "✅" : "⚠️";
+    if (msgEl) msgEl.textContent = msg;
+    t.className = "toast " + (type || "error");
+    t.classList.add("show");
+    setTimeout(function () {
+      t.classList.remove("show");
+    }, 3500);
+  }
+
+  // ── GLOBAL WEEK DATA FETCH ──
+  fetch("/api/week/current", { credentials: "include" })
+    .then(function (r) {
+      return r.json();
+    })
+    .then(function (wi) {
+      if (!wi.success) return;
+
+      var wbTitle =
+        document.getElementById("wb-title") ||
+        document.querySelector(".wb-title");
+      if (wbTitle) wbTitle.textContent = wi.label + " — " + wi.range;
+      var successName = document.getElementById("success-name");
+      if (successName) successName.textContent = userFirstName;
+      var successWeek = document.getElementById("success-week");
+      if (successWeek) successWeek.textContent = wi.label;
+
+      var acadEl = document.getElementById("acad-year");
+      if (acadEl) acadEl.textContent = wi.acadYear;
+
+      var adminPhSub = document.getElementById("admin-ph-sub");
+      if (adminPhSub)
+        adminPhSub.textContent =
+          wi.label + " · " + wi.range + " · NIST University";
+
+      var currWeekOpt = document.getElementById("currWeek");
+      if (currWeekOpt) currWeekOpt.textContent = wi.label;
+    })
+    .catch(function () {});
+
+  var p = window.location.pathname;
+  var isDash = p.includes("admin.html") || p.endsWith("/");
+  var isHist =
+    p.includes("reports.html") &&
+    window.location.search.includes("view=history");
+  var isRep = p.includes("reports.html") && !isHist;
+  var isComp = p.includes("complaints.html");
+  var isFeed = p.includes("feedback.html");
+
+  if (userRole === "admin") {
+    var navLinks =
+      document.getElementById("dynamic-nav-links") ||
+      document.querySelector(".nav-links");
+    if (navLinks) {
+      navLinks.innerHTML = `
+        <a href="reports.html" class="nav-link ${isRep ? "active" : ""}">Reports</a>
+        <a href="admin.html" class="nav-link ${isDash || isComp ? "active" : ""}">Admin</a>
+      `;
+    }
+    var navRight = document.getElementById("nav-right");
+    if (navRight && !document.querySelector(".admin-pill")) {
+      navRight.insertAdjacentHTML(
+        "beforeend",
+        '<span class="admin-pill">⚙️ Admin Panel</span>',
+      );
+    }
+    var sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.innerHTML = `
+        <div class="sb-section">Menu</div>
+        <a class="sb-item ${isDash ? "active" : ""}" href="admin.html"><span class="ic">🎛️</span> Dashboard</a>
+        <a class="sb-item ${isRep ? "active" : ""}" href="reports.html"><span class="ic">📊</span> Reports</a>
+        <a class="sb-item" href="#"><span class="ic">🧾</span> Mess Bill</a>
+        <a class="sb-item ${isComp ? "active" : ""}" href="complaints.html"><span class="ic">💬</span> Complaints</a>
+        <div class="sb-section">Account</div>
+        <a class="sb-item" href="#" onclick="logoutUser(event)"><span class="ic">🚪</span> Logout</a>
+      `;
+    }
+  } else if (userRole === "student" || userRole === "") {
+    var studentNavLinks =
+      document.getElementById("dynamic-nav-links") ||
+      document.querySelector(".nav-links");
+    if (studentNavLinks) {
+      studentNavLinks.innerHTML = `
+        <a href="feedback.html" class="nav-link ${isFeed ? "active" : ""}">Feedback</a>
+        <a href="reports.html" class="nav-link ${isRep ? "active" : ""}">Reports</a>
+      `;
+    }
+    var studentSidebar = document.getElementById("sidebar");
+    if (studentSidebar) {
+      studentSidebar.innerHTML = `
+        <div class="sb-section">Student</div>
+        <a class="sb-item ${isFeed ? "active" : ""}" href="feedback.html">
+          <span class="ic">✍️</span> Submit Feedback
+        </a>
+        <a class="sb-item ${isRep && !isHist ? "active" : ""}" href="reports.html">
+          <span class="ic">📊</span> Weekly Report
+        </a>
+        <a class="sb-item ${isHist ? "active" : ""}" href="reports.html?view=history">
+          <span class="ic">📋</span> My History
+        </a>
+        <a class="sb-item" href="#"><span class="ic">🧾</span> Mess Bill</a>
+        <div class="sb-section">Account</div>
+        <a class="sb-item" href="#" onclick="logoutUser(event)">
+          <span class="ic">🚪</span> Logout
+        </a>
+      `;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  FEEDBACK PAGE LOGIC
+  // ═══════════════════════════════════════════════════════
+  var submitBtn = document.querySelector('[onclick*="submitFeedback"]');
+  if (submitBtn) {
+    fetch("/api/feedback/status?email=" + encodeURIComponent(userEmail), {
+      credentials: "include",
+    })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data.submitted) {
+          var badge = document.querySelector(".wb-badge");
+          if (badge) {
+            badge.textContent = "✓ Not yet submitted";
+            badge.style.cssText =
+              "background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ade80;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
           }
-          td0.appendChild(labelWrap);
-          tr.appendChild(td0);
+        } else {
+          if (data.savedData && data.savedData.ratings) {
+            let ratedCountNum = 0;
+            data.savedData.ratings.forEach(function (r) {
+              var key = r.day + "_" + r.meal;
+              if (window.ratings) window.ratings[key] = r.rating;
+              if (window.foodTypes)
+                window.foodTypes[key] = r.food_type || "veg";
 
-          meals.forEach(function(meal){
-            var td = document.createElement("td");
-            var key = day + "_" + meal;
+              var stars = document.querySelectorAll(
+                '[data-key="' + key + '"].star',
+              );
+              stars.forEach(function (s, i) {
+                if (i < r.rating) {
+                  s.classList.add("on");
+                  s.style.color = "var(--accent)";
+                  s.style.filter =
+                    "drop-shadow(0 0 4px rgba(249, 115, 22, 0.5))";
+                } else {
+                  s.classList.remove("on");
+                  s.style.color = "";
+                  s.style.filter = "";
+                }
+                s.style.cursor = "default";
+                s.style.pointerEvents = "none";
+              });
 
-            if (!isUnlocked) {
-              // Locked cell — show dim placeholder
-              var placeholder = document.createElement("div");
-              placeholder.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:4px;";
-              var dimStars = document.createElement("div");
-              dimStars.className = "stars";
-              dimStars.style.opacity = "0.25";
-              for (var s = 1; s <= 5; s++) {
-                var ds = document.createElement("span");
-                ds.className = "star";
-                ds.textContent = "★";
-                ds.style.fontSize = "18px";
-                dimStars.appendChild(ds);
-              }
-              placeholder.appendChild(dimStars);
-              td.appendChild(placeholder);
-            } else {
-              var wrap = document.createElement("div");
-              wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:5px;";
+              var tgs = document.querySelectorAll(
+                '.veg-toggle[data-key="' + key + '"] span',
+              );
+              tgs.forEach(function (t) {
+                t.classList.remove("active");
+                if (t.dataset.type === (r.food_type || "veg"))
+                  t.classList.add("active");
+                t.style.cursor = "not-allowed";
+                t.style.pointerEvents = "none";
+                t.style.opacity = t.classList.contains("active") ? "1" : "0.2";
+              });
 
-              var starsDiv = document.createElement("div");
-              starsDiv.className = "stars";
-              for(var s=1; s<=5; s++){
-                var star = document.createElement("span");
-                star.className = "star";
-                star.textContent = "★";
-                star.dataset.key = key;
-                star.dataset.val = s;
-                star.addEventListener("click", (function(k,v){ return function(){ setRating(k,v); }; })(key,s));
-                star.addEventListener("mouseover", (function(k,v){ return function(){ previewStars(k,v); }; })(key,s));
-                star.addEventListener("mouseout", (function(k){ return function(){ renderStars(k); }; })(key));
-                starsDiv.appendChild(star);
-              }
-              wrap.appendChild(starsDiv);
+              if (r.rating > 0) ratedCountNum++;
+            });
 
-              var typeWrap = document.createElement("div");
-              typeWrap.className = "veg-toggle";
-              typeWrap.dataset.key = key;
-              typeWrap.innerHTML =
-                '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' + key + "', 'veg')\">🌿 Veg</span>" +
-                '<span class="vt-nv" data-type="non-veg" onclick="setFoodType(\'' + key + "', 'non-veg')\">🍗 NV</span>";
-              wrap.appendChild(typeWrap);
-              td.appendChild(wrap);
+            var progFill = document.getElementById("prog-fill");
+            var progText = document.getElementById("prog-text");
+            var rCount = document.getElementById("rated-count");
+            var totalSlots =
+              typeof getTotalUnlockedSlots === "function"
+                ? getTotalUnlockedSlots()
+                : 28;
+            if (progFill)
+              progFill.style.width =
+                Math.round((ratedCountNum / totalSlots) * 100) + "%";
+            if (progText)
+              progText.textContent =
+                "Submitted — " + ratedCountNum + " meals rated";
+            if (rCount) rCount.textContent = ratedCountNum;
+
+            var liked = document.getElementById("liked");
+            var issues = document.getElementById("issues");
+            if (liked) liked.value = data.savedData.liked || "";
+            if (issues) issues.value = data.savedData.issues || "";
+          }
+
+          if (submitBtn) {
+            submitBtn.textContent = "Update Feedback →";
+          }
+          var badge = document.querySelector(".wb-badge");
+          if (badge) {
+            badge.textContent = "🔄 Progress Saved";
+            badge.style.cssText =
+              "background:rgba(59, 130, 246, 0.1);border:1px solid rgba(59, 130, 246, 0.25);color:#60a5fa;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
+          }
+          showToast("Loaded your saved progress for this week.", "success");
+        }
+      })
+      .catch(function () {});
+
+    window.submitFeedback = function () {
+      if (submitBtn.disabled) return;
+      var ratings = window.ratings || {};
+      var foodTypes = window.foodTypes || {};
+
+      var unlockedRated = 0;
+      if (
+        typeof getUnlockedDayIndices === "function" &&
+        typeof days !== "undefined" &&
+        typeof meals !== "undefined"
+      ) {
+        var uIdx = getUnlockedDayIndices();
+        days.forEach(function (day, idx) {
+          if (uIdx.indexOf(idx) === -1) return;
+          meals.forEach(function (meal) {
+            if ((ratings[day + "_" + meal] || 0) > 0) unlockedRated++;
+          });
+        });
+      } else {
+        unlockedRated = Object.values(ratings).filter(function (v) {
+          return v > 0;
+        }).length;
+      }
+      if (unlockedRated < 1) {
+        showToast("Please rate at least one meal before submitting.", "error");
+        return;
+      }
+      var liked = document.getElementById("liked")
+        ? document.getElementById("liked").value
+        : "";
+      var issues = document.getElementById("issues")
+        ? document.getElementById("issues").value
+        : "";
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Submitting...";
+
+      fetch("/api/feedback/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: userEmail,
+          name: userName,
+          ratings: ratings,
+          foodTypes: foodTypes,
+          liked: liked,
+          issues: issues,
+        }),
+      })
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (data) {
+          if (data.success) {
+            var overlay = document.getElementById("successOverlay");
+            if (overlay) {
+              overlay.onclick = function (e) {
+                if (e.target === overlay) overlay.classList.remove("show");
+              };
+              overlay.classList.add("show");
             }
-            tr.appendChild(td);
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Update Feedback →";
+
+            var badge = document.querySelector(".wb-badge");
+            if (badge) {
+              badge.textContent = "🔄 Progress Saved";
+              badge.style.cssText =
+                "background:rgba(59, 130, 246, 0.1);border:1px solid rgba(59, 130, 246, 0.25);color:#60a5fa;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
+            }
+          } else {
+            showToast(
+              data.message || "Submission failed. Please try again.",
+              "error",
+            );
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Feedback →";
+          }
+        })
+        .catch(function () {
+          showToast(
+            "Server error. Make sure your server is running (node server.js).",
+            "error",
+          );
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Submit Feedback →";
+        });
+    };
+  }
+
+  function lockFeedbackForm() {
+    window.isFormLocked = true;
+    var btn = document.querySelector('[onclick*="submitFeedback"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "You have already submitted";
+      btn.style.opacity = "0.65";
+      btn.style.cursor = "not-allowed";
+      btn.style.background = "var(--surface2)";
+      btn.style.color = "#4ade80";
+    }
+    var badge = document.querySelector(".wb-badge");
+    if (badge) {
+      badge.textContent = "✅ Submitted this week";
+      badge.style.cssText =
+        "background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:#f97316;font-size:12px;font-weight:600;padding:6px 14px;border-radius:100px";
+    }
+    var progText = document.getElementById("prog-text");
+    if (progText) progText.textContent = "Submitted — ratings are locked";
+
+    document.querySelectorAll(".star").forEach(function (s) {
+      s.style.cursor = "default";
+      s.style.pointerEvents = "none";
+    });
+    document.querySelectorAll(".veg-toggle span").forEach(function (s) {
+      s.style.cursor = "not-allowed";
+    });
+
+    var liked = document.getElementById("liked");
+    var issues = document.getElementById("issues");
+    if (liked) {
+      liked.disabled = true;
+      liked.style.opacity = "0.6";
+    }
+    if (issues) {
+      issues.disabled = true;
+      issues.style.opacity = "0.6";
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  REPORTS & ADMIN CHARTS LOGIC
+  // ═══════════════════════════════════════════════════════
+  if (document.getElementById("heatTable")) {
+    fetch("/api/analytics/current", { credentials: "include" })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (!res.success || res.empty) return;
+        var d = res.data;
+        var DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        var MK = ["b", "l", "s", "d"];
+        var MH = {
+          b: "🌅 Breakfast",
+          l: "🍱 Lunch",
+          s: "🫖 Snacks",
+          d: "🌙 Dinner",
+        };
+        var mealNames = {
+          breakfast: "Breakfast",
+          lunch: "Lunch",
+          snacks: "Snacks",
+          dinner: "Dinner",
+        };
+
+        var vals = document.querySelectorAll(".ss-val");
+        var lbls = document.querySelectorAll(".ss-label");
+        if (vals.length >= 4) {
+          vals[0].textContent = d.overallAvg;
+          vals[1].textContent = d.total.toLocaleString();
+          vals[2].textContent = d.mealAvg[d.bestMeal];
+          vals[3].textContent = d.mealAvg[d.worstMeal];
+          if (lbls[2]) lbls[2].textContent = "Best — " + mealNames[d.bestMeal];
+          if (lbls[3])
+            lbls[3].textContent = "Worst — " + mealNames[d.worstMeal];
+        }
+
+        var htEl = document.getElementById("heatTable");
+        if (htEl) {
+          htEl.innerHTML = "";
+          var thead = htEl.createTHead();
+          var hr = thead.insertRow();
+          var th0 = document.createElement("th");
+          hr.appendChild(th0);
+          MK.forEach(function (m) {
+            var t = document.createElement("th");
+            t.textContent = MH[m];
+            hr.appendChild(t);
           });
-          tb.appendChild(tr);
-        });
-        updateProg();
-      }
-
-      function setRating(k,v){
-        if(window.isFormLocked) return;
-        window.ratings[k] = v;
-        renderStars(k);
-        updateProg();
-      }
-
-      function setFoodType(key, type){
-        if(window.isFormLocked) return;
-        window.foodTypes[key] = type;
-        var tgs = document.querySelectorAll('.veg-toggle[data-key="' + key + '"] span');
-        tgs.forEach(function(t){
-          t.classList.remove("active");
-          if(t.dataset.type === type) t.classList.add("active");
-        });
-      }
-
-      function previewStars(k,v){
-        if(window.isFormLocked) return;
-        document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){
-          s.style.color = i < v ? "var(--accent2)" : "var(--surface3)";
-          s.style.filter = i < v ? "drop-shadow(0 0 3px rgba(249,115,22,.4))" : "";
-        });
-      }
-      function renderStars(k){
-        var v = window.ratings[k];
-        document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){
-          s.style.color = "";
-          s.style.filter = "";
-          if(i < v){ s.classList.add("on"); }
-          else { s.classList.remove("on"); }
-        });
-      }
-      function updateProg(){
-        // Count only rated slots that belong to unlocked days
-        var unlockedIndices = getUnlockedDayIndices();
-        var totalSlots = getTotalUnlockedSlots();
-        var ratedSlots = 0;
-        days.forEach(function(day, idx){
-          if (unlockedIndices.indexOf(idx) === -1) return;
-          meals.forEach(function(meal){
-            if ((window.ratings[day + "_" + meal] || 0) > 0) ratedSlots++;
+          var tbody = htEl.createTBody();
+          DAYS.forEach(function (day) {
+            var tr = tbody.insertRow();
+            var td0 = tr.insertCell();
+            td0.textContent = day;
+            MK.forEach(function (m) {
+              var td = tr.insertCell();
+              var v = d.heatmap[day] ? d.heatmap[day][m] || 0 : 0;
+              td.style.background = scColor(v);
+              td.innerHTML = '<span class="hval">' + v + "</span>";
+            });
           });
-        });
-        var pct = totalSlots > 0 ? Math.round((ratedSlots / totalSlots) * 100) : 0;
-        document.getElementById("prog-fill").style.width = pct + "%";
-        document.getElementById("prog-text").textContent = ratedSlots + " / " + totalSlots + " unlocked meals rated";
-        document.getElementById("rated-count").textContent = ratedSlots;
-        // Update the submit info text to show unlocked total
-        var srInfo = document.querySelector(".sr-info");
-        if (srInfo) srInfo.innerHTML = 'Rated <strong id="rated-count">' + ratedSlots + '</strong> / ' + totalSlots + ' unlocked meal slots';
-      }
+        }
 
-      buildTable();
-    </script>
-    <script src="messify.js"></script>
-  </body>
-</html>
+        if (window._messifyBarChart) {
+          var vAvg = d.mealVegAvg || {};
+          var nvAvg = d.mealNvAvg || {};
+          window._messifyBarChart.data.datasets[0].data = [
+            vAvg.breakfast || null,
+            vAvg.lunch || null,
+            vAvg.snacks || null,
+            vAvg.dinner || null,
+          ];
+          window._messifyBarChart.data.datasets[1].data = [
+            nvAvg.breakfast || null,
+            nvAvg.lunch || null,
+            nvAvg.snacks || null,
+            nvAvg.dinner || null,
+          ];
+          window._messifyBarChart.update();
+        }
+
+        var commCard = document.querySelector(".comments-card");
+        if (commCard && d.comments && d.comments.length > 0) {
+          commCard.querySelectorAll(".comment-item").forEach(function (i) {
+            i.remove();
+          });
+          var placeholder = document.getElementById("comments-placeholder");
+          if (placeholder) placeholder.remove();
+          d.comments.slice(0, 8).forEach(function (c, idx) {
+            var letter = String.fromCharCode(65 + idx);
+            if (c.liked)
+              commCard.innerHTML += buildComment(
+                letter,
+                c.liked,
+                "Positive",
+                "pos",
+              );
+            if (c.issue)
+              commCard.innerHTML += buildComment(
+                letter,
+                c.issue,
+                "Negative",
+                "neg",
+              );
+          });
+        }
+      })
+      .catch(function (e) {});
+
+    fetch("/api/analytics/all-weeks", { credentials: "include" })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (!res.success || !res.data.length) return;
+        if (window._messifyTrendChart) {
+          window._messifyTrendChart.data.labels = res.data.map(function (w) {
+            return w.weekLabel;
+          });
+          window._messifyTrendChart.data.datasets[0].data = res.data.map(
+            function (w) {
+              return w.overallAvg;
+            },
+          );
+          window._messifyTrendChart.data.datasets[1].data = res.data.map(
+            function (w) {
+              var vAvg = w.mealVegAvg;
+              if (!vAvg) return null;
+              var vals = ["breakfast", "lunch", "snacks", "dinner"]
+                .map(function (m) {
+                  return vAvg[m] || 0;
+                })
+                .filter(function (v) {
+                  return v > 0;
+                });
+              if (!vals.length) return null;
+              return (
+                Math.round(
+                  (vals.reduce(function (a, b) {
+                    return a + b;
+                  }, 0) /
+                    vals.length) *
+                    10,
+                ) / 10
+              );
+            },
+          );
+          window._messifyTrendChart.data.datasets[2].data = res.data.map(
+            function (w) {
+              var nvAvg = w.mealNvAvg;
+              if (!nvAvg) return null;
+              var vals = ["breakfast", "lunch", "dinner"]
+                .map(function (m) {
+                  return nvAvg[m] || 0;
+                })
+                .filter(function (v) {
+                  return v > 0;
+                });
+              if (!vals.length) return null;
+              return (
+                Math.round(
+                  (vals.reduce(function (a, b) {
+                    return a + b;
+                  }, 0) /
+                    vals.length) *
+                    10,
+                ) / 10
+              );
+            },
+          );
+          window._messifyTrendChart.update();
+        }
+      })
+      .catch(function () {});
+  }
+
+  if (document.getElementById("mealScores") && userRole === "admin") {
+    fetch("/api/analytics/current", { credentials: "include" })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (!res.success || res.empty) return;
+        var d = res.data;
+        var mealNames = {
+          breakfast: "Breakfast",
+          lunch: "Lunch",
+          snacks: "Snacks",
+          dinner: "Dinner",
+        };
+
+        var kAvg = document.getElementById("adm-kpi-avg");
+        var kSubs = document.getElementById("adm-kpi-subs");
+        var kWorst = document.getElementById("adm-kpi-worst");
+        var kWLbl = document.getElementById("adm-kpi-worst-lbl");
+
+        if (kAvg) kAvg.textContent = d.overallAvg;
+        if (kSubs) kSubs.textContent = d.total.toLocaleString();
+        if (kWorst && d.worstMeal) kWorst.textContent = d.mealAvg[d.worstMeal];
+        if (kWLbl && d.worstMeal)
+          kWLbl.textContent = "Worst — " + mealNames[d.worstMeal];
+
+        // ── DOUGHNUT DATA BINDING ──
+        if (window._messifyDoughnutChartVeg) {
+          window._messifyDoughnutChartVeg.data.datasets[0].data = [
+            d.mealVegAvg.breakfast,
+            d.mealVegAvg.lunch,
+            d.mealVegAvg.snacks,
+            d.mealVegAvg.dinner,
+          ];
+          window._messifyDoughnutChartVeg.update();
+        }
+        if (window._messifyDoughnutChartNv) {
+          window._messifyDoughnutChartNv.data.datasets[0].data = [
+            d.mealNvAvg.breakfast,
+            d.mealNvAvg.lunch,
+            d.mealNvAvg.snacks,
+            d.mealNvAvg.dinner,
+          ];
+          window._messifyDoughnutChartNv.update();
+        }
+
+        var ms = document.getElementById("mealScores");
+        if (ms) {
+          ms.innerHTML = "";
+          var sortedMeals = ["breakfast", "lunch", "snacks", "dinner"].sort(
+            function (a, b) {
+              return d.mealAvg[b] - d.mealAvg[a];
+            },
+          );
+          sortedMeals.forEach(function (m) {
+            var score = d.mealAvg[m];
+            var bc =
+              score >= 4 ? "#22c55e" : score >= 3 ? "#eab308" : "#ef4444";
+            var cls =
+              score >= 4 ? "score-hi" : score >= 3 ? "score-md" : "score-lo";
+            var tag =
+              score >= 4
+                ? "Performing well"
+                : score >= 3
+                  ? "Needs improvement"
+                  : "Critical — review needed";
+
+            var vegScore = d.mealVegAvg[m] || 0;
+            var nvScore = d.mealNvAvg[m] || 0;
+            var vegPill =
+              vegScore > 0
+                ? '<div class="si-veg-pill veg-pill">🌿 Veg: ' +
+                  vegScore +
+                  "</div>"
+                : "";
+            var nvPill =
+              nvScore > 0
+                ? '<div class="si-veg-pill nv-pill">🍗 NV: ' +
+                  nvScore +
+                  "</div>"
+                : "";
+            var pillsHtml =
+              vegPill || nvPill
+                ? '<div class="si-veg-row">' + vegPill + nvPill + "</div>"
+                : "";
+
+            ms.innerHTML +=
+              '<div class="score-item">' +
+              '<div class="si-info"><div class="si-name">' +
+              mealNames[m] +
+              "</div>" +
+              '<div class="si-sub">' +
+              tag +
+              "</div>" +
+              pillsHtml +
+              "</div>" +
+              '<div class="si-bar-bg"><div class="si-bar" style="width:' +
+              (score / 5) * 100 +
+              "%;background:" +
+              bc +
+              '"></div></div>' +
+              '<div class="si-score ' +
+              cls +
+              '">' +
+              score +
+              "</div></div>";
+          });
+        }
+      })
+      .catch(function () {});
+
+    fetch("/api/analytics/all-weeks", { credentials: "include" })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (!res.success || !res.data.length) return;
+
+        if (window._messifyAdminLineChart) {
+          var weeks = res.data;
+          window._messifyAdminLineChart.data.labels = weeks.map(function (w) {
+            return w.weekLabel;
+          });
+
+          window._messifyAdminLineChart.data.datasets[0].data = weeks.map(
+            function (w) {
+              return w.mealAvg.breakfast;
+            },
+          );
+          window._messifyAdminLineChart.data.datasets[1].data = weeks.map(
+            function (w) {
+              return w.mealVegAvg.breakfast;
+            },
+          );
+          window._messifyAdminLineChart.data.datasets[2].data = weeks.map(
+            function (w) {
+              return w.mealNvAvg.breakfast;
+            },
+          );
+
+          window._messifyAdminLineChart.data.datasets[3].data = weeks.map(
+            function (w) {
+              return w.mealAvg.lunch;
+            },
+          );
+          window._messifyAdminLineChart.data.datasets[4].data = weeks.map(
+            function (w) {
+              return w.mealVegAvg.lunch;
+            },
+          );
+          window._messifyAdminLineChart.data.datasets[5].data = weeks.map(
+            function (w) {
+              return w.mealNvAvg.lunch;
+            },
+          );
+
+          window._messifyAdminLineChart.data.datasets[6].data = weeks.map(
+            function (w) {
+              return w.mealAvg.snacks;
+            },
+          );
+
+          window._messifyAdminLineChart.data.datasets[7].data = weeks.map(
+            function (w) {
+              return w.mealAvg.dinner;
+            },
+          );
+          window._messifyAdminLineChart.data.datasets[8].data = weeks.map(
+            function (w) {
+              return w.mealVegAvg.dinner;
+            },
+          );
+          window._messifyAdminLineChart.data.datasets[9].data = weeks.map(
+            function (w) {
+              return w.mealNvAvg.dinner;
+            },
+          );
+
+          window._messifyAdminLineChart.update();
+        }
+      })
+      .catch(function () {});
+
+    fetch("/api/admin/complaints", {
+      headers: adminHeaders(),
+      credentials: "include",
+    })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (!res.success) return;
+
+        var kComp = document.getElementById("adm-kpi-complaints");
+        var kCompBox = document.getElementById("adm-kpi-complaints-box");
+        if (kComp) kComp.textContent = res.count || res.data.length;
+        if (kCompBox) kCompBox.textContent = res.count || res.data.length;
+
+        if (res.data.length > 0) {
+          var listContainer = document.getElementById("admin-complaints-list");
+          if (listContainer) {
+            listContainer.innerHTML = "";
+            res.data.slice(0, 5).forEach(function (c) {
+              var dt = new Date(c.submittedAt).toLocaleDateString("en-IN", {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+              });
+              var txt = c.text.toLowerCase();
+              var icon =
+                txt.indexOf("oil") > -1
+                  ? "🦠"
+                  : txt.indexOf("cook") > -1 || txt.indexOf("dal") > -1
+                    ? "🍛"
+                    : txt.indexOf("salt") > -1 || txt.indexOf("hard") > -1
+                      ? "🧂"
+                      : "⚠️";
+              listContainer.innerHTML +=
+                '<div class="complaint-item" style="padding: 13px 22px; border-bottom: 1px solid var(--border); display: flex; gap: 11px; align-items: flex-start;">' +
+                '<div class="ci-ic" style="background:rgba(239,68,68,0.1); width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">' +
+                icon +
+                "</div>" +
+                '<div><div class="ci-text" style="font-size: 12px; color: var(--muted2); line-height: 1.6;">' +
+                escHtml(c.text) +
+                "</div>" +
+                '<div class="ci-meta" style="font-size: 11px; color: var(--muted); margin-top: 3px;">' +
+                dt +
+                "</div></div></div>";
+            });
+          }
+        }
+      })
+      .catch(function () {});
+  }
+
+  function buildComment(letter, text, sentiment, cls) {
+    return (
+      '<div class="comment-item">' +
+      '<div class="ca">' +
+      letter +
+      "</div>" +
+      '<div><div class="c-body">' +
+      escHtml(text) +
+      "</div>" +
+      '<div class="c-meta"><span class="sent ' +
+      cls +
+      '">' +
+      sentiment +
+      "</span></div>" +
+      "</div></div>"
+    );
+  }
+
+  // ── ICONS ────────────────────────────────────────────────
+  var ICON_MENU = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+  var ICON_CLOSE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+  function _sidebarOpen() {
+    var sidebar = document.getElementById("sidebar");
+    var overlay = document.getElementById("sidebarOverlay");
+    var menuBtn = document.getElementById("menuBtn");
+    if (!sidebar) return;
+    sidebar.classList.add("open");
+    if (overlay) overlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    if (menuBtn) menuBtn.innerHTML = ICON_CLOSE;
+    sidebar.setAttribute("aria-expanded", "true");
+  }
+
+  function _sidebarClose() {
+    var sidebar = document.getElementById("sidebar");
+    var overlay = document.getElementById("sidebarOverlay");
+    var menuBtn = document.getElementById("menuBtn");
+    if (!sidebar) return;
+    sidebar.classList.remove("open");
+    if (overlay) overlay.classList.remove("show");
+    document.body.style.overflow = "";
+    document.body.style.touchAction = "";
+    if (menuBtn) menuBtn.innerHTML = ICON_MENU;
+    sidebar.setAttribute("aria-expanded", "false");
+  }
+
+  window.toggleSidebar = function () {
+    var sidebar = document.getElementById("sidebar");
+    if (!sidebar) return;
+    if (sidebar.classList.contains("open")) {
+      _sidebarClose();
+    } else {
+      _sidebarOpen();
+    }
+  };
+
+  (function initSwipe() {
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var isSwiping = false;
+
+    document.addEventListener(
+      "touchstart",
+      function (e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isSwiping = false;
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      "touchmove",
+      function (e) {
+        var dx = e.touches[0].clientX - touchStartX;
+        var dy = e.touches[0].clientY - touchStartY;
+        var sidebar = document.getElementById("sidebar");
+
+        if (
+          window.innerWidth <= 1000 &&
+          touchStartX <= 30 &&
+          dx > 40 &&
+          Math.abs(dy) < Math.abs(dx) &&
+          sidebar &&
+          !sidebar.classList.contains("open")
+        ) {
+          isSwiping = true;
+          _sidebarOpen();
+        }
+
+        if (
+          window.innerWidth <= 1000 &&
+          dx < -50 &&
+          Math.abs(dy) < Math.abs(dx) &&
+          sidebar &&
+          sidebar.classList.contains("open")
+        ) {
+          isSwiping = true;
+          _sidebarClose();
+        }
+      },
+      { passive: true },
+    );
+  })();
+
+  document.addEventListener("click", function (e) {
+    var overlay = document.getElementById("sidebarOverlay");
+    if (overlay && e.target === overlay) _sidebarClose();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") _sidebarClose();
+  });
+
+  window.addEventListener("resize", function () {
+    if (window.innerWidth > 1000) {
+      _sidebarClose();
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var menuBtn = document.getElementById("menuBtn");
+    if (menuBtn) menuBtn.innerHTML = ICON_MENU;
+
+    var sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.addEventListener("click", function (e) {
+        var link = e.target.closest("a.sb-item");
+        if (link && window.innerWidth <= 1000) {
+          var targetUrl = link.getAttribute("href");
+          if (targetUrl && targetUrl !== "#") {
+            e.preventDefault();
+            _sidebarClose();
+            setTimeout(function () {
+              window.location.href = targetUrl;
+            }, 180);
+          } else {
+            setTimeout(_sidebarClose, 80);
+          }
+        }
+      });
+    }
+  });
+})();
