@@ -17,11 +17,10 @@
         padding: 0;
       }
 
-      /* FIX: Only hide main page scrollbar, NOT all elements */
-      html::-webkit-scrollbar, body::-webkit-scrollbar {
+      ::-webkit-scrollbar {
         display: none;
       }
-      html, body {
+      * {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
@@ -460,40 +459,6 @@
         animation: fadeUp 0.6s 0.15s ease both;
         margin-bottom: 20px;
       }
-      
-      /* ── RATING TABLE WRAPPER — ALWAYS SCROLLABLE WITH VISIBLE SCROLLBAR ── */
-      .rating-table-wrap {
-        overflow-x: auto !important;
-        overflow-y: visible !important;
-        -webkit-overflow-scrolling: touch !important;
-        /* Space below table for the scrollbar track */
-        padding-bottom: 12px !important;
-        /* Override the global scrollbar-width:none set on * */
-        scrollbar-width: thin !important;
-        scrollbar-color: var(--accent) var(--surface2) !important;
-        /* IE / Edge legacy */
-        -ms-overflow-style: scrollbar !important;
-      }
-
-      /* WebKit scrollbar — visible orange bar on all screen sizes */
-      .rating-table-wrap::-webkit-scrollbar {
-        display: block !important;
-        height: 6px !important;
-      }
-      .rating-table-wrap::-webkit-scrollbar-track {
-        background: var(--surface2) !important;
-        border-radius: 6px !important;
-        margin: 0 4px !important;
-      }
-      .rating-table-wrap::-webkit-scrollbar-thumb {
-        background: var(--accent) !important;
-        border-radius: 6px !important;
-        min-width: 40px !important;
-      }
-      .rating-table-wrap::-webkit-scrollbar-thumb:hover {
-        background: var(--accent2) !important;
-      }
-
       .rating-table {
         width: 100%;
         border-collapse: collapse;
@@ -782,52 +747,13 @@
         white-space: nowrap;
       }
 
-      /* ══════════════════════════════════════════
-         MOBILE RESPONSIVE — FEEDBACK PAGE
-         ══════════════════════════════════════════ */
-
-      @media (max-width: 1000px) {
-        .submit-row {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-        }
-        .submit-row .btn-primary {
-          width: 100%;
-          text-align: center;
-          white-space: nowrap;
-        }
-        .week-banner {
-          flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
-          padding: 16px 18px;
-        }
-        .wb-badge { align-self: flex-start; }
-      }
-
+      /* ── RESPONSIVE: Feedback Page ── */
       @media (max-width: 860px) {
-        .card.grid-card {
-          overflow: visible !important;
-        }
-        .rating-table-wrap {
-          overflow-x: auto !important;
-          overflow-y: visible !important;
-          -webkit-overflow-scrolling: touch !important;
-          scrollbar-width: thin !important;
-          scrollbar-color: var(--accent) var(--surface2) !important;
-        }
-        .rating-table {
-          min-width: 560px !important;
-          font-size: 13px;
-        }
-        .rating-table th:first-child { padding-left: 14px; width: 58px; }
-        .rating-table td:first-child { padding-left: 14px; font-size: 12px; }
-        .card-header { flex-wrap: wrap; gap: 6px; }
-        .card-hint   { font-size: 11px; }
         .page-title  { font-size: 21px; }
         .wb-title    { font-size: 14px; }
         .wb-sub      { font-size: 11px; }
+        .card-header { flex-wrap: wrap; gap: 6px; }
+        .card-hint   { font-size: 11px; }
       }
 
       @media (max-width: 500px) {

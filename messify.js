@@ -132,20 +132,22 @@
           align-items: stretch !important;
           gap: 14px !important;
         }
-        .btn-primary { width: 100% !important; padding: 15px !important; font-size: 15px !important; }
+        .btn-primary { width: 100% !important; padding: 15px !important; font-size: 15px !important; text-align: center !important; white-space: nowrap !important; }
         .fb-grid { grid-template-columns: 1fr !important; padding: 16px !important; }
       }
 
       @media (max-width: 640px) {
-        .card.grid-card { overflow: hidden; }
+        /* overflow:visible so the inner rating-table-wrap can scroll */
+        .card.grid-card { overflow: visible; }
         .card.grid-card > .card-header { padding: 14px 16px !important; }
         .rating-table-wrap {
           overflow-x: auto;
-          overflow-y: hidden;
-          scroll-snap-type: x mandatory;
-          scroll-padding-left: 6px;
+          overflow-y: visible;
+          -webkit-overflow-scrolling: touch;
         }
-        .rating-table { min-width: 0; font-size: 12px; }
+        /* min-width gives the table real width to scroll into —
+           560px fits Day col + 4 meal cols with stars comfortably */
+        .rating-table { min-width: 560px; font-size: 12px; }
         .rating-table th:first-child { padding-left: 12px !important; }
         .rating-table td:first-child { padding-left: 12px !important; font-size: 12px !important; }
         .meal-head .me { font-size: 15px !important; }
