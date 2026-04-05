@@ -17,10 +17,11 @@
         padding: 0;
       }
 
-      ::-webkit-scrollbar {
+      /* FIX: Only hide main page scrollbar, NOT all elements */
+      html::-webkit-scrollbar, body::-webkit-scrollbar {
         display: none;
       }
-      * {
+      html, body {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
@@ -459,6 +460,32 @@
         animation: fadeUp 0.6s 0.15s ease both;
         margin-bottom: 20px;
       }
+      
+      /* THE NEW TABLE WRAPPER STYLES FOR VISIBLE SCROLLING */
+      .rating-table-wrap {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px; /* space for the custom scrollbar */
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--accent) var(--surface2) !important;
+        -ms-overflow-style: auto !important;
+      }
+      
+      .rating-table-wrap::-webkit-scrollbar {
+        display: block !important;
+        height: 8px !important;
+      }
+      
+      .rating-table-wrap::-webkit-scrollbar-track {
+        background: var(--surface2) !important;
+        border-radius: 4px !important;
+      }
+      
+      .rating-table-wrap::-webkit-scrollbar-thumb {
+        background: var(--accent) !important;
+        border-radius: 4px !important;
+      }
+
       .rating-table {
         width: 100%;
         border-collapse: collapse;
@@ -749,13 +776,9 @@
 
       /* ══════════════════════════════════════════
          MOBILE RESPONSIVE — FEEDBACK PAGE
-         These rules must come LAST so they win
-         over anything messify.js injects
          ══════════════════════════════════════════ */
 
       @media (max-width: 1000px) {
-        /* messify.js sets btn-primary width:100% globally —
-           that's fine for submit button but we need it visible */
         .submit-row {
           flex-direction: column;
           align-items: stretch;
@@ -766,7 +789,6 @@
           text-align: center;
           white-space: nowrap;
         }
-        /* Week banner stacks */
         .week-banner {
           flex-direction: column;
           gap: 10px;
@@ -777,11 +799,6 @@
       }
 
       @media (max-width: 860px) {
-        /* ── THE KEY FIX FOR HORIZONTAL SCROLL ──
-           messify.js sets .card.grid-card { overflow: hidden }
-           which clips the rating-table-wrap and kills scrolling.
-           We override it to overflow: visible on the card,
-           and set overflow-x: auto only on the wrap itself.     */
         .card.grid-card {
           overflow: visible !important;
         }
@@ -789,11 +806,7 @@
           overflow-x: auto !important;
           overflow-y: visible !important;
           -webkit-overflow-scrolling: touch;
-          /* messify.js sets min-width:0 on the table — we need
-             a real width so there is content to scroll into     */
         }
-        /* Give the table enough room for all 5 columns.
-           Stars (20px × 5) + gaps + veg toggle per column ≈ 560px */
         .rating-table {
           min-width: 560px !important;
           font-size: 13px;
