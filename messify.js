@@ -140,7 +140,10 @@
         .card.grid-card { overflow: hidden; }
         .card.grid-card > .card-header { padding: 14px 16px !important; }
         .rating-table-wrap {
-          overflow: visible;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scroll-snap-type: x mandatory;
+          scroll-padding-left: 6px;
         }
         .rating-table { min-width: 0; font-size: 12px; }
         .rating-table th:first-child { padding-left: 12px !important; }
