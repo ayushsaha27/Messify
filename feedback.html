@@ -17,11 +17,10 @@
         padding: 0;
       }
 
-      /* FIX: Only hide main page scrollbar, NOT all elements */
-      html::-webkit-scrollbar, body::-webkit-scrollbar {
+      ::-webkit-scrollbar {
         display: none;
       }
-      html, body {
+      * {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
@@ -460,32 +459,6 @@
         animation: fadeUp 0.6s 0.15s ease both;
         margin-bottom: 20px;
       }
-      
-      /* THE NEW TABLE WRAPPER STYLES FOR VISIBLE SCROLLING */
-      .rating-table-wrap {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 8px; /* space for the custom scrollbar */
-        scrollbar-width: thin !important;
-        scrollbar-color: var(--accent) var(--surface2) !important;
-        -ms-overflow-style: auto !important;
-      }
-      
-      .rating-table-wrap::-webkit-scrollbar {
-        display: block !important;
-        height: 8px !important;
-      }
-      
-      .rating-table-wrap::-webkit-scrollbar-track {
-        background: var(--surface2) !important;
-        border-radius: 4px !important;
-      }
-      
-      .rating-table-wrap::-webkit-scrollbar-thumb {
-        background: var(--accent) !important;
-        border-radius: 4px !important;
-      }
-
       .rating-table {
         width: 100%;
         border-collapse: collapse;
@@ -774,60 +747,27 @@
         white-space: nowrap;
       }
 
-      /* ══════════════════════════════════════════
-         MOBILE RESPONSIVE — FEEDBACK PAGE
-         ══════════════════════════════════════════ */
-
-      @media (max-width: 1000px) {
-        .submit-row {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-        }
-        .submit-row .btn-primary {
-          width: 100%;
-          text-align: center;
-          white-space: nowrap;
-        }
-        .week-banner {
-          flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
-          padding: 16px 18px;
-        }
-        .wb-badge { align-self: flex-start; }
-      }
-
-      @media (max-width: 860px) {
-        .card.grid-card {
-          overflow: visible !important;
-        }
+      /* ── RESPONSIVE: Feedback Page ── */
+      @media (max-width: 640px) {
         .rating-table-wrap {
-          overflow-x: auto !important;
-          overflow-y: visible !important;
+          overflow-x: auto;
           -webkit-overflow-scrolling: touch;
         }
         .rating-table {
-          min-width: 560px !important;
-          font-size: 13px;
+          min-width: 480px;
         }
-        .rating-table th:first-child { padding-left: 14px; width: 58px; }
-        .rating-table td:first-child { padding-left: 14px; font-size: 12px; }
+        .page-title { font-size: 20px; }
+        .wb-title { font-size: 13px; }
+        .wb-sub { font-size: 11px; }
         .card-header { flex-wrap: wrap; gap: 6px; }
-        .card-hint   { font-size: 11px; }
-        .page-title  { font-size: 21px; }
-        .wb-title    { font-size: 14px; }
-        .wb-sub      { font-size: 11px; }
+        .card-hint { font-size: 11px; }
+        .success-card { padding: 32px 20px; margin: 16px; }
       }
 
-      @media (max-width: 500px) {
-        .success-card {
-          padding: 32px 20px;
-          margin: 16px;
-          max-width: calc(100vw - 32px);
-        }
+      @media (max-width: 400px) {
         .page-title { font-size: 18px; }
-        .prog-top   { flex-direction: column; gap: 3px; }
+        .prog-top { flex-direction: column; gap: 2px; }
+        .week-banner { padding: 14px !important; }
       }
     </style>
   </head>
@@ -1173,5 +1113,57 @@
       buildTable();
     </script>
     <script src="messify.js"></script>
+    <script>
+      // ── MOBILE RATING TABLE SCROLL FIX ──────────────────────────
+      // messify.js injects CSS that sets:
+      //   .card.grid-card  { overflow: hidden }  <-- clips the table wrap
+      //   .rating-table    { min-width: 0 }       <-- nothing to scroll into
+      // Inline element.style beats all CSS — this is the only way to win.
+      (function () {
+        function fixScroll() {
+          var card  = document.querySelector('.card.grid-card');
+          var wrap  = document.querySelector('.rating-table-wrap');
+          var table = document.querySelector('.rating-table');
+          if (card)  card.style.setProperty('overflow', 'visible', 'important');
+          if (wrap)  {
+            wrap.style.setProperty('overflow-x', 'auto', 'important');
+            wrap.style.setProperty('overflow-y', 'visible', 'important');
+            wrap.style.webkitOverflowScrolling = 'touch';
+          }
+          if (table) table.style.setProperty('min-width', '560px', 'important');
+        }
+
+        // ── MOBILE SUBMIT ROW FIX ──────────────────────────────────
+        // Ensures the submit button is always full-width and text visible
+        function fixSubmit() {
+          if (window.innerWidth > 860) return;
+          var row = document.querySelector('.submit-row');
+          var btn = document.querySelector('.submit-row .btn-primary');
+          if (row) {
+            row.style.setProperty('flex-direction', 'column', 'important');
+            row.style.setProperty('align-items', 'stretch', 'important');
+            row.style.setProperty('gap', '12px', 'important');
+          }
+          if (btn) {
+            btn.style.setProperty('width', '100%', 'important');
+            btn.style.setProperty('text-align', 'center', 'important');
+            btn.style.setProperty('white-space', 'nowrap', 'important');
+            btn.style.setProperty('padding', '15px 20px', 'important');
+          }
+        }
+
+        function applyAll() { fixScroll(); fixSubmit(); }
+
+        // Run immediately (table already built by buildTable() above)
+        applyAll();
+        // Run again after DOM settles
+        document.addEventListener('DOMContentLoaded', applyAll);
+        // Run again after 500ms and 1s for any late CSS injections
+        setTimeout(applyAll, 500);
+        setTimeout(applyAll, 1000);
+        // Re-check on resize (orientation change)
+        window.addEventListener('resize', fixSubmit);
+      })();
+    </script>
   </body>
 </html>
