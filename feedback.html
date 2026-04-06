@@ -77,6 +77,11 @@
         to { opacity: 1; transform: translateY(0) scale(1); }
       }
 
+      @keyframes starPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+      }
+
       body {
         animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
       }
@@ -136,19 +141,16 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 16px;
+        padding: 0 32px;
         height: 62px;
         background: rgba(11, 15, 26, 0.92);
         backdrop-filter: blur(20px);
         border-bottom: 1px solid var(--border);
       }
-      @media (min-width: 768px) {
-        .topnav { padding: 0 32px; }
-      }
       .nav-logo {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         text-decoration: none;
         flex: 1;
         transition: transform 0.2s ease;
@@ -166,24 +168,18 @@
       }
       .logo-text {
         font-family: "Syne", sans-serif;
-        font-size: 16px;
+        font-size: 17px;
         font-weight: 800;
         letter-spacing: -0.02em;
         color: var(--text);
       }
-      @media (min-width: 480px) {
-        .logo-text { font-size: 17px; }
-      }
       .logo-text span { color: var(--accent); }
       .nav-links {
-        display: none;
+        display: flex;
         gap: 4px;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-      }
-      @media (min-width: 860px) {
-        .nav-links { display: flex; }
       }
       .nav-link {
         padding: 7px 14px;
@@ -213,10 +209,7 @@
       .nav-user {
         display: flex;
         align-items: center;
-        gap: 8px;
-      }
-      @media (max-width: 420px) {
-        .nav-email { display: none; }
+        gap: 10px;
       }
       .nav-avatar {
         width: 30px;
@@ -236,7 +229,7 @@
         color: var(--muted);
       }
       .menu-btn {
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
         background: var(--surface2);
@@ -245,11 +238,6 @@
         cursor: pointer;
         flex-shrink: 0;
         transition: all 0.2s;
-        width: 36px;
-        height: 36px;
-      }
-      @media (min-width: 860px) {
-        .menu-btn { display: none; }
       }
       .menu-btn:hover {
         background: var(--surface3);
@@ -260,52 +248,19 @@
         position: relative;
         z-index: 1;
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: 220px 1fr;
         min-height: calc(100vh - 61px);
         align-items: start;
-      }
-      @media (min-width: 1000px) {
-        .layout { grid-template-columns: 220px 1fr; }
       }
       .sidebar {
         border-right: 1px solid var(--border);
         padding: 24px 14px;
         background: rgba(11, 15, 26, 0.4);
         transition: transform 0.3s ease;
-        position: fixed;
+        position: sticky;
         top: 62px;
-        left: 0;
-        bottom: 0;
-        width: 260px;
-        transform: translateX(-100%);
-        z-index: 150;
+        height: calc(100vh - 61px);
         overflow-y: auto;
-        backdrop-filter: blur(16px);
-      }
-      .sidebar.open {
-        transform: translateX(0);
-      }
-      @media (min-width: 1000px) {
-        .sidebar {
-          position: sticky;
-          transform: translateX(0);
-          width: auto;
-          backdrop-filter: none;
-        }
-      }
-      .sidebar-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.6);
-        z-index: 140;
-        display: none;
-        backdrop-filter: blur(4px);
-      }
-      .sidebar-overlay.open {
-        display: block;
-      }
-      @media (min-width: 1000px) {
-        .sidebar-overlay { display: none !important; }
       }
       .sb-section {
         font-size: 10px;
@@ -347,17 +302,20 @@
       }
 
       .main {
-        padding: 24px 16px 60px 16px;
+        padding: 40px 36px 80px 36px;
       }
-      @media (min-width: 640px) {
-        .main { padding: 32px 24px 80px 24px; }
+
+      @media (max-width: 1000px) {
+        .menu-btn { display: flex; }
+        .layout { grid-template-columns: 1fr; }
       }
-      @media (min-width: 1000px) {
-        .main { padding: 40px 36px 80px 36px; }
+      @media (min-width: 1001px) {
+        .menu-btn { display: none; }
+        .sidebar-overlay { display: none !important; }
       }
 
       .page-title-row {
-        margin-bottom: 24px;
+        margin-bottom: 32px;
         animation: fadeUp 0.6s ease both;
       }
       .title-row-inner {
@@ -365,7 +323,6 @@
         align-items: center;
         gap: 14px;
         margin-bottom: 5px;
-        flex-wrap: wrap;
       }
       .breadcrumb {
         font-size: 12px;
@@ -374,12 +331,11 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        flex-wrap: wrap;
       }
       .breadcrumb span { color: var(--accent); }
       .page-title {
         font-family: "Syne", sans-serif;
-        font-size: 22px;
+        font-size: 26px;
         font-weight: 800;
         letter-spacing: -0.025em;
         margin-bottom: 4px;
@@ -388,9 +344,6 @@
         -webkit-background-clip: text;
         color: transparent;
       }
-      @media (min-width: 640px) {
-        .page-title { font-size: 26px; }
-      }
       .page-title em {
         color: var(--accent);
         font-style: normal;
@@ -398,11 +351,8 @@
         -webkit-background-clip: unset;
       }
       .page-sub {
-        font-size: 13px;
+        font-size: 14px;
         color: var(--muted);
-      }
-      @media (min-width: 640px) {
-        .page-sub { font-size: 14px; }
       }
 
       .card {
@@ -419,53 +369,39 @@
       }
 
       .card-header {
-        padding: 14px 18px;
+        padding: 18px 24px;
         border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      @media (min-width: 640px) {
-        .card-header { padding: 18px 24px; }
       }
       .card-title {
         font-family: "Syne", sans-serif;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 700;
       }
-      @media (min-width: 640px) {
-        .card-title { font-size: 15px; }
-      }
-      .card-hint { font-size: 11px; color: var(--muted); }
+      .card-hint { font-size: 12px; color: var(--muted); }
 
       .week-banner {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 20px;
-        padding: 16px 20px;
+        padding: 20px 26px;
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
-        gap: 16px;
+        margin-bottom: 24px;
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         animation: fadeUp 0.6s 0.05s ease both;
-      }
-      @media (min-width: 640px) {
-        .week-banner { padding: 20px 26px; flex-wrap: nowrap; }
       }
       .wb-left {
         display: flex;
         align-items: center;
         gap: 14px;
-        flex-wrap: wrap;
       }
       .wb-icon {
-        width: 42px;
-        height: 42px;
+        width: 46px;
+        height: 46px;
         border-radius: 12px;
         background: rgba(249, 115, 22, 0.1);
         border: 1px solid rgba(249, 115, 22, 0.2);
@@ -476,14 +412,11 @@
       }
       .wb-title {
         font-family: "Syne", sans-serif;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 700;
       }
-      @media (min-width: 640px) {
-        .wb-title { font-size: 15px; }
-      }
       .wb-sub {
-        font-size: 11px;
+        font-size: 12px;
         color: var(--muted);
         margin-top: 2px;
       }
@@ -491,15 +424,14 @@
         background: rgba(34, 197, 94, 0.1);
         border: 1px solid rgba(34, 197, 94, 0.25);
         color: #4ade80;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 600;
-        padding: 5px 12px;
+        padding: 6px 14px;
         border-radius: 100px;
-        white-space: nowrap;
       }
 
       .prog-wrap {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         animation: fadeUp 0.6s 0.1s ease both;
       }
       .prog-top {
@@ -508,8 +440,6 @@
         font-size: 12px;
         color: var(--muted);
         margin-bottom: 8px;
-        flex-wrap: wrap;
-        gap: 4px;
       }
       .prog-top strong { color: var(--accent); }
       .prog-track {
@@ -528,24 +458,14 @@
       .grid-card {
         animation: fadeUp 0.6s 0.15s ease both;
         margin-bottom: 20px;
-        overflow: visible !important;
-      }
-      .rating-table-wrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 0 4px 8px 4px;
       }
       .rating-table {
-        min-width: 600px;
         width: 100%;
         border-collapse: collapse;
       }
-      @media (max-width: 640px) {
-        .rating-table { min-width: 540px; }
-      }
       .rating-table th {
-        padding: 10px 4px;
-        font-size: 10px;
+        padding: 12px 8px;
+        font-size: 11px;
         font-weight: 500;
         color: var(--muted);
         text-transform: uppercase;
@@ -553,23 +473,20 @@
         text-align: center;
         border-bottom: 1px solid var(--border);
       }
-      @media (min-width: 640px) {
-        .rating-table th { padding: 12px 8px; font-size: 11px; }
-      }
       .rating-table th:first-child {
         text-align: left;
-        padding-left: 16px;
-        width: 70px;
+        padding-left: 24px;
+        width: 62px;
       }
       .rating-table td {
-        padding: 10px 4px;
+        padding: 12px 6px;
         border-bottom: 1px solid var(--border);
         text-align: center;
         vertical-align: middle;
       }
       .rating-table td:first-child {
         text-align: left;
-        padding-left: 16px;
+        padding-left: 24px;
         font-size: 13px;
         font-weight: 600;
         color: var(--muted2);
@@ -583,17 +500,13 @@
         align-items: center;
         gap: 3px;
       }
-      .meal-head .me { font-size: 16px; }
+      .meal-head .me { font-size: 18px; }
       .meal-head .mn {
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.07em;
         color: var(--muted);
-      }
-      @media (min-width: 640px) {
-        .meal-head .me { font-size: 18px; }
-        .meal-head .mn { font-size: 10px; }
       }
 
       .stars {
@@ -602,15 +515,12 @@
         justify-content: center;
       }
       .star {
-        font-size: 18px;
+        font-size: 20px;
         cursor: pointer;
         transition: all 0.2s ease;
         color: var(--surface3);
         line-height: 1;
         user-select: none;
-      }
-      @media (min-width: 640px) {
-        .star { font-size: 20px; }
       }
       .star:hover {
         transform: scale(1.25);
@@ -628,19 +538,15 @@
         margin-top: 6px;
       }
       .veg-toggle span {
-        font-size: 8px;
+        font-size: 9px;
         font-weight: 600;
-        padding: 3px 5px;
+        padding: 3px 6px;
         border-radius: 4px;
         cursor: pointer;
         opacity: 0.4;
         border: 1px solid transparent;
         transition: all 0.2s;
         text-transform: uppercase;
-        white-space: nowrap;
-      }
-      @media (min-width: 480px) {
-        .veg-toggle span { font-size: 9px; padding: 3px 6px; }
       }
       .vt-veg.active {
         opacity: 1;
@@ -672,12 +578,12 @@
       }
       .fb-grid {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 20px;
-        padding: 16px 18px;
+        padding: 20px 24px;
       }
-      @media (min-width: 640px) {
-        .fb-grid { grid-template-columns: 1fr 1fr; padding: 20px 24px; }
+      @media (max-width: 600px) {
+        .fb-grid { grid-template-columns: 1fr; }
       }
       .fb-field label {
         display: block;
@@ -698,7 +604,7 @@
         font-size: 13px;
         color: var(--text);
         outline: none;
-        resize: vertical;
+        resize: none;
         min-height: 86px;
         transition: all 0.2s ease;
       }
@@ -714,13 +620,6 @@
         justify-content: space-between;
         gap: 16px;
         animation: fadeUp 0.6s 0.25s ease both;
-        flex-wrap: wrap;
-      }
-      @media (max-width: 640px) {
-        .submit-row {
-          flex-direction: column;
-          align-items: stretch;
-        }
       }
       .sr-info {
         font-size: 13px;
@@ -732,17 +631,13 @@
         color: #fff;
         border: none;
         border-radius: 12px;
-        padding: 12px 20px;
+        padding: 13px 28px;
         font-family: "Syne", sans-serif;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
-        text-align: center;
-      }
-      @media (min-width: 640px) {
-        .btn-primary { padding: 13px 28px; font-size: 15px; }
       }
       .btn-primary:hover {
         background: var(--accent2);
@@ -759,27 +654,22 @@
         align-items: center;
         justify-content: center;
         backdrop-filter: blur(16px);
-        padding: 16px;
       }
       .success-overlay.show { display: flex; }
       .success-card {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 24px;
-        padding: 32px 24px;
+        padding: 48px 40px;
         text-align: center;
         max-width: 380px;
-        width: 100%;
         box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
         animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      @media (min-width: 640px) {
-        .success-card { padding: 48px 40px; }
-      }
-      .success-icon { font-size: 48px; margin-bottom: 16px; }
+      .success-icon { font-size: 56px; margin-bottom: 16px; }
       .success-title {
         font-family: "Syne", sans-serif;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 800;
         margin-bottom: 8px;
       }
@@ -798,8 +688,8 @@
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 10px 18px;
-        font-size: 13px;
+        padding: 12px 22px;
+        font-size: 14px;
         color: var(--text);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         z-index: 999;
@@ -807,13 +697,10 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        white-space: nowrap;
-      }
-      @media (max-width: 480px) {
-        .toast { white-space: normal; text-align: center; max-width: 90%; }
       }
       .toast.show { transform: translateX(-50%) translateY(0); }
 
+      /* ── LOCKED DAY ROW ── */
       .day-locked td {
         opacity: 0.35;
         pointer-events: none;
@@ -825,97 +712,429 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        flex-wrap: wrap;
       }
-      .day-lock-badge,
-      .day-unlocked-badge,
-      .day-today-badge {
-        font-size: 9px;
+      .day-lock-badge {
+        font-size: 10px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        color: var(--muted);
         padding: 1px 6px;
         border-radius: 100px;
         font-weight: 600;
         letter-spacing: 0.03em;
         white-space: nowrap;
       }
-      .day-lock-badge {
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        color: var(--muted);
-      }
       .day-unlocked-badge {
+        font-size: 10px;
         background: rgba(34,197,94,0.1);
         border: 1px solid rgba(34,197,94,0.25);
         color: #4ade80;
+        padding: 1px 6px;
+        border-radius: 100px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
       }
       .day-today-badge {
+        font-size: 10px;
         background: rgba(249,115,22,0.12);
         border: 1px solid rgba(249,115,22,0.3);
         color: var(--accent);
+        padding: 1px 6px;
+        border-radius: 100px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+      }
+
+      /* ── RESPONSIVE: Feedback Page ── */
+      @media (max-width: 640px) {
+        /* Keep the card inside the screen width */
+        .card.grid-card {
+          max-width: 100vw;
+          overflow: hidden !important; 
+        }
+        
+        /* Enable smooth horizontal scrolling for the table wrapper */
+        .rating-table-wrap {
+          width: 100%;
+          overflow-x: auto !important;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 8px; /* Optional: gives scrollbar breathing room */
+        }
+        
+        /* Force the table to be wide enough to trigger the scrollbar */
+        .rating-table {
+          min-width: 580px !important; 
+        }
+        
+        .page-title { font-size: 20px; }
+        .wb-title { font-size: 13px; }
+        .wb-sub { font-size: 11px; }
+        .card-header { flex-wrap: wrap; gap: 6px; }
+        .card-hint { font-size: 11px; }
+        .success-card { padding: 32px 20px; margin: 16px; }
+        
+        /* Mobile Submit Row Fix (Replaces the JS fix) */
+        .submit-row {
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 12px !important;
+        }
+        .submit-row .btn-primary {
+          width: 100% !important;
+          text-align: center !important;
+          padding: 15px 20px !important;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .page-title { font-size: 18px; }
+        .prog-top { flex-direction: column; gap: 2px; }
+        .week-banner { padding: 14px !important; }
       }
     </style>
   </head>
   <body>
-    <div class="bg-layer"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+    <div class="bg-layer">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
     <div class="grid-lines"></div>
+
     <nav class="topnav">
-      <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg></button>
-      <a class="nav-logo" href="index.html"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></a>
+      <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🍽</div>
+        <div class="logo-text">Messi<span>fy</span></div>
+      </a>
       <div class="nav-links" id="dynamic-nav-links"></div>
-      <div class="nav-right" id="nav-right"><div class="nav-user"><div class="nav-avatar" id="nav-avatar">?</div><span class="nav-email" id="nav-email">Loading...</span></div></div>
+      <div class="nav-right" id="nav-right">
+        <div class="nav-user">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <span class="nav-email" id="nav-email">Loading...</span>
+        </div>
+      </div>
     </nav>
+
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    <div class="layout"><div class="sidebar" id="sidebar"></div><div class="main">
-      <div class="page-title-row"><div class="title-row-inner"><div><div class="breadcrumb">Dashboard <span>›</span> Submit Feedback</div><div class="page-title">Weekly <em>Feedback</em> Form</div></div></div><div class="page-sub">Rate each meal for every day this week. Your feedback is anonymous to mess staff.</div></div>
-      <div class="week-banner"><div class="wb-left"><div class="wb-icon">📅</div><div><div class="wb-title" id="wb-title">Loading week...</div><div class="wb-sub">One submission per student · Deadline: Sunday 11:59 PM</div></div></div><div class="wb-badge">✓ Not yet submitted</div></div>
-      <div class="prog-wrap"><div class="prog-top"><span>Rating progress</span><strong id="prog-text">0 / ? meals rated</strong></div><div class="prog-track"><div class="prog-fill" id="prog-fill" style="width: 0%"></div></div></div>
-      <div class="card grid-card"><div class="card-header"><div class="card-title">⭐ Meal Ratings — 1 to 5 stars</div><div class="card-hint">Click a star · Hover to preview</div></div><div class="rating-table-wrap"><table class="rating-table"><thead><tr><th>Day</th><th><div class="meal-head"><span class="me">🌅</span><span class="mn">Breakfast</span></div></th><th><div class="meal-head"><span class="me">🍱</span><span class="mn">Lunch</span></div></th><th><div class="meal-head"><span class="me">🫖</span><span class="mn">Snacks</span></div></th><th><div class="meal-head"><span class="me">🌙</span><span class="mn">Dinner</span></div></th></tr></thead><tbody id="ratingBody"></tbody></table></div></div>
-      <div class="card fb-card"><div class="card-header"><div class="card-title">Written Feedback</div><span class="fb-tag">Optional</span></div><div class="fb-grid"><div class="fb-field"><label>What did you enjoy this week? 😊</label><textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea></div><div class="fb-field"><label>What needs improvement? 🔧</label><textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea></div></div></div>
-      <div class="submit-row"><div class="sr-info">Rated <strong id="rated-count">0</strong> / ? unlocked meal slots</div><button class="btn-primary" onclick="submitFeedback()">Submit Feedback →</button></div>
-    </div></div>
-    <div class="success-overlay" id="successOverlay"><div class="success-card"><div class="success-icon">🎉</div><div class="success-title">Feedback <em>Submitted!</em></div><div class="success-sub" id="success-sub">Thank you, <span id="success-name">there</span>! Your ratings for <span id="success-week">this week</span> have been recorded.</div><div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;"><button class="btn-primary" onclick="location.href = 'reports.html'">View Reports →</button><button onclick="document.getElementById('successOverlay').classList.remove('show')" style="background: transparent; border: none; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 10px;">Close</button></div></div></div>
-    <div class="toast" id="toast"><span id="toast-icon"></span><span id="toast-msg"></span></div>
+    <div class="layout">
+      <div class="sidebar" id="sidebar"></div>
+
+      <div class="main">
+        <div class="page-title-row">
+          <div class="title-row-inner">
+            <div>
+              <div class="breadcrumb">Dashboard <span>›</span> Submit Feedback</div>
+              <div class="page-title">Weekly <em>Feedback</em> Form</div>
+            </div>
+          </div>
+          <div class="page-sub">
+            Rate each meal for every day this week. Your feedback is anonymous to mess staff.
+          </div>
+        </div>
+        <div class="week-banner">
+          <div class="wb-left">
+            <div class="wb-icon">📅</div>
+            <div>
+              <div class="wb-title" id="wb-title">Loading week...</div>
+              <div class="wb-sub">One submission per student · Deadline: Sunday 11:59 PM</div>
+            </div>
+          </div>
+          <div class="wb-badge">✓ Not yet submitted</div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-top">
+            <span>Rating progress</span><strong id="prog-text">0 / ? meals rated</strong>
+          </div>
+          <div class="prog-track">
+            <div class="prog-fill" id="prog-fill" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="card grid-card">
+          <div class="card-header">
+            <div class="card-title">⭐ Meal Ratings — 1 to 5 stars</div>
+            <div class="card-hint">Click a star · Hover to preview</div>
+          </div>
+          <div class="rating-table-wrap">
+          <table class="rating-table">
+            <thead>
+              <tr><th>Day</th>
+                <th><div class="meal-head"><span class="me">🌅</span><span class="mn">Breakfast</span></div></th>
+                <th><div class="meal-head"><span class="me">🍱</span><span class="mn">Lunch</span></div></th>
+                <th><div class="meal-head"><span class="me">🫖</span><span class="mn">Snacks</span></div></th>
+                <th><div class="meal-head"><span class="me">🌙</span><span class="mn">Dinner</span></div></th>
+              </tr>
+            </thead>
+            <tbody id="ratingBody"></tbody>
+          </table>
+          </div>
+        </div>
+        <div class="card fb-card">
+          <div class="card-header">
+            <div class="card-title">Written Feedback</div>
+            <span class="fb-tag">Optional</span>
+          </div>
+          <div class="fb-grid">
+            <div class="fb-field">
+              <label>What did you enjoy this week? 😊</label>
+              <textarea id="liked" placeholder="e.g. Monday breakfast was freshly made and hot..."></textarea>
+            </div>
+            <div class="fb-field">
+              <label>What needs improvement? 🔧</label>
+              <textarea id="issues" placeholder="e.g. Tuesday dinner was undercooked..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="submit-row">
+          <div class="sr-info">Rated <strong id="rated-count">0</strong> / ? unlocked meal slots</div>
+          <button class="btn-primary" onclick="submitFeedback()">Submit Feedback →</button>
+        </div>
+      </div>
+    </div>
+    <div class="success-overlay" id="successOverlay">
+      <div class="success-card">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">Feedback <em>Submitted!</em></div>
+        <div class="success-sub" id="success-sub">
+          Thank you, <span id="success-name">there</span>! Your ratings for
+          <span id="success-week">this week</span> have been recorded.
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+          <button class="btn-primary" onclick="location.href = 'reports.html'">View Reports →</button>
+          <button onclick="document.getElementById('successOverlay').classList.remove('show')" 
+                  style="background: transparent; border: none; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 10px; transition: color 0.2s;" 
+                  onmouseover="this.style.color='var(--text)'" 
+                  onmouseout="this.style.color='var(--muted)'">
+            Close
+          </button>
+        </div>
+        
+      </div>
+    </div>
+    <div class="toast" id="toast">
+      <span class="ti" id="toast-icon"></span><span id="toast-msg"></span>
+    </div>
+
     <script>
       var messifyUser = null;
       try { messifyUser = JSON.parse(localStorage.getItem("messify_user")); } catch (e) {}
       if (!messifyUser || !messifyUser.email) { window.location.href = "index.html"; }
-      if (messifyUser) { var _ini = (messifyUser.name || messifyUser.email).split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2); var av = document.getElementById("nav-avatar"); var em = document.getElementById("nav-email"); if (av) av.textContent = _ini; if (em) em.textContent = messifyUser.email; }
-      function logoutUser(event) { if (event) event.preventDefault(); localStorage.removeItem("messify_user"); fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(function(){}).finally(function(){ window.location.href = "index.html"; }); }
-      var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]; var meals = ["breakfast", "lunch", "snacks", "dinner"]; var ratings = {}; var foodTypes = {};
-      days.forEach(function(d){ meals.forEach(function(m){ ratings[d + "_" + m] = 0; foodTypes[d + "_" + m] = "veg"; }); });
-      function getTodayDayIndex() { var jsDay = new Date().getDay(); return jsDay === 0 ? 6 : jsDay - 1; }
-      function getUnlockedCount() { return getTodayDayIndex() + 1; }
-      function getUnlockedDayIndices() { var count = getUnlockedCount(); var arr = []; for (var i = 0; i < count; i++) arr.push(i); return arr; }
-      function getTotalUnlockedSlots() { return getUnlockedCount() * meals.length; }
-      function buildTable(){
-        var tb = document.getElementById("ratingBody"); tb.innerHTML = "";
-        var unlockedIndices = getUnlockedDayIndices(); var todayIdx = getTodayDayIndex();
-        days.forEach(function(day, dayIdx){
-          var isUnlocked = unlockedIndices.indexOf(dayIdx) !== -1; var isToday = dayIdx === todayIdx; var tr = document.createElement("tr"); tr.dataset.day = day; if (!isUnlocked) tr.classList.add("day-locked");
-          var td0 = document.createElement("td"); var labelWrap = document.createElement("div"); labelWrap.className = "day-label-wrap"; var daySpan = document.createElement("span"); daySpan.textContent = day; labelWrap.appendChild(daySpan);
-          if (isToday) { var badge = document.createElement("span"); badge.className = "day-today-badge"; badge.textContent = "Today"; labelWrap.appendChild(badge); }
-          else if (isUnlocked) { var badge = document.createElement("span"); badge.className = "day-unlocked-badge"; badge.textContent = "Open"; labelWrap.appendChild(badge); }
-          else { var badge = document.createElement("span"); badge.className = "day-lock-badge"; badge.textContent = "🔒 Future"; labelWrap.appendChild(badge); }
-          td0.appendChild(labelWrap); tr.appendChild(td0);
-          meals.forEach(function(meal){
-            var td = document.createElement("td"); var key = day + "_" + meal;
-            if (!isUnlocked) { var placeholder = document.createElement("div"); placeholder.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:4px;"; var dimStars = document.createElement("div"); dimStars.className = "stars"; dimStars.style.opacity = "0.25"; for (var s = 1; s <= 5; s++) { var ds = document.createElement("span"); ds.className = "star"; ds.textContent = "★"; ds.style.fontSize = "18px"; dimStars.appendChild(ds); } placeholder.appendChild(dimStars); td.appendChild(placeholder); }
-            else { var wrap = document.createElement("div"); wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:5px;"; var starsDiv = document.createElement("div"); starsDiv.className = "stars";
-              for(var s=1; s<=5; s++){ var star = document.createElement("span"); star.className = "star"; star.textContent = "★"; star.dataset.key = key; star.dataset.val = s; star.addEventListener("click", (function(k,v){ return function(){ setRating(k,v); }; })(key,s)); star.addEventListener("mouseover", (function(k,v){ return function(){ previewStars(k,v); }; })(key,s)); star.addEventListener("mouseout", (function(k){ return function(){ renderStars(k); }; })(key)); starsDiv.appendChild(star); }
-              wrap.appendChild(starsDiv); var typeWrap = document.createElement("div"); typeWrap.className = "veg-toggle"; typeWrap.dataset.key = key; typeWrap.innerHTML = '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' + key + "', 'veg')\">🌿 Veg</span><span class=\"vt-nv\" data-type=\"non-veg\" onclick=\"setFoodType('" + key + "', 'non-veg')\">🍗 NV</span>"; wrap.appendChild(typeWrap); td.appendChild(wrap); }
-            tr.appendChild(td);
-          }); tb.appendChild(tr);
-        }); updateProg();
+
+      if (messifyUser) {
+        var _ini = (messifyUser.name || messifyUser.email).split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+        var av = document.getElementById("nav-avatar");
+        var em = document.getElementById("nav-email");
+        if (av) av.textContent = _ini;
+        if (em) em.textContent = messifyUser.email;
       }
-      function setRating(k,v){ ratings[k] = v; renderStars(k); updateProg(); }
-      function setFoodType(key, type){ foodTypes[key] = type; var tgs = document.querySelectorAll('.veg-toggle[data-key="' + key + '"] span'); tgs.forEach(function(t){ t.classList.remove("active"); if(t.dataset.type === type) t.classList.add("active"); }); }
-      function previewStars(k,v){ document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){ s.style.color = i < v ? "var(--accent2)" : "var(--surface3)"; s.style.filter = i < v ? "drop-shadow(0 0 3px rgba(249,115,22,.4))" : ""; }); }
-      function renderStars(k){ var v = ratings[k]; document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){ if(i < v){ s.classList.add("on"); } else { s.classList.remove("on"); } s.style.color = ""; s.style.filter = ""; }); }
-      function updateProg(){ var unlockedIndices = getUnlockedDayIndices(); var totalSlots = getTotalUnlockedSlots(); var ratedSlots = 0; days.forEach(function(day, idx){ if (unlockedIndices.indexOf(idx) === -1) return; meals.forEach(function(meal){ if ((ratings[day + "_" + meal] || 0) > 0) ratedSlots++; }); }); var pct = totalSlots > 0 ? Math.round((ratedSlots / totalSlots) * 100) : 0; document.getElementById("prog-fill").style.width = pct + "%"; document.getElementById("prog-text").textContent = ratedSlots + " / " + totalSlots + " unlocked meals rated"; document.getElementById("rated-count").textContent = ratedSlots; var srInfo = document.querySelector(".sr-info"); if (srInfo) srInfo.innerHTML = 'Rated <strong id="rated-count">' + ratedSlots + '</strong> / ' + totalSlots + ' unlocked meal slots'; }
-      function toggleSidebar(){ var sidebar = document.getElementById("sidebar"); var overlay = document.getElementById("sidebarOverlay"); sidebar.classList.toggle("open"); overlay.classList.toggle("open"); }
-      window.ratings = ratings; window.foodTypes = foodTypes; window.setRating = setRating; window.setFoodType = setFoodType; window.previewStars = previewStars; window.renderStars = renderStars; window.updateProg = updateProg; window.toggleSidebar = toggleSidebar;
+
+      function logoutUser(event) {
+        if (event) event.preventDefault();
+        localStorage.removeItem("messify_user");
+        fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+          .then(function(){ window.location.href = "index.html"; })
+          .catch(function(){ window.location.href = "index.html"; });
+      }
+
+      var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      var meals = ["breakfast", "lunch", "snacks", "dinner"];
+      var ratings = {};
+      var foodTypes = {};
+
+      days.forEach(function(d){
+        meals.forEach(function(m){
+          ratings[d + "_" + m] = 0;
+          foodTypes[d + "_" + m] = "veg";
+        });
+      });
+
+      // ── DAY-UNLOCK LOGIC ──
+      // Monday=0 … Sunday=6 in our week. JS getDay(): Sun=0,Mon=1…Sat=6
+      // We convert so Mon=0, Tue=1, … Sun=6
+      function getTodayDayIndex() {
+        var jsDay = new Date().getDay(); // 0=Sun,1=Mon,...6=Sat
+        // Convert: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
+        return jsDay === 0 ? 6 : jsDay - 1;
+      }
+
+      // Returns how many days from start of week are unlocked (1–7).
+      // On Monday → 1, Tuesday → 2, … Sunday → 7
+      function getUnlockedCount() {
+        return getTodayDayIndex() + 1; // 1-based
+      }
+
+      // An array of which day-indices (0=Mon…6=Sun) are unlocked
+      function getUnlockedDayIndices() {
+        var count = getUnlockedCount();
+        var arr = [];
+        for (var i = 0; i < count; i++) arr.push(i);
+        return arr;
+      }
+
+      // Total unlockable slots = unlockedDays × 4 meals
+      function getTotalUnlockedSlots() {
+        return getUnlockedCount() * meals.length;
+      }
+
+      function buildTable(){
+        var tb = document.getElementById("ratingBody");
+        var unlockedIndices = getUnlockedDayIndices();
+        var todayIdx = getTodayDayIndex();
+
+        days.forEach(function(day, dayIdx){
+          var isUnlocked = unlockedIndices.indexOf(dayIdx) !== -1;
+          var isToday    = dayIdx === todayIdx;
+
+          var tr = document.createElement("tr");
+          tr.dataset.day = day;
+          if (!isUnlocked) tr.classList.add("day-locked");
+
+          // Day label cell
+          var td0 = document.createElement("td");
+          var labelWrap = document.createElement("div");
+          labelWrap.className = "day-label-wrap";
+          var daySpan = document.createElement("span");
+          daySpan.textContent = day;
+          labelWrap.appendChild(daySpan);
+
+          if (isToday) {
+            var badge = document.createElement("span");
+            badge.className = "day-today-badge";
+            badge.textContent = "Today";
+            labelWrap.appendChild(badge);
+          } else if (isUnlocked) {
+            var badge = document.createElement("span");
+            badge.className = "day-unlocked-badge";
+            badge.textContent = "Open";
+            labelWrap.appendChild(badge);
+          } else {
+            var badge = document.createElement("span");
+            badge.className = "day-lock-badge";
+            badge.textContent = "🔒 Future";
+            labelWrap.appendChild(badge);
+          }
+          td0.appendChild(labelWrap);
+          tr.appendChild(td0);
+
+          meals.forEach(function(meal){
+            var td = document.createElement("td");
+            var key = day + "_" + meal;
+
+            if (!isUnlocked) {
+              // Locked cell — show dim placeholder
+              var placeholder = document.createElement("div");
+              placeholder.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:4px;";
+              var dimStars = document.createElement("div");
+              dimStars.className = "stars";
+              dimStars.style.opacity = "0.25";
+              for (var s = 1; s <= 5; s++) {
+                var ds = document.createElement("span");
+                ds.className = "star";
+                ds.textContent = "★";
+                ds.style.fontSize = "18px";
+                dimStars.appendChild(ds);
+              }
+              placeholder.appendChild(dimStars);
+              td.appendChild(placeholder);
+            } else {
+              var wrap = document.createElement("div");
+              wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:5px;";
+
+              var starsDiv = document.createElement("div");
+              starsDiv.className = "stars";
+              for(var s=1; s<=5; s++){
+                var star = document.createElement("span");
+                star.className = "star";
+                star.textContent = "★";
+                star.dataset.key = key;
+                star.dataset.val = s;
+                star.addEventListener("click", (function(k,v){ return function(){ setRating(k,v); }; })(key,s));
+                star.addEventListener("mouseover", (function(k,v){ return function(){ previewStars(k,v); }; })(key,s));
+                star.addEventListener("mouseout", (function(k){ return function(){ renderStars(k); }; })(key));
+                starsDiv.appendChild(star);
+              }
+              wrap.appendChild(starsDiv);
+
+              var typeWrap = document.createElement("div");
+              typeWrap.className = "veg-toggle";
+              typeWrap.dataset.key = key;
+              typeWrap.innerHTML =
+                '<span class="vt-veg active" data-type="veg" onclick="setFoodType(\'' + key + "', 'veg')\">🌿 Veg</span>" +
+                '<span class="vt-nv" data-type="non-veg" onclick="setFoodType(\'' + key + "', 'non-veg')\">🍗 NV</span>";
+              wrap.appendChild(typeWrap);
+              td.appendChild(wrap);
+            }
+            tr.appendChild(td);
+          });
+          tb.appendChild(tr);
+        });
+        updateProg();
+      }
+
+      function setRating(k,v){
+        if(window.isFormLocked) return;
+        window.ratings[k] = v;
+        renderStars(k);
+        updateProg();
+      }
+
+      function setFoodType(key, type){
+        if(window.isFormLocked) return;
+        window.foodTypes[key] = type;
+        var tgs = document.querySelectorAll('.veg-toggle[data-key="' + key + '"] span');
+        tgs.forEach(function(t){
+          t.classList.remove("active");
+          if(t.dataset.type === type) t.classList.add("active");
+        });
+      }
+
+      function previewStars(k,v){
+        if(window.isFormLocked) return;
+        document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){
+          s.style.color = i < v ? "var(--accent2)" : "var(--surface3)";
+          s.style.filter = i < v ? "drop-shadow(0 0 3px rgba(249,115,22,.4))" : "";
+        });
+      }
+      function renderStars(k){
+        var v = window.ratings[k];
+        document.querySelectorAll('[data-key="' + k + '"].star').forEach(function(s,i){
+          s.style.color = "";
+          s.style.filter = "";
+          if(i < v){ s.classList.add("on"); }
+          else { s.classList.remove("on"); }
+        });
+      }
+      function updateProg(){
+        // Count only rated slots that belong to unlocked days
+        var unlockedIndices = getUnlockedDayIndices();
+        var totalSlots = getTotalUnlockedSlots();
+        var ratedSlots = 0;
+        days.forEach(function(day, idx){
+          if (unlockedIndices.indexOf(idx) === -1) return;
+          meals.forEach(function(meal){
+            if ((window.ratings[day + "_" + meal] || 0) > 0) ratedSlots++;
+          });
+        });
+        var pct = totalSlots > 0 ? Math.round((ratedSlots / totalSlots) * 100) : 0;
+        document.getElementById("prog-fill").style.width = pct + "%";
+        document.getElementById("prog-text").textContent = ratedSlots + " / " + totalSlots + " unlocked meals rated";
+        document.getElementById("rated-count").textContent = ratedSlots;
+        // Update the submit info text to show unlocked total
+        var srInfo = document.querySelector(".sr-info");
+        if (srInfo) srInfo.innerHTML = 'Rated <strong id="rated-count">' + ratedSlots + '</strong> / ' + totalSlots + ' unlocked meal slots';
+      }
+
       buildTable();
-      document.querySelectorAll('.card.grid-card, .rating-table-wrap').forEach(el => { if(el.style) el.style.overflow = 'visible'; });
-      window.addEventListener('resize', function(){ if(window.innerWidth >= 1000){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); } });
     </script>
     <script src="messify.js"></script>
   </body>
