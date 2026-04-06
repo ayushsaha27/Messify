@@ -749,33 +749,62 @@
 
       /* ── RESPONSIVE: Feedback Page ── */
       @media (max-width: 640px) {
-        /* Keep the card inside the screen width */
+        /* 1. Reduce main padding so boxes have room to breathe without overflowing */
+        .main {
+          padding: 24px 16px 80px 16px !important;
+        }
+
+        /* 2. Ensure all cards and banners perfectly fit the screen */
+        .card, .week-banner {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+
+        /* 3. Fix Week Banner so it stacks nicely on phones */
+        .week-banner {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          gap: 16px !important;
+          padding: 16px !important;
+        }
+        .wb-badge {
+          align-self: flex-start !important;
+        }
+
+        /* 4. Fix Meal Rating Card (Removes the left-side cut-off) */
         .card.grid-card {
-          max-width: 100vw;
           overflow: hidden !important; 
         }
         
-        /* Enable smooth horizontal scrolling for the table wrapper */
         .rating-table-wrap {
           width: 100%;
           overflow-x: auto !important;
           -webkit-overflow-scrolling: touch;
-          padding-bottom: 8px; /* Optional: gives scrollbar breathing room */
+          padding-bottom: 8px;
         }
         
-        /* Force the table to be wide enough to trigger the scrollbar */
         .rating-table {
-          min-width: 580px !important; 
+          min-width: 600px !important; 
         }
         
-        .page-title { font-size: 20px; }
-        .wb-title { font-size: 13px; }
-        .wb-sub { font-size: 11px; }
-        .card-header { flex-wrap: wrap; gap: 6px; }
+        /* Adjust Header and Texts */
+        .page-title { font-size: 22px !important; }
+        .wb-title { font-size: 14px; }
+        .wb-sub { font-size: 12px; }
+        .card-header { flex-wrap: wrap; gap: 8px; padding: 16px !important; }
         .card-hint { font-size: 11px; }
+        
+        /* 5. Fix Written Feedback text boxes to stack vertically */
+        .fb-grid {
+          grid-template-columns: 1fr !important;
+          padding: 16px !important;
+          gap: 16px !important;
+        }
+
         .success-card { padding: 32px 20px; margin: 16px; }
         
-        /* Mobile Submit Row Fix (Replaces the JS fix) */
+        /* Mobile Submit Row Fix */
         .submit-row {
           flex-direction: column !important;
           align-items: stretch !important;
@@ -789,9 +818,8 @@
       }
 
       @media (max-width: 400px) {
-        .page-title { font-size: 18px; }
-        .prog-top { flex-direction: column; gap: 2px; }
-        .week-banner { padding: 14px !important; }
+        .page-title { font-size: 18px !important; }
+        .prog-top { flex-direction: column; gap: 4px; }
       }
     </style>
   </head>
