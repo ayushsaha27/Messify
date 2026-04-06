@@ -725,18 +725,17 @@
         white-space: nowrap;
       }
 
-
-      /* ══════════════════════════════════════════════════ */
+      /* ══════════════════════════════════════════════════════════ */
       /* ── ULTIMATE MOBILE RESPONSIVENESS FIX ── */
-      /* ══════════════════════════════════════════════════ */
+      /* ══════════════════════════════════════════════════════════ */
       @media (max-width: 1000px) {
         .menu-btn { display: flex; }
         .layout { grid-template-columns: 1fr; }
       }
       
       @media (max-width: 860px) {
-        /* 1. Lock the whole page so nothing pushes it off-screen */
-        body, html, .layout {
+        /* 1. Lock the whole page width so nothing pushes it off-screen */
+        html, body, .layout {
           width: 100vw !important;
           max-width: 100vw !important;
           overflow-x: hidden !important;
@@ -744,10 +743,10 @@
 
         /* 2. Constrain the main container */
         .main {
+          width: 100vw !important;
           padding: 16px !important;
-          width: 100% !important;
           box-sizing: border-box !important;
-          overflow: hidden !important; 
+          overflow-x: hidden !important; 
         }
 
         /* 3. Force all boxes/cards to perfectly fit the screen */
@@ -777,22 +776,19 @@
 
         /* 6. The Meal Table Scroll Fix */
         .card.grid-card {
-          overflow: hidden !important; /* Keeps table inside the card */
+          overflow: hidden !important; /* Critical: Keeps table scroll strictly inside the card */
         }
         
         .rating-table-wrap {
           width: 100% !important;
           overflow-x: auto !important;
           -webkit-overflow-scrolling: touch !important;
-          /* This overrides messify.js negative margins which were breaking everything */
-          margin: 0 !important; 
-          padding: 0 0 12px 0 !important; 
+          padding-bottom: 12px !important; 
         }
 
         .rating-table {
-          /* Forces the table to stay wide enough so the scrollbar activates */
-          min-width: 650px !important; 
-          width: 100% !important;
+          /* Forces the table to stay wide enough so the scrollbar activates ONLY inside the wrapper */
+          min-width: 600px !important; 
         }
 
         /* 7. Adjust text and submit buttons */
