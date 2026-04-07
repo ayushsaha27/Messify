@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
-  <title>Messify – NIST University | Wider Mobile Form</title>
+  <title>Messify – NIST University | Ultra-Wide Mobile Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <style>
     *,
@@ -25,7 +25,6 @@
       --text: #f0f4ff;
       --muted: #6b7a99;
       --success: #22c55e;
-      --google-red: #ea4335;
     }
 
     html, body {
@@ -36,7 +35,7 @@
       overflow-x: hidden;
     }
 
-    /* Entrance animation */
+    /* Animations */
     @keyframes pageFade {
       0% { opacity: 0; filter: blur(12px); transform: translateY(12px) scale(0.98); }
       100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
@@ -57,16 +56,11 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
     body {
       animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
     }
 
-    /* Animated background */
+    /* Background */
     .bg-layer {
       position: fixed;
       inset: 0;
@@ -94,7 +88,7 @@
       background-size: 48px 48px;
     }
 
-    /* PAGE LAYOUT: 2 columns desktop, stacked on mobile */
+    /* PAGE LAYOUT */
     .page {
       position: relative;
       z-index: 1;
@@ -103,8 +97,9 @@
       grid-template-columns: 1fr 1fr;
     }
 
-    /* ========== IMPROVED MOBILE BREAKPOINTS: wider card ========== */
-    /* For tablets and phones up to 1024px: hide left panel, show full width form with generous padding */
+    /* ============================================
+       🔥 FIX: ULTRA-WIDE MOBILE CARD (small devices)
+       ============================================ */
     @media (max-width: 1024px) {
       .page {
         display: flex;
@@ -119,60 +114,70 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px 20px;   /* balanced side padding */
-        background: radial-gradient(ellipse 140% 50% at 50% -5%, rgba(249, 115, 22, 0.15) 0%, rgba(11, 15, 26, 1) 65%), #0b0f1a;
+        padding: 20px 12px;   /* minimal side padding, card will be almost full width */
+        background: radial-gradient(ellipse 140% 50% at 50% -5%, rgba(249, 115, 22, 0.15) 0%, rgba(11, 15, 26, 1) 70%), #0b0f1a;
       }
       .card {
         width: 100%;
-        max-width: 560px;    /* KEY: dramatically wider than before (was 420px) */
-        padding: 40px 32px;
+        max-width: 94vw;       /* 🔥 KEY: 94% of viewport width → ultra wide on phones */
+        padding: 36px 24px;
         border-radius: 32px;
         background: var(--surface);
         backdrop-filter: blur(0px);
         box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
+        transition: all 0.2s ease;
       }
+      /* Even wider for very small devices */
+      @media (max-width: 600px) {
+        .right-panel {
+          padding: 16px 8px;
+        }
+        .card {
+          max-width: 96vw;     /* almost edge-to-edge on narrow phones */
+          padding: 32px 20px;
+          border-radius: 28px;
+        }
+      }
+      @media (max-width: 400px) {
+        .card {
+          max-width: 98vw;
+          padding: 28px 16px;
+        }
+        .input-group input {
+          padding: 14px 12px 14px 44px;
+          font-size: 16px;
+        }
+        .form-heading {
+          font-size: 22px;
+        }
+      }
+      /* Ensure all interactive elements are touch-friendly */
       .input-group input {
         font-size: 16px !important;
-        padding: 14px 16px 14px 46px;
+        padding: 15px 16px 15px 48px;
       }
       .btn-primary, .btn-google {
-        padding: 15px 18px;
+        padding: 16px 18px;
         font-size: 16px;
       }
-      .form-heading {
-        font-size: 24px;
-      }
-      .blob-1 { width: 280px; height: 280px; top: -100px; left: -60px; opacity: 0.18; }
-      .blob-2 { width: 240px; height: 240px; bottom: -80px; right: -60px; }
+      .blob-1 { width: 240px; height: 240px; top: -100px; left: -60px; opacity: 0.18; }
+      .blob-2 { width: 200px; height: 200px; bottom: -80px; right: -60px; }
       .blob-3 { display: none; }
     }
 
-    /* For very compact phones (≤480px): keep card wide with inner comfortable spacing */
-    @media (max-width: 600px) {
+    /* Desktop styles (unchanged, elegant) */
+    @media (min-width: 1025px) {
       .right-panel {
-        padding: 24px 16px;   /* reduced outer padding, but card still takes near full width */
+        padding: 48px 40px;
       }
       .card {
-        max-width: 100%;      /* FILLS available width completely, no narrow restrictions */
-        padding: 34px 24px;
+        max-width: 480px;
+        padding: 44px 40px;
         border-radius: 28px;
       }
     }
 
-    /* Ultra small devices (≤400px) - still spacious */
-    @media (max-width: 400px) {
-      .card {
-        padding: 28px 20px;
-      }
-      .form-heading {
-        font-size: 22px;
-      }
-      .input-group input {
-        padding: 12px 14px 12px 42px;
-      }
-    }
-
-    /* LEFT PANEL STYLES (desktop) */
+    /* LEFT PANEL (desktop) */
     .left-panel {
       display: flex;
       flex-direction: column;
@@ -206,6 +211,7 @@
       box-shadow: 0 0 8px var(--accent);
       animation: pulse 2s infinite;
     }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
     .left-title {
       font-family: "Syne", sans-serif;
       font-size: clamp(40px, 4.5vw, 58px);
@@ -218,7 +224,7 @@
       -webkit-background-clip: text;
       color: transparent;
     }
-    .left-title span { color: var(--accent); background: none; -webkit-background-clip: unset; }
+    .left-title span { color: var(--accent); background: none; }
     .left-desc {
       font-size: 16px;
       line-height: 1.7;
@@ -231,28 +237,11 @@
       gap: 32px;
       margin-bottom: 52px;
     }
-    .stat-num {
-      font-family: "Syne", sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-    }
+    .stat-num { font-family: "Syne", sans-serif; font-size: 28px; font-weight: 700; }
     .stat-num span { color: var(--accent); }
-    .stat-label {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .divider-v {
-      width: 1px;
-      background: var(--border);
-      align-self: stretch;
-    }
-    .meals-preview {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .divider-v { width: 1px; background: var(--border); align-self: stretch; }
+    .meals-preview { display: flex; gap: 10px; flex-wrap: wrap; }
     .meal-tag {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -267,21 +256,17 @@
     }
     .meal-tag:hover { transform: translateY(-2px); border-color: var(--accent); }
 
-    /* RIGHT PANEL & CARD */
+    /* RIGHT PANEL & CARD (shared) */
     .right-panel {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 48px 40px;
     }
     .card {
       width: 100%;
-      max-width: 480px;   /* default desktop width slightly wider than old 420px, looks modern */
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 44px 40px;
       box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
       animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
       transition: transform 0.3s ease, border-color 0.2s;
@@ -365,7 +350,6 @@
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 14px 14px 14px 46px;
       font-family: "DM Sans", sans-serif;
       font-size: 15px;
       color: var(--text);
@@ -399,10 +383,7 @@
       height: 1px;
       background: var(--border);
     }
-    .or-divider span {
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .or-divider span { font-size: 12px; color: var(--muted); }
 
     .btn-google {
       width: 100%;
@@ -414,7 +395,6 @@
       color: #1f2937;
       border: none;
       border-radius: 16px;
-      padding: 14px;
       font-family: "DM Sans", sans-serif;
       font-size: 15px;
       font-weight: 600;
@@ -434,7 +414,6 @@
       color: white;
       border: none;
       border-radius: 16px;
-      padding: 15px;
       font-family: "Syne", sans-serif;
       font-size: 16px;
       font-weight: 700;
@@ -501,14 +480,15 @@
     }
     .logo-text span { color: var(--accent); }
 
-    /* Toast Notifications */
+    /* Toast */
     .toast {
       position: fixed;
       bottom: calc(28px + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%) translateY(80px);
-      background: var(--surface);
-      border: 1px solid rgba(249, 115, 22, 0.4);
+      background: rgba(17, 24, 39, 0.96);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(249, 115, 22, 0.5);
       border-radius: 60px;
       padding: 12px 26px;
       font-size: 14px;
@@ -519,8 +499,6 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      backdrop-filter: blur(12px);
-      background: rgba(17, 24, 39, 0.95);
       opacity: 0;
       visibility: hidden;
       transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.3s, visibility 0.3s;
@@ -529,6 +507,20 @@
       transform: translateX(-50%) translateY(0);
       opacity: 1;
       visibility: visible;
+    }
+
+    /* Mobile-specific touches: bigger tap targets */
+    @media (max-width: 700px) {
+      .tab-btn {
+        padding: 12px 6px;
+        font-size: 15px;
+      }
+      .btn-primary, .btn-google {
+        border-radius: 18px;
+      }
+      .notice {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -541,7 +533,7 @@
   <div class="grid-lines"></div>
 
   <div class="page">
-    <!-- Left Panel - hero text (hidden on mobile) -->
+    <!-- Left Panel - informative, hidden on mobile -->
     <div class="left-panel">
       <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
       <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
@@ -561,7 +553,7 @@
       </div>
     </div>
 
-    <!-- Right Panel: WIDER CARD on phones/tablets -->
+    <!-- RIGHT PANEL: WIDER THAN EVER ON MOBILE -->
     <div class="right-panel">
       <div class="card">
         <div class="top-logo"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></div>
@@ -570,7 +562,7 @@
           <button class="tab-btn" onclick="switchTab('register')">Register</button>
         </div>
 
-        <!-- LOGIN FORM -->
+        <!-- LOGIN SECTION -->
         <div class="form-section active" id="tab-login">
           <div class="form-heading">Welcome back 👋</div>
           <div class="form-sub">Sign in to submit your weekly mess feedback.</div>
@@ -593,7 +585,7 @@
           <div class="card-footer">Don't have an account? <a href="#" onclick="switchTab('register'); return false;">Register here</a></div>
         </div>
 
-        <!-- REGISTER FORM -->
+        <!-- REGISTER SECTION -->
         <div class="form-section" id="tab-register">
           <div class="form-heading">Create account 🎓</div>
           <div class="form-sub">Register with your NIST college email.</div>
@@ -616,13 +608,16 @@
   <div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-msg"></span></div>
 
   <script>
-    // Auto-redirect if already logged in (mock session)
+    // Auto-redirect if already logged in (demo persistent)
     (function(){
       try {
-        const user = JSON.parse(localStorage.getItem("messify_user"));
-        if(user && user.email){
-          if(user.role === "admin") window.location.href = "admin.html";
-          else window.location.href = "feedback.html";
+        const stored = localStorage.getItem("messify_user");
+        if(stored){
+          const user = JSON.parse(stored);
+          if(user && user.email){
+            if(user.role === "admin") window.location.href = "admin.html";
+            else window.location.href = "feedback.html";
+          }
         }
       } catch(e){}
     })();
@@ -653,8 +648,8 @@
       else window.location.href = "feedback.html";
     }
 
-    // Google OAuth mock (redirect to backend endpoint)
     function handleGoogleAuth(mode){
+      // In a real app, redirect to backend Google OAuth
       window.location.href = "/auth/google";
     }
 
@@ -663,7 +658,7 @@
       const password = document.getElementById("login-pass").value;
       if(!email || !password) return showToast("Please fill in all fields.");
       if(!isNistEmail(email)) return showToast("Only @nist.edu emails are allowed!");
-      showToast("Signing in…", "success");
+      showToast("Signing in...", "success");
       try{
         const res = await fetch("/api/auth/login", {
           method: "POST",
@@ -673,15 +668,13 @@
         });
         const data = await res.json();
         if(data.success) saveUserAndRedirect(data.user);
-        else showToast(data.message || "Login failed. Invalid credentials.");
+        else showToast(data.message || "Login failed.");
       } catch(err){
-        showToast("Server error. Ensure backend is running (mock fallback: demo mode).");
-        console.warn(err);
-        // DEMO FALLBACK for preview: allow test@nist.edu / any password (showcasing UI)
+        // Demo fallback: allow test@nist.edu for preview (since backend may be absent)
         if(email === "test@nist.edu"){
           saveUserAndRedirect({ email, name: "Test User", role: "user" });
         } else {
-          showToast("Demo: use test@nist.edu or start backend server.");
+          showToast("Server offline. Demo: use test@nist.edu / any password");
         }
       }
     }
@@ -695,7 +688,7 @@
       if(!isNistEmail(email)) return showToast("Only @nist.edu emails are allowed!");
       if(pass.length < 8) return showToast("Password must be at least 8 characters.");
       if(pass !== confirm) return showToast("Passwords do not match!");
-      showToast("Creating account…", "success");
+      showToast("Creating account...", "success");
       try{
         const res = await fetch("/api/auth/register", {
           method: "POST",
@@ -707,9 +700,10 @@
         if(data.success) saveUserAndRedirect(data.user);
         else showToast(data.message || "Registration failed.");
       } catch(err){
-        showToast("Server error. Using demo fallback: registered successfully (demo).");
-        if(email === "demo@nist.edu" || email.endsWith("@nist.edu")){
+        if(email.endsWith("@nist.edu")){
           saveUserAndRedirect({ email, name, role: "user" });
+        } else {
+          showToast("Demo: registration works for any @nist.edu email.");
         }
       }
     }
