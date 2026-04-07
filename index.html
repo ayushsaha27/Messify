@@ -223,22 +223,25 @@
         .grid-lines { opacity: 0.4; }
       }
 
+      /* 📱 ULTIMATE MOBILE WIDTH FIX (Forces 95% Width) */
       @media (max-width: 600px) {
         .right-panel {
-          padding: 24px 12px;
+          /* 2.5% padding on each side leaves exactly 95% for the card */
+          padding: 20px 2.5%; 
         }
         .card {
-          padding: 32px 16px;
-          max-width: 100%;
+          width: 100%;
+          max-width: none !important; /* Overrides the desktop 420px restriction */
+          padding: 32px 20px;
         }
       }
 
       @media (max-width: 400px) {
         .right-panel {
-          padding: 20px 8px;
+          padding: 16px 2.5%;
         }
         .card {
-          padding: 28px 14px;
+          padding: 28px 16px;
         }
         .form-heading {
           font-size: 19px;
@@ -629,7 +632,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        /* NEW: Hidden by default to prevent ghost box */
         opacity: 0;
         visibility: hidden;
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s, visibility 0.4s;
