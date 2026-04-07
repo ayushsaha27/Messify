@@ -582,7 +582,10 @@
             <div class="input-wrap"><span class="icon">🔑</span><input type="password" id="login-pass" placeholder="••••••••" /></div>
           </div>
           <button class="btn-primary" onclick="handleLogin()">Sign In →</button>
-          <div class="card-footer">Don't have an account? <a href="#" onclick="switchTab('register'); return false;">Register here</a></div>
+          <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span>Don't have an account? <a href="#" onclick="switchTab('register'); return false;">Register here</a></span>
+            <a href="#" onclick="switchTab('forgot'); return false;" style="color:var(--muted);font-size:11px;">Forgot password?</a>
+          </div>
         </div>
 
         <!-- REGISTER SECTION -->
@@ -601,6 +604,55 @@
           <button class="btn-primary" onclick="handleRegister()">Create Account →</button>
           <div class="card-footer">Already registered? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
+
+        <!-- ── FORGOT PASSWORD — Step 1: Enter email ── -->
+        <div class="form-section" id="tab-forgot">
+          <div class="form-heading">Reset Password 🔑</div>
+          <div class="form-sub">Enter your college email to receive an OTP.</div>
+          <div class="input-group">
+            <label>College Email</label>
+            <div class="input-wrap">
+              <span class="icon">✉️</span>
+              <input type="email" id="forgot-email" placeholder="yourname@nist.edu" />
+            </div>
+            <div class="domain-hint"><span class="tick">✓</span> Must be your registered @nist.edu email</div>
+          </div>
+          <button class="btn-primary" onclick="handleForgotPassword()">Send OTP →</button>
+          <div class="card-footer">Remember your password? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
+        </div>
+
+        <!-- ── FORGOT PASSWORD — Step 2: Verify OTP + new password ── -->
+        <div class="form-section" id="tab-reset">
+          <div class="form-heading">Set New Password 🔒</div>
+          <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
+          <div class="input-group">
+            <label>OTP (6-digit code)</label>
+            <div class="input-wrap">
+              <span class="icon">🔢</span>
+              <input type="text" id="reset-otp" placeholder="123456" maxlength="6" inputmode="numeric" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label>New Password</label>
+            <div class="input-wrap">
+              <span class="icon">🔑</span>
+              <input type="password" id="reset-pass" placeholder="Min. 8 characters" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Confirm New Password</label>
+            <div class="input-wrap">
+              <span class="icon">🔒</span>
+              <input type="password" id="reset-confirm" placeholder="Repeat password" />
+            </div>
+          </div>
+          <button class="btn-primary" onclick="handleResetPassword()">Reset Password →</button>
+          <div class="card-footer" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span><a href="#" onclick="switchTab('forgot'); return false;">← Resend OTP</a></span>
+            <span><a href="#" onclick="switchTab('login'); return false;">Back to Sign In</a></span>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -623,11 +675,15 @@
     })();
 
     function switchTab(tab){
+      // Toggle the top nav tab buttons (only login + register have buttons)
       document.querySelectorAll(".tab-btn").forEach((btn,i)=>{
         btn.classList.toggle("active", (tab==="login" && i===0) || (tab==="register" && i===1));
       });
-      document.getElementById("tab-login").classList.toggle("active", tab==="login");
-      document.getElementById("tab-register").classList.toggle("active", tab==="register");
+      // Show/hide all form sections
+      ["tab-login","tab-register","tab-forgot","tab-reset"].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) el.classList.toggle("active", id === "tab-"+tab);
+      });
     }
 
     function showToast(msg, type="error"){
@@ -670,12 +726,7 @@
         if(data.success) saveUserAndRedirect(data.user);
         else showToast(data.message || "Login failed.");
       } catch(err){
-        // Demo fallback: allow test@nist.edu for preview (since backend may be absent)
-        if(email === "test@nist.edu"){
-          saveUserAndRedirect({ email, name: "Test User", role: "user" });
-        } else {
-          showToast("Server offline. Demo: use test@nist.edu / any password");
-        }
+        showToast("Could not reach server. Please try again.");
       }
     }
 
@@ -700,11 +751,71 @@
         if(data.success) saveUserAndRedirect(data.user);
         else showToast(data.message || "Registration failed.");
       } catch(err){
-        if(email.endsWith("@nist.edu")){
-          saveUserAndRedirect({ email, name, role: "user" });
+        showToast("Could not reach server. Please try again.");
+      }
+    }
+
+    // ── FORGOT PASSWORD — Step 1: send OTP ──
+    async function handleForgotPassword(){
+      const email = document.getElementById("forgot-email").value.trim();
+      if(!email) return showToast("Please enter your college email.");
+      if(!isNistEmail(email)) return showToast("Only @nist.edu emails are allowed!");
+      showToast("Sending OTP...", "success");
+      try{
+        const res = await fetch("/api/auth/forgot-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if(data.success){
+          // Store email so reset form knows which account to reset
+          window._resetEmail = email;
+          const sub = document.getElementById("reset-sub");
+          if(sub) sub.textContent = "Enter the OTP sent to " + email + " and choose a new password.";
+          showToast("OTP sent! Check your college inbox.", "success");
+          setTimeout(()=> switchTab("reset"), 1200);
         } else {
-          showToast("Demo: registration works for any @nist.edu email.");
+          showToast(data.message || "Could not send OTP.");
         }
+      } catch(err){
+        showToast("Could not reach server. Please try again.");
+      }
+    }
+
+    // ── RESET PASSWORD — Step 2: verify OTP + set new password ──
+    async function handleResetPassword(){
+      const email = window._resetEmail || "";
+      const otp = (document.getElementById("reset-otp").value || "").trim();
+      const pass = document.getElementById("reset-pass").value;
+      const confirm = document.getElementById("reset-confirm").value;
+
+      if(!otp || otp.length !== 6) return showToast("Please enter the 6-digit OTP.");
+      if(!pass || pass.length < 8) return showToast("Password must be at least 8 characters.");
+      if(pass !== confirm) return showToast("Passwords do not match!");
+      if(!email) return showToast("Session lost. Please start over.", "error");
+
+      showToast("Resetting password...", "success");
+      try{
+        const res = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp, newPassword: pass })
+        });
+        const data = await res.json();
+        if(data.success){
+          showToast("Password reset! You can now sign in.", "success");
+          // Clear fields and go to login
+          document.getElementById("reset-otp").value = "";
+          document.getElementById("reset-pass").value = "";
+          document.getElementById("reset-confirm").value = "";
+          window._resetEmail = "";
+          setTimeout(()=> switchTab("login"), 1800);
+        } else {
+          showToast(data.message || "Reset failed. Please try again.");
+        }
+      } catch(err){
+        showToast("Could not reach server. Please try again.");
       }
     }
 
@@ -712,6 +823,8 @@
     window.handleGoogleAuth = handleGoogleAuth;
     window.handleLogin = handleLogin;
     window.handleRegister = handleRegister;
+    window.handleForgotPassword = handleForgotPassword;
+    window.handleResetPassword = handleResetPassword;
   </script>
 </body>
 </html>

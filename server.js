@@ -12,9 +12,49 @@ const bcrypt = require("bcryptjs");
 const path = require("path");
 const fs = require("fs");
 const { initDB, User, Feedback } = require("./db");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ── OTP STORE (in-memory, expires in 10 minutes) ─────────────
+const otpStore = {}; // { email: { otp, expiresAt } }
+
+// ── EMAIL TRANSPORTER ────────────────────────────────────────
+// Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in your .env
+// Works with Gmail (use an App Password), Outlook, etc.
+function getMailTransporter() {
+  return nodemailer.createTransport({
+    host:   process.env.SMTP_HOST || "smtp.gmail.com",
+    port:   parseInt(process.env.SMTP_PORT || "587"),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER || "",
+      pass: process.env.SMTP_PASS || "",
+    },
+  });
+}
+
+async function sendOTPEmail(toEmail, otp) {
+  const transporter = getMailTransporter();
+  await transporter.sendMail({
+    from: `"Messify – NIST University" <${process.env.SMTP_USER}>`,
+    to: toEmail,
+    subject: "Messify Password Reset OTP",
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#111827;color:#f0f4ff;border-radius:16px;">
+        <h2 style="color:#f97316;margin-bottom:8px;">🍽 Messify</h2>
+        <p style="color:#6b7a99;margin-bottom:24px;">NIST University Mess Portal</p>
+        <h3 style="margin-bottom:16px;">Your Password Reset OTP</h3>
+        <div style="background:#1a2235;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;">
+          <span style="font-size:36px;font-weight:800;letter-spacing:8px;color:#f97316;">${otp}</span>
+        </div>
+        <p style="color:#6b7a99;font-size:13px;">This OTP is valid for <strong style="color:#f0f4ff;">10 minutes</strong>. Do not share it with anyone.</p>
+        <p style="color:#6b7a99;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email.</p>
+      </div>
+    `,
+  });
+}
 
 // ── CONFIGURATION & BRANDING ────────────────────────────────
 const ALLOWED_DOMAIN = process.env.ALLOWED_DOMAIN || "@nist.edu";
@@ -289,42 +329,148 @@ app.get(
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    if (!name || !email || !password)
+      return res.json({ success: false, message: "All fields are required." });
     if (!isNistEmail(email))
-      return res.json({
-        success: false,
-        message: `Only ${ALLOWED_DOMAIN} allowed.`,
-      });
+      return res.json({ success: false, message: `Only ${ALLOWED_DOMAIN} emails are allowed.` });
+    if (password.length < 8)
+      return res.json({ success: false, message: "Password must be at least 8 characters." });
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const role = isAdminEmail(normalizedEmail) ? "admin" : "student";
+    const existing = await User.findOne({ email: normalizedEmail });
+
+    if (existing) {
+      if (existing.password_hash) {
+        // Already has a password — tell them to just log in
+        return res.json({ success: false, message: "This email is already registered. Please sign in." });
+      } else {
+        // Registered via Google but no password yet — add password to their account
+        const hash = await bcrypt.hash(password, 12);
+        await User.updateOne({ email: normalizedEmail }, { $set: { password_hash: hash, name: existing.name || name } });
+        return res.json({ success: true, user: { name: existing.name || name, email: normalizedEmail, role } });
+      }
+    }
+
+    // Brand new user — create account
     const hash = await bcrypt.hash(password, 12);
-    const role = isAdminEmail(email) ? "admin" : "student";
-    await User.create({
-      id: genId(),
-      name,
-      email: email.toLowerCase(),
-      password_hash: hash,
-      role,
-    });
-    res.json({ success: true, user: { name, email, role } });
+    await User.create({ id: genId(), name: name.trim(), email: normalizedEmail, password_hash: hash, role });
+    return res.json({ success: true, user: { name: name.trim(), email: normalizedEmail, role } });
   } catch (e) {
-    res.json({ success: false, message: "Email already exists." });
+    console.error("Register error:", e);
+    return res.json({ success: false, message: "Registration failed. Please try again." });
   }
 });
 
 app.post("/api/auth/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email: email.toLowerCase() });
-  if (
-    !user ||
-    !user.password_hash ||
-    !(await bcrypt.compare(password, user.password_hash))
-  ) {
-    return res.json({ success: false, message: "Invalid credentials." });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.json({ success: false, message: "Please fill in all fields." });
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user)
+      return res.json({ success: false, message: "No account found with this email. Please register first." });
+
+    if (!user.password_hash)
+      return res.json({ success: false, message: "This account uses Google Sign-In. Please click 'Continue with Google'." });
+
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match)
+      return res.json({ success: false, message: "Incorrect password. Please try again or use 'Forgot Password'." });
+
+    req.login(user, () =>
+      res.json({ success: true, user: { name: user.name, email: user.email, role: user.role } })
+    );
+  } catch (e) {
+    console.error("Login error:", e);
+    return res.json({ success: false, message: "Login failed. Please try again." });
   }
-  req.login(user, () =>
-    res.json({
-      success: true,
-      user: { name: user.name, email: user.email, role: user.role },
-    }),
-  );
+});
+
+// ── FORGOT PASSWORD — send OTP to college email ─────────────
+app.post("/api/auth/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.json({ success: false, message: "Email is required." });
+    if (!isNistEmail(email)) return res.json({ success: false, message: `Only ${ALLOWED_DOMAIN} emails are allowed.` });
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Always respond success (don't reveal if email exists — security)
+    if (!user) return res.json({ success: true, message: "If this email is registered, an OTP has been sent." });
+    if (!user.password_hash) return res.json({ success: false, message: "This account uses Google Sign-In. Password reset is not needed." });
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore[normalizedEmail] = { otp, expiresAt: Date.now() + 10 * 60 * 1000 };
+
+    // Send email
+    try {
+      await sendOTPEmail(normalizedEmail, otp);
+    } catch (mailErr) {
+      console.error("Mail error:", mailErr.message);
+      return res.json({ success: false, message: "Could not send OTP email. Check SMTP settings in .env file." });
+    }
+
+    return res.json({ success: true, message: "OTP sent to your college email. Valid for 10 minutes." });
+  } catch (e) {
+    console.error("Forgot password error:", e);
+    return res.json({ success: false, message: "Something went wrong. Please try again." });
+  }
+});
+
+// ── VERIFY OTP ───────────────────────────────────────────────
+app.post("/api/auth/verify-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    const record = otpStore[normalizedEmail];
+
+    if (!record) return res.json({ success: false, message: "No OTP found. Please request a new one." });
+    if (Date.now() > record.expiresAt) {
+      delete otpStore[normalizedEmail];
+      return res.json({ success: false, message: "OTP has expired. Please request a new one." });
+    }
+    if (record.otp !== otp.trim()) return res.json({ success: false, message: "Incorrect OTP. Please try again." });
+
+    // OTP valid — mark as verified (extend to allow password reset for 5 more mins)
+    otpStore[normalizedEmail].verified = true;
+    otpStore[normalizedEmail].expiresAt = Date.now() + 5 * 60 * 1000;
+
+    return res.json({ success: true, message: "OTP verified. You can now set a new password." });
+  } catch (e) {
+    return res.json({ success: false, message: "Verification failed. Please try again." });
+  }
+});
+
+// ── RESET PASSWORD ───────────────────────────────────────────
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    const record = otpStore[normalizedEmail];
+
+    if (!record || !record.verified) return res.json({ success: false, message: "OTP not verified. Please verify OTP first." });
+    if (Date.now() > record.expiresAt) {
+      delete otpStore[normalizedEmail];
+      return res.json({ success: false, message: "Session expired. Please start over." });
+    }
+    if (record.otp !== otp.trim()) return res.json({ success: false, message: "Invalid OTP." });
+    if (!newPassword || newPassword.length < 8) return res.json({ success: false, message: "Password must be at least 8 characters." });
+
+    const hash = await bcrypt.hash(newPassword, 12);
+    await User.updateOne({ email: normalizedEmail }, { $set: { password_hash: hash } });
+
+    delete otpStore[normalizedEmail]; // Clean up
+    return res.json({ success: true, message: "Password reset successfully. You can now sign in." });
+  } catch (e) {
+    console.error("Reset password error:", e);
+    return res.json({ success: false, message: "Reset failed. Please try again." });
+  }
 });
 
 app.post("/api/auth/logout", (req, res) => {
