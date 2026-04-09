@@ -75,6 +75,11 @@
       100% { opacity: 1; transform: scale(1) rotate(0deg); }
     }
 
+    @keyframes swipeHint {
+      0%, 100% { opacity: 0.3; transform: translateX(0); }
+      50% { opacity: 0.8; transform: translateX(10px); }
+    }
+
     body {
       animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
     }
@@ -120,12 +125,19 @@
       position: relative;
       width: 100%;
       overflow: hidden;
+      touch-action: pan-y pinch-zoom; /* Allows vertical scroll, handles swipe */
     }
 
     .forms-slider {
       display: flex;
       width: 400%;
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: grab;
+    }
+
+    .forms-slider.dragging {
+      transition: none;
+      cursor: grabbing;
     }
 
     .form-slide {
@@ -144,6 +156,16 @@
       animation-name: slideInRight;
     }
 
+    /* Swipe Hint Animation - Mobile Only */
+    .swipe-hint {
+      display: none;
+    }
+
+    /* Pagination Dots - Mobile Only */
+    .pagination-dots {
+      display: none;
+    }
+
     /* ============================================
        🔥 FIX: ULTRA-WIDE MOBILE CARD (small devices)
        ============================================ */
@@ -159,6 +181,7 @@
         width: 100%;
         min-height: 100vh;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 20px 12px;
@@ -167,27 +190,76 @@
       .card {
         width: 100%;
         max-width: 94vw;
-        padding: 36px 24px;
+        padding: 36px 24px 24px;
         border-radius: 32px;
         background: var(--surface);
         backdrop-filter: blur(0px);
         box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
         transition: all 0.2s ease;
       }
+
+      /* Swipe Hint for Mobile */
+      .swipe-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 12px;
+        opacity: 0.7;
+      }
+
+      .swipe-hint span {
+        animation: swipeHint 2s ease-in-out infinite;
+      }
+
+      .swipe-hint .arrow {
+        font-size: 16px;
+      }
+
+      /* Pagination Dots for Mobile */
+      .pagination-dots {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .pagination-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--border);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: pointer;
+      }
+
+      .pagination-dot.active {
+        width: 24px;
+        border-radius: 4px;
+        background: var(--accent);
+      }
+
+      .pagination-dot.login-dot.active ~ .pagination-dot {
+        background: var(--border);
+      }
+
       @media (max-width: 600px) {
         .right-panel {
           padding: 16px 8px;
         }
         .card {
           max-width: 96vw;
-          padding: 32px 20px;
+          padding: 32px 20px 20px;
           border-radius: 28px;
         }
       }
       @media (max-width: 400px) {
         .card {
           max-width: 98vw;
-          padding: 28px 16px;
+          padding: 28px 16px 16px;
         }
         .input-group input {
           padding: 14px 12px 14px 44px;
@@ -248,6 +320,12 @@
         padding: 14px 10px !important;
         font-size: 15px !important;
         min-height: 50px;
+      }
+
+      /* Hide mobile elements on desktop */
+      .swipe-hint,
+      .pagination-dots {
+        display: none !important;
       }
     }
 
@@ -331,7 +409,7 @@
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      min-height: 192px; /* Fixed height prevents shifting */
+      min-height: 192px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -344,7 +422,7 @@
       color: var(--muted);
       max-width: 380px;
       margin-bottom: 52px;
-      min-height: 78px; /* Fixed height prevents shifting */
+      min-height: 78px;
     }
     
     .stats-row {
@@ -736,8 +814,8 @@
           <button class="tab-btn" onclick="switchTabWithAnimation('register')">Register</button>
         </div>
 
-        <!-- Forms Container with Slide Animation -->
-        <div class="forms-container">
+        <!-- Forms Container with Swipe Support -->
+        <div class="forms-container" id="formsContainer">
           <div class="forms-slider" id="formsSlider">
             
             <!-- LOGIN SECTION -->
@@ -854,6 +932,19 @@
 
           </div>
         </div>
+
+        <!-- Pagination Dots for Mobile -->
+        <div class="pagination-dots">
+          <div class="pagination-dot active" onclick="switchTabWithAnimation('login')"></div>
+          <div class="pagination-dot" onclick="switchTabWithAnimation('register')"></div>
+        </div>
+
+        <!-- Swipe Hint for Mobile -->
+        <div class="swipe-hint">
+          <span class="arrow">←</span>
+          <span>Swipe to switch</span>
+          <span class="arrow">→</span>
+        </div>
       </div>
     </div>
   </div>
@@ -906,12 +997,173 @@
           btn.classList.remove("active");
         }
       });
+
+      // Update pagination dots
+      updatePaginationDots('login');
+
+      // Initialize swipe detection
+      initSwipeDetection();
     });
 
     // Track navigation history for directional awareness
     let tabHistory = ['login'];
     const slideOrder = ['login', 'register', 'forgot', 'reset'];
     const slidePositions = { 'login': 0, 'register': 1, 'forgot': 2, 'reset': 3 };
+
+    // Swipe detection variables
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let isDragging = false;
+    let startTransform = 0;
+    const swipeThreshold = 50; // Minimum distance for swipe
+
+    function initSwipeDetection() {
+      const container = document.getElementById('formsContainer');
+      const slider = document.getElementById('formsSlider');
+      
+      if (!container || !slider) return;
+
+      // Touch events for mobile swipe
+      container.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        startTransform = getCurrentTransform();
+        slider.classList.add('dragging');
+      }, { passive: true });
+
+      container.addEventListener('touchmove', (e) => {
+        if (!touchStartX) return;
+        
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        const currentTab = tabHistory[tabHistory.length - 1];
+        const currentPos = slidePositions[currentTab] || 0;
+        
+        // Calculate drag percentage (only for login/register tabs)
+        if (currentTab === 'login' || currentTab === 'register') {
+          const dragPercent = (diff / container.offsetWidth) * 100;
+          let newPosition = currentPos * 25 - dragPercent;
+          
+          // Clamp between login and register
+          newPosition = Math.max(0, Math.min(25, newPosition));
+          slider.style.transform = `translateX(-${newPosition}%)`;
+        }
+      }, { passive: true });
+
+      container.addEventListener('touchend', (e) => {
+        if (!touchStartX || !touchEndX) {
+          touchStartX = 0;
+          touchEndX = 0;
+          slider.classList.remove('dragging');
+          return;
+        }
+        
+        const diff = touchEndX - touchStartX;
+        const currentTab = tabHistory[tabHistory.length - 1];
+        
+        // Only handle swipes for login/register tabs
+        if (currentTab === 'login' || currentTab === 'register') {
+          if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0 && currentTab === 'register') {
+              // Swiped right - go to login
+              switchTabWithAnimation('login');
+            } else if (diff < 0 && currentTab === 'login') {
+              // Swiped left - go to register
+              switchTabWithAnimation('register');
+            } else {
+              // Snap back
+              snapToCurrentTab();
+            }
+          } else {
+            // Snap back to current tab
+            snapToCurrentTab();
+          }
+        } else {
+          snapToCurrentTab();
+        }
+        
+        touchStartX = 0;
+        touchEndX = 0;
+        slider.classList.remove('dragging');
+      });
+
+      // Mouse events for desktop testing
+      container.addEventListener('mousedown', (e) => {
+        // Only enable on mobile or if specifically testing
+        if (window.innerWidth <= 1024) {
+          touchStartX = e.screenX;
+          startTransform = getCurrentTransform();
+          slider.classList.add('dragging');
+          isDragging = true;
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging || window.innerWidth > 1024) return;
+        
+        touchEndX = e.screenX;
+        const diff = touchEndX - touchStartX;
+        const currentTab = tabHistory[tabHistory.length - 1];
+        const currentPos = slidePositions[currentTab] || 0;
+        
+        if (currentTab === 'login' || currentTab === 'register') {
+          const dragPercent = (diff / container.offsetWidth) * 100;
+          let newPosition = currentPos * 25 - dragPercent;
+          newPosition = Math.max(0, Math.min(25, newPosition));
+          slider.style.transform = `translateX(-${newPosition}%)`;
+        }
+      });
+
+      window.addEventListener('mouseup', (e) => {
+        if (!isDragging || window.innerWidth > 1024) return;
+        
+        const diff = touchEndX - touchStartX;
+        const currentTab = tabHistory[tabHistory.length - 1];
+        
+        if (currentTab === 'login' || currentTab === 'register') {
+          if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0 && currentTab === 'register') {
+              switchTabWithAnimation('login');
+            } else if (diff < 0 && currentTab === 'login') {
+              switchTabWithAnimation('register');
+            } else {
+              snapToCurrentTab();
+            }
+          } else {
+            snapToCurrentTab();
+          }
+        } else {
+          snapToCurrentTab();
+        }
+        
+        isDragging = false;
+        slider.classList.remove('dragging');
+      });
+    }
+
+    function getCurrentTransform() {
+      const slider = document.getElementById('formsSlider');
+      const transform = slider.style.transform;
+      const match = transform.match(/translateX\(-?(\d+(\.\d+)?)%\)/);
+      return match ? parseFloat(match[1]) : 0;
+    }
+
+    function snapToCurrentTab() {
+      const currentTab = tabHistory[tabHistory.length - 1];
+      const position = slidePositions[currentTab] || 0;
+      const slider = document.getElementById('formsSlider');
+      slider.style.transform = `translateX(-${position * 25}%)`;
+    }
+
+    function updatePaginationDots(tab) {
+      const dots = document.querySelectorAll('.pagination-dot');
+      dots.forEach((dot, index) => {
+        if ((tab === 'login' && index === 0) || (tab === 'register' && index === 1)) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
 
     function switchTabWithAnimation(tab) {
       const currentTab = tabHistory[tabHistory.length - 1];
@@ -933,6 +1185,9 @@
       } else {
         indicator.classList.remove("right");
       }
+      
+      // Update pagination dots
+      updatePaginationDots(tab);
       
       // Slide to the selected form
       const slider = document.getElementById("formsSlider");
