@@ -165,15 +165,71 @@
       .blob-3 { display: none; }
     }
 
-    /* Desktop styles (unchanged, elegant) */
+    /* Desktop styles (elegant, with fixed button heights) */
     @media (min-width: 1025px) {
       .right-panel {
         padding: 48px 40px;
       }
       .card {
         max-width: 480px;
-        padding: 44px 40px;
+        padding: 48px 44px;
         border-radius: 28px;
+      }
+      
+      /* 🔥 DESKTOP BUTTON HEIGHT FIXES */
+      .btn-primary, .btn-google {
+        padding: 18px 20px !important;
+        font-size: 16px !important;
+        min-height: 56px;
+      }
+      
+      .btn-google {
+        padding: 18px 20px !important;
+      }
+      
+      .input-group input {
+        padding: 16px 18px 16px 48px !important;
+        font-size: 15px !important;
+        min-height: 56px;
+      }
+      
+      .input-wrap .icon {
+        font-size: 20px;
+      }
+      
+      .input-group {
+        margin-bottom: 26px;
+      }
+      
+      .tab-btn {
+        padding: 14px 10px !important;
+        font-size: 15px !important;
+        min-height: 50px;
+      }
+    }
+
+    /* Extra large screens - even taller buttons */
+    @media (min-width: 1440px) {
+      .btn-primary, .btn-google {
+        padding: 20px 24px !important;
+        min-height: 60px;
+        font-size: 17px !important;
+      }
+      
+      .input-group input {
+        padding: 18px 20px 18px 52px !important;
+        min-height: 60px;
+        font-size: 16px !important;
+      }
+      
+      .card {
+        padding: 52px 48px;
+      }
+      
+      .tab-btn {
+        padding: 16px 12px !important;
+        min-height: 56px;
+        font-size: 16px !important;
       }
     }
 
