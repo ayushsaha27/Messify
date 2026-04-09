@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
-  <title>Messify – NIST University | Ultra-Wide Mobile Form</title>
+  <title>Messify – NIST University | Static Panel + Show Password</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <style>
     *,
@@ -27,12 +27,23 @@
       --success: #22c55e;
     }
 
+    /* ⚡️ FIX: LOCK LEFT PANEL – no scroll, no overflow */
     html, body {
       height: 100%;
       background: var(--bg);
       color: var(--text);
       font-family: "DM Sans", sans-serif;
-      overflow-x: hidden;
+      overflow: hidden;               /* kill global scroll */
+    }
+
+    /* Layout uses fixed heights, left side fixed */
+    .page {
+      position: relative;
+      z-index: 1;
+      height: 100vh;                  /* full viewport, no scroll */
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
     }
 
     /* Animations */
@@ -40,17 +51,14 @@
       0% { opacity: 0; filter: blur(12px); transform: translateY(12px) scale(0.98); }
       100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
     }
-
     @keyframes floatBG {
       0% { transform: translate(0, 0) scale(1); }
       100% { transform: translate(20px, 15px) scale(1.05); }
     }
-
     @keyframes cardIn {
       0% { opacity: 0; transform: translateY(30px) scale(0.96); }
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -88,18 +96,40 @@
       background-size: 48px 48px;
     }
 
-    /* PAGE LAYOUT */
-    .page {
+    /* ── LEFT PANEL (FIXED, NO SCROLL) ── */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 64px;
+      border-right: 1px solid var(--border);
       position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      overflow: hidden;               /* no scroll, content fits */
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.02) 0%, transparent 70%);
+      height: 100vh;                  /* force full height */
+      max-height: 100vh;
     }
 
-    /* ============================================
-       🔥 FIX: ULTRA-WIDE MOBILE CARD (small devices)
-       ============================================ */
+    /* right panel – scrollable if needed, but card constrained */
+    .right-panel {
+      overflow-y: auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 12px;
+    }
+
+    /* Desktop adjustments */
+    @media (min-width: 1025px) {
+      .right-panel {
+        padding: 48px 40px;
+      }
+    }
+
+    /* Mobile: left panel hidden, right panel takes over */
     @media (max-width: 1024px) {
       .page {
         display: flex;
@@ -111,140 +141,14 @@
       .right-panel {
         width: 100%;
         min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px 12px;   /* minimal side padding, card will be almost full width */
+        height: auto;
+        overflow-y: auto;
         background: radial-gradient(ellipse 140% 50% at 50% -5%, rgba(249, 115, 22, 0.15) 0%, rgba(11, 15, 26, 1) 70%), #0b0f1a;
-      }
-      .card {
-        width: 100%;
-        max-width: 94vw;       /* 🔥 KEY: 94% of viewport width → ultra wide on phones */
-        padding: 36px 24px;
-        border-radius: 32px;
-        background: var(--surface);
-        backdrop-filter: blur(0px);
-        box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
-        transition: all 0.2s ease;
-      }
-      /* Even wider for very small devices */
-      @media (max-width: 600px) {
-        .right-panel {
-          padding: 16px 8px;
-        }
-        .card {
-          max-width: 96vw;     /* almost edge-to-edge on narrow phones */
-          padding: 32px 20px;
-          border-radius: 28px;
-        }
-      }
-      @media (max-width: 400px) {
-        .card {
-          max-width: 98vw;
-          padding: 28px 16px;
-        }
-        .input-group input {
-          padding: 14px 12px 14px 44px;
-          font-size: 16px;
-        }
-        .form-heading {
-          font-size: 22px;
-        }
-      }
-      /* Ensure all interactive elements are touch-friendly */
-      .input-group input {
-        font-size: 16px !important;
-        padding: 15px 16px 15px 48px;
-      }
-      .btn-primary, .btn-google {
-        padding: 16px 18px;
-        font-size: 16px;
-      }
-      .blob-1 { width: 240px; height: 240px; top: -100px; left: -60px; opacity: 0.18; }
-      .blob-2 { width: 200px; height: 200px; bottom: -80px; right: -60px; }
-      .blob-3 { display: none; }
-    }
-
-    /* Desktop styles (elegant, with fixed button heights) */
-    @media (min-width: 1025px) {
-      .right-panel {
-        padding: 48px 40px;
-      }
-      .card {
-        max-width: 480px;
-        padding: 48px 44px;
-        border-radius: 28px;
-      }
-      
-      /* 🔥 DESKTOP BUTTON HEIGHT FIXES */
-      .btn-primary, .btn-google {
-        padding: 18px 20px !important;
-        font-size: 16px !important;
-        min-height: 56px;
-      }
-      
-      .btn-google {
-        padding: 18px 20px !important;
-      }
-      
-      .input-group input {
-        padding: 16px 18px 16px 48px !important;
-        font-size: 15px !important;
-        min-height: 56px;
-      }
-      
-      .input-wrap .icon {
-        font-size: 20px;
-      }
-      
-      .input-group {
-        margin-bottom: 26px;
-      }
-      
-      .tab-btn {
-        padding: 14px 10px !important;
-        font-size: 15px !important;
-        min-height: 50px;
+        padding: 20px 12px;
       }
     }
 
-    /* Extra large screens - even taller buttons */
-    @media (min-width: 1440px) {
-      .btn-primary, .btn-google {
-        padding: 20px 24px !important;
-        min-height: 60px;
-        font-size: 17px !important;
-      }
-      
-      .input-group input {
-        padding: 18px 20px 18px 52px !important;
-        min-height: 60px;
-        font-size: 16px !important;
-      }
-      
-      .card {
-        padding: 52px 48px;
-      }
-      
-      .tab-btn {
-        padding: 16px 12px !important;
-        min-height: 56px;
-        font-size: 16px !important;
-      }
-    }
-
-    /* LEFT PANEL (desktop) */
-    .left-panel {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 60px 64px;
-      border-right: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(249, 115, 22, 0.02) 0%, transparent 70%);
-    }
+    /* Brand / left panel styles */
     .brand-badge {
       display: inline-flex;
       align-items: center;
@@ -312,24 +216,36 @@
     }
     .meal-tag:hover { transform: translateY(-2px); border-color: var(--accent); }
 
-    /* RIGHT PANEL & CARD (shared) */
-    .right-panel {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
+    /* CARD – ultra wide on mobile */
     .card {
       width: 100%;
+      max-width: 94vw;
       background: var(--surface);
       border: 1px solid var(--border);
       box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
       animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
       transition: transform 0.3s ease, border-color 0.2s;
+      border-radius: 32px;
+      padding: 36px 24px;
+      margin: 20px 0;
     }
     .card:hover {
       transform: translateY(-3px);
       border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    @media (max-width: 600px) {
+      .right-panel { padding: 16px 8px; }
+      .card { max-width: 96vw; padding: 32px 20px; border-radius: 28px; }
+    }
+    @media (max-width: 400px) {
+      .card { max-width: 98vw; padding: 28px 16px; }
+      .input-group input { padding: 14px 12px 14px 44px; font-size: 16px; }
+      .form-heading { font-size: 22px; }
+    }
+
+    @media (min-width: 1025px) {
+      .card { max-width: 480px; padding: 48px 44px; border-radius: 28px; }
     }
 
     /* Tabs */
@@ -400,6 +316,7 @@
       font-size: 18px;
       pointer-events: none;
       opacity: 0.6;
+      z-index: 2;
     }
     .input-group input {
       width: 100%;
@@ -411,12 +328,41 @@
       color: var(--text);
       outline: none;
       transition: all 0.2s ease;
+      padding: 16px 18px 16px 48px;
     }
     .input-group input:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
       transform: scale(1.01);
     }
+
+    /* Show/Hide password toggle */
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      z-index: 5;
+      line-height: 1;
+    }
+    .password-toggle:hover {
+      color: var(--accent2);
+    }
+    /* adjust input padding when toggle exists */
+    .input-wrap.password-field input {
+      padding-right: 48px;   /* space for the eye */
+    }
+
     .domain-hint {
       font-size: 11px;
       color: var(--muted);
@@ -457,6 +403,8 @@
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+      padding: 18px 20px;
+      min-height: 56px;
     }
     .btn-google:hover {
       background: #f8fafc;
@@ -478,6 +426,8 @@
       transition: all 0.3s ease;
       box-shadow: 0 4px 18px rgba(249, 115, 22, 0.4);
       margin-top: 10px;
+      padding: 18px 20px;
+      min-height: 56px;
     }
     .btn-primary:hover {
       background: var(--accent2);
@@ -565,18 +515,10 @@
       visibility: visible;
     }
 
-    /* Mobile-specific touches: bigger tap targets */
-    @media (max-width: 700px) {
-      .tab-btn {
-        padding: 12px 6px;
-        font-size: 15px;
-      }
-      .btn-primary, .btn-google {
-        border-radius: 18px;
-      }
-      .notice {
-        font-size: 12px;
-      }
+    /* extra touch */
+    @media (min-width: 1440px) {
+      .btn-primary, .btn-google { padding: 20px 24px; min-height: 60px; }
+      .input-group input { padding: 18px 20px 18px 52px; }
     }
   </style>
 </head>
@@ -589,7 +531,7 @@
   <div class="grid-lines"></div>
 
   <div class="page">
-    <!-- Left Panel - informative, hidden on mobile -->
+    <!-- LEFT PANEL – static, no scroll (fixed height, overflow hidden) -->
     <div class="left-panel">
       <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
       <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
@@ -609,7 +551,7 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL: WIDER THAN EVER ON MOBILE -->
+    <!-- RIGHT PANEL with scroll if needed (mobile) -->
     <div class="right-panel">
       <div class="card">
         <div class="top-logo"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></div>
@@ -618,7 +560,7 @@
           <button class="tab-btn" onclick="switchTab('register')">Register</button>
         </div>
 
-        <!-- LOGIN SECTION -->
+        <!-- LOGIN -->
         <div class="form-section active" id="tab-login">
           <div class="form-heading">Welcome back 👋</div>
           <div class="form-sub">Sign in to submit your weekly mess feedback.</div>
@@ -635,7 +577,11 @@
           </div>
           <div class="input-group">
             <label>Password</label>
-            <div class="input-wrap"><span class="icon">🔑</span><input type="password" id="login-pass" placeholder="••••••••" /></div>
+            <div class="input-wrap password-field">
+              <span class="icon">🔑</span>
+              <input type="password" id="login-pass" placeholder="••••••••" />
+              <button type="button" class="password-toggle" onclick="togglePassword('login-pass', this)" aria-label="Show password">👁️</button>
+            </div>
           </div>
           <button class="btn-primary" onclick="handleLogin()">Sign In →</button>
           <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -644,7 +590,7 @@
           </div>
         </div>
 
-        <!-- REGISTER SECTION -->
+        <!-- REGISTER -->
         <div class="form-section" id="tab-register">
           <div class="form-heading">Create account 🎓</div>
           <div class="form-sub">Register with your NIST college email.</div>
@@ -655,51 +601,53 @@
           <div class="or-divider"><span>or register manually</span></div>
           <div class="input-group"><label>Full Name</label><div class="input-wrap"><span class="icon">👤</span><input type="text" id="reg-name" placeholder="Rahul Sharma" /></div></div>
           <div class="input-group"><label>College Email</label><div class="input-wrap"><span class="icon">✉️</span><input type="email" id="reg-email" placeholder="yourname@nist.edu" /></div><div class="domain-hint"><span class="tick">✓</span> Only @nist.edu emails are accepted</div></div>
-          <div class="input-group"><label>Password</label><div class="input-wrap"><span class="icon">🔑</span><input type="password" id="reg-pass" placeholder="Min. 8 characters" /></div></div>
-          <div class="input-group"><label>Confirm Password</label><div class="input-wrap"><span class="icon">🔒</span><input type="password" id="reg-confirm" placeholder="Repeat password" /></div></div>
+          <div class="input-group"><label>Password</label>
+            <div class="input-wrap password-field">
+              <span class="icon">🔑</span><input type="password" id="reg-pass" placeholder="Min. 8 characters" />
+              <button type="button" class="password-toggle" onclick="togglePassword('reg-pass', this)">👁️</button>
+            </div>
+          </div>
+          <div class="input-group"><label>Confirm Password</label>
+            <div class="input-wrap password-field">
+              <span class="icon">🔒</span><input type="password" id="reg-confirm" placeholder="Repeat password" />
+              <button type="button" class="password-toggle" onclick="togglePassword('reg-confirm', this)">👁️</button>
+            </div>
+          </div>
           <button class="btn-primary" onclick="handleRegister()">Create Account →</button>
           <div class="card-footer">Already registered? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
 
-        <!-- ── FORGOT PASSWORD — Step 1: Enter email ── -->
+        <!-- FORGOT PASSWORD -->
         <div class="form-section" id="tab-forgot">
           <div class="form-heading">Reset Password 🔑</div>
           <div class="form-sub">Enter your college email to receive an OTP.</div>
           <div class="input-group">
             <label>College Email</label>
-            <div class="input-wrap">
-              <span class="icon">✉️</span>
-              <input type="email" id="forgot-email" placeholder="yourname@nist.edu" />
-            </div>
+            <div class="input-wrap"><span class="icon">✉️</span><input type="email" id="forgot-email" placeholder="yourname@nist.edu" /></div>
             <div class="domain-hint"><span class="tick">✓</span> Must be your registered @nist.edu email</div>
           </div>
           <button class="btn-primary" onclick="handleForgotPassword()">Send OTP →</button>
           <div class="card-footer">Remember your password? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
 
-        <!-- ── FORGOT PASSWORD — Step 2: Verify OTP + new password ── -->
+        <!-- RESET PASSWORD (OTP step) -->
         <div class="form-section" id="tab-reset">
           <div class="form-heading">Set New Password 🔒</div>
           <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
           <div class="input-group">
             <label>OTP (6-digit code)</label>
-            <div class="input-wrap">
-              <span class="icon">🔢</span>
-              <input type="text" id="reset-otp" placeholder="123456" maxlength="6" inputmode="numeric" />
+            <div class="input-wrap"><span class="icon">🔢</span><input type="text" id="reset-otp" placeholder="123456" maxlength="6" inputmode="numeric" /></div>
+          </div>
+          <div class="input-group"><label>New Password</label>
+            <div class="input-wrap password-field">
+              <span class="icon">🔑</span><input type="password" id="reset-pass" placeholder="Min. 8 characters" />
+              <button type="button" class="password-toggle" onclick="togglePassword('reset-pass', this)">👁️</button>
             </div>
           </div>
-          <div class="input-group">
-            <label>New Password</label>
-            <div class="input-wrap">
-              <span class="icon">🔑</span>
-              <input type="password" id="reset-pass" placeholder="Min. 8 characters" />
-            </div>
-          </div>
-          <div class="input-group">
-            <label>Confirm New Password</label>
-            <div class="input-wrap">
-              <span class="icon">🔒</span>
-              <input type="password" id="reset-confirm" placeholder="Repeat password" />
+          <div class="input-group"><label>Confirm New Password</label>
+            <div class="input-wrap password-field">
+              <span class="icon">🔒</span><input type="password" id="reset-confirm" placeholder="Repeat password" />
+              <button type="button" class="password-toggle" onclick="togglePassword('reset-confirm', this)">👁️</button>
             </div>
           </div>
           <button class="btn-primary" onclick="handleResetPassword()">Reset Password →</button>
@@ -708,7 +656,6 @@
             <span><a href="#" onclick="switchTab('login'); return false;">Back to Sign In</a></span>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -716,7 +663,17 @@
   <div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-msg"></span></div>
 
   <script>
-    // Auto-redirect if already logged in (demo persistent)
+    // === SHOW/HIDE PASSWORD TOGGLE ===
+    window.togglePassword = function(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.textContent = isPassword ? '🙈' : '👁️';
+      btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    };
+
+    // auto-redirect
     (function(){
       try {
         const stored = localStorage.getItem("messify_user");
@@ -731,11 +688,9 @@
     })();
 
     function switchTab(tab){
-      // Toggle the top nav tab buttons (only login + register have buttons)
       document.querySelectorAll(".tab-btn").forEach((btn,i)=>{
         btn.classList.toggle("active", (tab==="login" && i===0) || (tab==="register" && i===1));
       });
-      // Show/hide all form sections
       ["tab-login","tab-register","tab-forgot","tab-reset"].forEach(id=>{
         const el = document.getElementById(id);
         if(el) el.classList.toggle("active", id === "tab-"+tab);
@@ -761,7 +716,6 @@
     }
 
     function handleGoogleAuth(mode){
-      // In a real app, redirect to backend Google OAuth
       window.location.href = "/auth/google";
     }
 
@@ -811,7 +765,6 @@
       }
     }
 
-    // ── FORGOT PASSWORD — Step 1: send OTP ──
     async function handleForgotPassword(){
       const email = document.getElementById("forgot-email").value.trim();
       if(!email) return showToast("Please enter your college email.");
@@ -825,7 +778,6 @@
         });
         const data = await res.json();
         if(data.success){
-          // Store email so reset form knows which account to reset
           window._resetEmail = email;
           const sub = document.getElementById("reset-sub");
           if(sub) sub.textContent = "Enter the OTP sent to " + email + " and choose a new password.";
@@ -839,7 +791,6 @@
       }
     }
 
-    // ── RESET PASSWORD — Step 2: verify OTP + set new password ──
     async function handleResetPassword(){
       const email = window._resetEmail || "";
       const otp = (document.getElementById("reset-otp").value || "").trim();
@@ -861,7 +812,6 @@
         const data = await res.json();
         if(data.success){
           showToast("Password reset! You can now sign in.", "success");
-          // Clear fields and go to login
           document.getElementById("reset-otp").value = "";
           document.getElementById("reset-pass").value = "";
           document.getElementById("reset-confirm").value = "";
