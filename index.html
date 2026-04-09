@@ -42,8 +42,11 @@
     }
 
     @keyframes floatBG {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(20px, 15px) scale(1.05); }
+      0% { transform: translate(0, 0) scale(1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+      25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+      50% { border-radius: 50% 50% 30% 70% / 60% 40% 60% 40%; }
+      75% { border-radius: 40% 60% 30% 60% / 50% 40% 60% 50%; }
+      100% { transform: translate(20px, 15px) scale(1.05); border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%; }
     }
 
     @keyframes cardIn {
@@ -54,6 +57,27 @@
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes checkmarkPop {
+      0% { opacity: 0; transform: scale(0.5) rotate(-45deg); }
+      50% { transform: scale(1.2) rotate(0deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes tabSlide {
+      0% { transform: translateX(var(--slide-start, 0)); }
+      100% { transform: translateX(var(--slide-end, 0)); }
     }
 
     body {
@@ -70,7 +94,6 @@
     }
     .blob {
       position: absolute;
-      border-radius: 50%;
       filter: blur(90px);
       opacity: 0.2;
       animation: floatBG 18s ease-in-out infinite alternate;
@@ -97,6 +120,35 @@
       grid-template-columns: 1fr 1fr;
     }
 
+    /* Forms Container with Slide Animation */
+    .forms-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .forms-slider {
+      display: flex;
+      width: 400%;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .form-slide {
+      width: 25%;
+      opacity: 0;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .form-slide.slide-in-left {
+      animation-name: slideInLeft;
+    }
+
+    .form-slide.slide-in-right {
+      animation-name: slideInRight;
+    }
+
     /* ============================================
        🔥 FIX: ULTRA-WIDE MOBILE CARD (small devices)
        ============================================ */
@@ -114,12 +166,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px 12px;   /* minimal side padding, card will be almost full width */
+        padding: 20px 12px;
         background: radial-gradient(ellipse 140% 50% at 50% -5%, rgba(249, 115, 22, 0.15) 0%, rgba(11, 15, 26, 1) 70%), #0b0f1a;
       }
       .card {
         width: 100%;
-        max-width: 94vw;       /* 🔥 KEY: 94% of viewport width → ultra wide on phones */
+        max-width: 94vw;
         padding: 36px 24px;
         border-radius: 32px;
         background: var(--surface);
@@ -127,13 +179,12 @@
         box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
         transition: all 0.2s ease;
       }
-      /* Even wider for very small devices */
       @media (max-width: 600px) {
         .right-panel {
           padding: 16px 8px;
         }
         .card {
-          max-width: 96vw;     /* almost edge-to-edge on narrow phones */
+          max-width: 96vw;
           padding: 32px 20px;
           border-radius: 28px;
         }
@@ -151,7 +202,6 @@
           font-size: 22px;
         }
       }
-      /* Ensure all interactive elements are touch-friendly */
       .input-group input {
         font-size: 16px !important;
         padding: 15px 16px 15px 48px;
@@ -165,7 +215,6 @@
       .blob-3 { display: none; }
     }
 
-    /* Desktop styles (elegant, with fixed button heights) */
     @media (min-width: 1025px) {
       .right-panel {
         padding: 48px 40px;
@@ -176,7 +225,6 @@
         border-radius: 28px;
       }
       
-      /* 🔥 DESKTOP BUTTON HEIGHT FIXES */
       .btn-primary, .btn-google {
         padding: 18px 20px !important;
         font-size: 16px !important;
@@ -208,7 +256,6 @@
       }
     }
 
-    /* Extra large screens - even taller buttons */
     @media (min-width: 1440px) {
       .btn-primary, .btn-google {
         padding: 20px 24px !important;
@@ -332,7 +379,7 @@
       border-color: rgba(249, 115, 22, 0.3);
     }
 
-    /* Tabs */
+    /* Enhanced Tabs with Sliding Indicator */
     .tabs {
       display: flex;
       background: var(--surface2);
@@ -340,7 +387,27 @@
       padding: 4px;
       margin-bottom: 32px;
       gap: 6px;
+      position: relative;
     }
+
+    .tab-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: calc(50% - 7px);
+      height: calc(100% - 8px);
+      background: var(--surface);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .tab-indicator.right {
+      transform: translateX(calc(100% + 6px));
+    }
+
     .tab-btn {
       flex: 1;
       padding: 10px;
@@ -352,15 +419,18 @@
       font-weight: 600;
       color: var(--muted);
       cursor: pointer;
-      transition: all 0.25s;
+      transition: color 0.3s ease;
+      position: relative;
+      z-index: 2;
     }
+
     .tab-btn.active {
-      background: var(--surface);
       color: var(--text);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
-    .form-section { display: none; }
-    .form-section.active { display: block; animation: fadeUp 0.35s ease both; }
+
+    .form-section {
+      width: 100%;
+    }
 
     .form-heading {
       font-family: "Syne", sans-serif;
@@ -379,6 +449,7 @@
     }
     .input-group {
       margin-bottom: 22px;
+      position: relative;
     }
     .input-group label {
       display: block;
@@ -417,6 +488,35 @@
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
       transform: scale(1.01);
     }
+
+    /* Success Checkmark Animation */
+    .input-success-check {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .input-success-check.show {
+      animation: checkmarkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .input-success-check::before {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 5px;
+      border-left: 2px solid var(--success);
+      border-bottom: 2px solid var(--success);
+      transform: rotate(-45deg);
+      left: 4px;
+      top: 6px;
+    }
+
     .domain-hint {
       font-size: 11px;
       color: var(--muted);
@@ -425,7 +525,11 @@
       align-items: center;
       gap: 5px;
     }
-    .domain-hint .tick { color: var(--success); font-weight: bold; }
+    .domain-hint .tick { 
+      color: var(--success); 
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
 
     .or-divider {
       display: flex;
@@ -565,17 +669,14 @@
       visibility: visible;
     }
 
-    /* Mobile-specific touches: bigger tap targets */
-    @media (max-width: 700px) {
-      .tab-btn {
-        padding: 12px 6px;
-        font-size: 15px;
-      }
-      .btn-primary, .btn-google {
-        border-radius: 18px;
-      }
-      .notice {
-        font-size: 12px;
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
       }
     }
   </style>
@@ -613,102 +714,132 @@
     <div class="right-panel">
       <div class="card">
         <div class="top-logo"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></div>
+        
+        <!-- Enhanced Tabs with Sliding Indicator -->
         <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-          <button class="tab-btn" onclick="switchTab('register')">Register</button>
+          <div class="tab-indicator" id="tabIndicator"></div>
+          <button class="tab-btn active" onclick="switchTabWithAnimation('login')">Login</button>
+          <button class="tab-btn" onclick="switchTabWithAnimation('register')">Register</button>
         </div>
 
-        <!-- LOGIN SECTION -->
-        <div class="form-section active" id="tab-login">
-          <div class="form-heading">Welcome back 👋</div>
-          <div class="form-sub">Sign in to submit your weekly mess feedback.</div>
-          <div class="notice"><span>🔒</span> Only <strong>@nist.edu</strong> email addresses are permitted.</div>
-          <button class="btn-google" onclick="handleGoogleAuth('login')">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continue with Google (@nist.edu)
-          </button>
-          <div class="or-divider"><span>or sign in with email</span></div>
-          <div class="input-group">
-            <label>College Email</label>
-            <div class="input-wrap"><span class="icon">✉️</span><input type="email" id="login-email" placeholder="yourname@nist.edu" /></div>
-            <div class="domain-hint"><span class="tick">✓</span> Must be a valid @nist.edu address</div>
-          </div>
-          <div class="input-group">
-            <label>Password</label>
-            <div class="input-wrap"><span class="icon">🔑</span><input type="password" id="login-pass" placeholder="••••••••" /></div>
-          </div>
-          <button class="btn-primary" onclick="handleLogin()">Sign In →</button>
-          <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-            <span>Don't have an account? <a href="#" onclick="switchTab('register'); return false;">Register here</a></span>
-            <a href="#" onclick="switchTab('forgot'); return false;" style="color:var(--muted);font-size:11px;">Forgot password?</a>
-          </div>
-        </div>
-
-        <!-- REGISTER SECTION -->
-        <div class="form-section" id="tab-register">
-          <div class="form-heading">Create account 🎓</div>
-          <div class="form-sub">Register with your NIST college email.</div>
-          <button class="btn-google" onclick="handleGoogleAuth('register')">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Register with Google (@nist.edu)
-          </button>
-          <div class="or-divider"><span>or register manually</span></div>
-          <div class="input-group"><label>Full Name</label><div class="input-wrap"><span class="icon">👤</span><input type="text" id="reg-name" placeholder="Rahul Sharma" /></div></div>
-          <div class="input-group"><label>College Email</label><div class="input-wrap"><span class="icon">✉️</span><input type="email" id="reg-email" placeholder="yourname@nist.edu" /></div><div class="domain-hint"><span class="tick">✓</span> Only @nist.edu emails are accepted</div></div>
-          <div class="input-group"><label>Password</label><div class="input-wrap"><span class="icon">🔑</span><input type="password" id="reg-pass" placeholder="Min. 8 characters" /></div></div>
-          <div class="input-group"><label>Confirm Password</label><div class="input-wrap"><span class="icon">🔒</span><input type="password" id="reg-confirm" placeholder="Repeat password" /></div></div>
-          <button class="btn-primary" onclick="handleRegister()">Create Account →</button>
-          <div class="card-footer">Already registered? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
-        </div>
-
-        <!-- ── FORGOT PASSWORD — Step 1: Enter email ── -->
-        <div class="form-section" id="tab-forgot">
-          <div class="form-heading">Reset Password 🔑</div>
-          <div class="form-sub">Enter your college email to receive an OTP.</div>
-          <div class="input-group">
-            <label>College Email</label>
-            <div class="input-wrap">
-              <span class="icon">✉️</span>
-              <input type="email" id="forgot-email" placeholder="yourname@nist.edu" />
+        <!-- Forms Container with Slide Animation -->
+        <div class="forms-container">
+          <div class="forms-slider" id="formsSlider">
+            
+            <!-- LOGIN SECTION -->
+            <div class="form-slide" id="slide-login">
+              <div class="form-section">
+                <div class="form-heading">Welcome back 👋</div>
+                <div class="form-sub">Sign in to submit your weekly mess feedback.</div>
+                <div class="notice"><span>🔒</span> Only <strong>@nist.edu</strong> email addresses are permitted.</div>
+                <button class="btn-google" onclick="handleGoogleAuth('login')">
+                  <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  Continue with Google (@nist.edu)
+                </button>
+                <div class="or-divider"><span>or sign in with email</span></div>
+                <div class="input-group">
+                  <label>College Email</label>
+                  <div class="input-wrap">
+                    <span class="icon">✉️</span>
+                    <input type="email" id="login-email" placeholder="yourname@nist.edu" oninput="validateNistEmail(this)" />
+                    <div class="input-success-check" id="login-email-check"></div>
+                  </div>
+                  <div class="domain-hint" id="login-email-hint"><span class="tick">✓</span> Must be a valid @nist.edu address</div>
+                </div>
+                <div class="input-group">
+                  <label>Password</label>
+                  <div class="input-wrap"><span class="icon">🔑</span><input type="password" id="login-pass" placeholder="••••••••" /></div>
+                </div>
+                <button class="btn-primary" onclick="handleLogin()">Sign In →</button>
+                <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <span>Don't have an account? <a href="#" onclick="switchTabWithAnimation('register'); return false;">Register here</a></span>
+                  <a href="#" onclick="switchTabWithAnimation('forgot'); return false;" style="color:var(--muted);font-size:11px;">Forgot password?</a>
+                </div>
+              </div>
             </div>
-            <div class="domain-hint"><span class="tick">✓</span> Must be your registered @nist.edu email</div>
-          </div>
-          <button class="btn-primary" onclick="handleForgotPassword()">Send OTP →</button>
-          <div class="card-footer">Remember your password? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
-        </div>
 
-        <!-- ── FORGOT PASSWORD — Step 2: Verify OTP + new password ── -->
-        <div class="form-section" id="tab-reset">
-          <div class="form-heading">Set New Password 🔒</div>
-          <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
-          <div class="input-group">
-            <label>OTP (6-digit code)</label>
-            <div class="input-wrap">
-              <span class="icon">🔢</span>
-              <input type="text" id="reset-otp" placeholder="123456" maxlength="6" inputmode="numeric" />
+            <!-- REGISTER SECTION -->
+            <div class="form-slide" id="slide-register">
+              <div class="form-section">
+                <div class="form-heading">Create account 🎓</div>
+                <div class="form-sub">Register with your NIST college email.</div>
+                <button class="btn-google" onclick="handleGoogleAuth('register')">
+                  <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  Register with Google (@nist.edu)
+                </button>
+                <div class="or-divider"><span>or register manually</span></div>
+                <div class="input-group"><label>Full Name</label><div class="input-wrap"><span class="icon">👤</span><input type="text" id="reg-name" placeholder="Rahul Sharma" /></div></div>
+                <div class="input-group">
+                  <label>College Email</label>
+                  <div class="input-wrap">
+                    <span class="icon">✉️</span>
+                    <input type="email" id="reg-email" placeholder="yourname@nist.edu" oninput="validateNistEmail(this)" />
+                    <div class="input-success-check" id="reg-email-check"></div>
+                  </div>
+                  <div class="domain-hint" id="reg-email-hint"><span class="tick">✓</span> Only @nist.edu emails are accepted</div>
+                </div>
+                <div class="input-group"><label>Password</label><div class="input-wrap"><span class="icon">🔑</span><input type="password" id="reg-pass" placeholder="Min. 8 characters" /></div></div>
+                <div class="input-group"><label>Confirm Password</label><div class="input-wrap"><span class="icon">🔒</span><input type="password" id="reg-confirm" placeholder="Repeat password" /></div></div>
+                <button class="btn-primary" onclick="handleRegister()">Create Account →</button>
+                <div class="card-footer">Already registered? <a href="#" onclick="switchTabWithAnimation('login'); return false;">Sign in</a></div>
+              </div>
             </div>
-          </div>
-          <div class="input-group">
-            <label>New Password</label>
-            <div class="input-wrap">
-              <span class="icon">🔑</span>
-              <input type="password" id="reset-pass" placeholder="Min. 8 characters" />
+
+            <!-- FORGOT PASSWORD SECTION -->
+            <div class="form-slide" id="slide-forgot">
+              <div class="form-section">
+                <div class="form-heading">Reset Password 🔑</div>
+                <div class="form-sub">Enter your college email to receive an OTP.</div>
+                <div class="input-group">
+                  <label>College Email</label>
+                  <div class="input-wrap">
+                    <span class="icon">✉️</span>
+                    <input type="email" id="forgot-email" placeholder="yourname@nist.edu" oninput="validateNistEmail(this)" />
+                    <div class="input-success-check" id="forgot-email-check"></div>
+                  </div>
+                  <div class="domain-hint" id="forgot-email-hint"><span class="tick">✓</span> Must be your registered @nist.edu email</div>
+                </div>
+                <button class="btn-primary" onclick="handleForgotPassword()">Send OTP →</button>
+                <div class="card-footer">Remember your password? <a href="#" onclick="switchTabWithAnimation('login'); return false;">Sign in</a></div>
+              </div>
             </div>
-          </div>
-          <div class="input-group">
-            <label>Confirm New Password</label>
-            <div class="input-wrap">
-              <span class="icon">🔒</span>
-              <input type="password" id="reset-confirm" placeholder="Repeat password" />
+
+            <!-- RESET PASSWORD SECTION -->
+            <div class="form-slide" id="slide-reset">
+              <div class="form-section">
+                <div class="form-heading">Set New Password 🔒</div>
+                <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
+                <div class="input-group">
+                  <label>OTP (6-digit code)</label>
+                  <div class="input-wrap">
+                    <span class="icon">🔢</span>
+                    <input type="text" id="reset-otp" placeholder="123456" maxlength="6" inputmode="numeric" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label>New Password</label>
+                  <div class="input-wrap">
+                    <span class="icon">🔑</span>
+                    <input type="password" id="reset-pass" placeholder="Min. 8 characters" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label>Confirm New Password</label>
+                  <div class="input-wrap">
+                    <span class="icon">🔒</span>
+                    <input type="password" id="reset-confirm" placeholder="Repeat password" />
+                  </div>
+                </div>
+                <button class="btn-primary" onclick="handleResetPassword()">Reset Password →</button>
+                <div class="card-footer" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span><a href="#" onclick="switchTabWithAnimation('forgot'); return false;">← Resend OTP</a></span>
+                  <span><a href="#" onclick="switchTabWithAnimation('login'); return false;">Back to Sign In</a></span>
+                </div>
+              </div>
             </div>
-          </div>
-          <button class="btn-primary" onclick="handleResetPassword()">Reset Password →</button>
-          <div class="card-footer" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-            <span><a href="#" onclick="switchTab('forgot'); return false;">← Resend OTP</a></span>
-            <span><a href="#" onclick="switchTab('login'); return false;">Back to Sign In</a></span>
+
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -716,7 +847,7 @@
   <div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-msg"></span></div>
 
   <script>
-    // Auto-redirect if already logged in (demo persistent)
+    // Auto-redirect if already logged in
     (function(){
       try {
         const stored = localStorage.getItem("messify_user");
@@ -730,16 +861,90 @@
       } catch(e){}
     })();
 
-    function switchTab(tab){
-      // Toggle the top nav tab buttons (only login + register have buttons)
-      document.querySelectorAll(".tab-btn").forEach((btn,i)=>{
-        btn.classList.toggle("active", (tab==="login" && i===0) || (tab==="register" && i===1));
+    // Track navigation history for directional awareness
+    let tabHistory = ['login'];
+    const slideOrder = ['login', 'register', 'forgot', 'reset'];
+    const slidePositions = { 'login': 0, 'register': 1, 'forgot': 2, 'reset': 3 };
+
+    function switchTabWithAnimation(tab) {
+      const currentTab = tabHistory[tabHistory.length - 1];
+      const direction = getDirection(currentTab, tab);
+      
+      // Update history
+      tabHistory.push(tab);
+      if (tabHistory.length > 10) tabHistory.shift();
+      
+      // Update tab buttons and indicator
+      document.querySelectorAll(".tab-btn").forEach((btn, i) => {
+        btn.classList.toggle("active", (tab === "login" && i === 0) || (tab === "register" && i === 1));
       });
-      // Show/hide all form sections
-      ["tab-login","tab-register","tab-forgot","tab-reset"].forEach(id=>{
-        const el = document.getElementById(id);
-        if(el) el.classList.toggle("active", id === "tab-"+tab);
+      
+      // Move tab indicator
+      const indicator = document.getElementById("tabIndicator");
+      if (tab === "register") {
+        indicator.classList.add("right");
+      } else {
+        indicator.classList.remove("right");
+      }
+      
+      // Slide to the selected form
+      const slider = document.getElementById("formsSlider");
+      const position = slidePositions[tab] || 0;
+      slider.style.transform = `translateX(-${position * 25}%)`;
+      
+      // Add directional animation class
+      const slides = document.querySelectorAll(".form-slide");
+      slides.forEach(slide => {
+        slide.classList.remove("slide-in-left", "slide-in-right");
       });
+      
+      const activeSlide = document.getElementById(`slide-${tab}`);
+      if (activeSlide) {
+        if (direction === "forward") {
+          activeSlide.classList.add("slide-in-right");
+        } else {
+          activeSlide.classList.add("slide-in-left");
+        }
+      }
+    }
+
+    function getDirection(from, to) {
+      const fromIndex = slideOrder.indexOf(from);
+      const toIndex = slideOrder.indexOf(to);
+      return toIndex > fromIndex ? "forward" : "backward";
+    }
+
+    // Email validation with success checkmark
+    function validateNistEmail(input) {
+      const email = input.value.trim().toLowerCase();
+      const isValid = email.endsWith("@nist.edu") && email.length > "@nist.edu".length;
+      
+      // Find the checkmark element
+      const parent = input.closest(".input-wrap");
+      const checkmark = parent.querySelector(".input-success-check");
+      const hintElement = input.closest(".input-group").querySelector(".domain-hint");
+      
+      if (isValid) {
+        checkmark.classList.add("show");
+        if (hintElement) {
+          hintElement.style.color = "var(--success)";
+          hintElement.querySelector(".tick").textContent = "✓✓";
+        }
+        input.style.borderColor = "var(--success)";
+      } else {
+        checkmark.classList.remove("show");
+        if (hintElement) {
+          hintElement.style.color = "var(--muted)";
+          hintElement.querySelector(".tick").textContent = "✓";
+        }
+        input.style.borderColor = "var(--border)";
+      }
+      
+      return isValid;
+    }
+
+    function switchTab(tab) {
+      switchTabWithAnimation(tab);
     }
 
     function showToast(msg, type="error"){
@@ -761,7 +966,6 @@
     }
 
     function handleGoogleAuth(mode){
-      // In a real app, redirect to backend Google OAuth
       window.location.href = "/auth/google";
     }
 
@@ -811,7 +1015,6 @@
       }
     }
 
-    // ── FORGOT PASSWORD — Step 1: send OTP ──
     async function handleForgotPassword(){
       const email = document.getElementById("forgot-email").value.trim();
       if(!email) return showToast("Please enter your college email.");
@@ -825,12 +1028,11 @@
         });
         const data = await res.json();
         if(data.success){
-          // Store email so reset form knows which account to reset
           window._resetEmail = email;
           const sub = document.getElementById("reset-sub");
           if(sub) sub.textContent = "Enter the OTP sent to " + email + " and choose a new password.";
           showToast("OTP sent! Check your college inbox.", "success");
-          setTimeout(()=> switchTab("reset"), 1200);
+          setTimeout(()=> switchTabWithAnimation("reset"), 1200);
         } else {
           showToast(data.message || "Could not send OTP.");
         }
@@ -839,7 +1041,6 @@
       }
     }
 
-    // ── RESET PASSWORD — Step 2: verify OTP + set new password ──
     async function handleResetPassword(){
       const email = window._resetEmail || "";
       const otp = (document.getElementById("reset-otp").value || "").trim();
@@ -861,12 +1062,11 @@
         const data = await res.json();
         if(data.success){
           showToast("Password reset! You can now sign in.", "success");
-          // Clear fields and go to login
           document.getElementById("reset-otp").value = "";
           document.getElementById("reset-pass").value = "";
           document.getElementById("reset-confirm").value = "";
           window._resetEmail = "";
-          setTimeout(()=> switchTab("login"), 1800);
+          setTimeout(()=> switchTabWithAnimation("login"), 1800);
         } else {
           showToast(data.message || "Reset failed. Please try again.");
         }
@@ -875,7 +1075,10 @@
       }
     }
 
+    // Expose functions globally
     window.switchTab = switchTab;
+    window.switchTabWithAnimation = switchTabWithAnimation;
+    window.validateNistEmail = validateNistEmail;
     window.handleGoogleAuth = handleGoogleAuth;
     window.handleLogin = handleLogin;
     window.handleRegister = handleRegister;
