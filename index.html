@@ -32,8 +32,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: "DM Sans", sans-serif;
-      overflow-x: hidden;
-      overflow-y: auto;
+      overflow: hidden;
     }
 
     /* Animations */
@@ -93,9 +92,10 @@
     .page {
       position: relative;
       z-index: 1;
-      min-height: 100vh;
+      height: 100vh;
       display: grid;
       grid-template-columns: 1fr 1fr;
+      overflow: hidden;
     }
 
     /* ============================================
@@ -105,6 +105,8 @@
       .page {
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
       }
       .left-panel {
         display: none !important;
@@ -127,6 +129,7 @@
         backdrop-filter: blur(0px);
         box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
         transition: all 0.2s ease;
+        margin: 20px 0;
       }
       @media (max-width: 600px) {
         .right-panel {
@@ -167,17 +170,30 @@
     /* Desktop styles */
     @media (min-width: 1025px) {
       .right-panel {
-        padding: 48px 40px;
+        padding: 0;
         height: 100vh;
         overflow-y: auto;
-        position: sticky;
-        top: 0;
+        overflow-x: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .card {
         max-width: 480px;
+        width: 100%;
         padding: 48px 44px;
         border-radius: 28px;
-        margin: auto;
+        margin: 40px auto;
+      }
+      
+      /* Hide scrollbar for right panel */
+      .right-panel::-webkit-scrollbar {
+        width: 0;
+        background: transparent;
+      }
+      .right-panel {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
       }
       
       .btn-primary, .btn-google {
@@ -243,8 +259,7 @@
       align-items: flex-start;
       padding: 60px 64px;
       border-right: 1px solid var(--border);
-      position: sticky;
-      top: 0;
+      position: relative;
       height: 100vh;
       overflow: hidden;
       background: linear-gradient(135deg, rgba(249, 115, 22, 0.02) 0%, transparent 70%);
