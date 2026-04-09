@@ -114,7 +114,7 @@
         min-height: 100vh;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start; /* Fixed: Safely align top so it doesn't clip */
         padding: 20px 12px;
         background: radial-gradient(ellipse 140% 50% at 50% -5%, rgba(249, 115, 22, 0.15) 0%, rgba(11, 15, 26, 1) 70%), #0b0f1a;
         overflow-y: auto;
@@ -128,7 +128,7 @@
         backdrop-filter: blur(0px);
         box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
         transition: all 0.2s ease;
-        margin: 20px 0;
+        margin: auto; /* Fixed: Centers safely */
       }
       @media (max-width: 600px) {
         .right-panel {
@@ -317,11 +317,12 @@
     .right-panel {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start; /* Fixed: Prevents the top clipping bug */
       align-items: center;
     }
     .card {
       width: 100%;
+      margin: auto; /* Fixed: Safely centers both horizontally and vertically */
       background: var(--surface);
       border: 1px solid var(--border);
       box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
@@ -617,7 +618,6 @@
   <div class="grid-lines"></div>
 
   <div class="page">
-    <!-- Left Panel - STATIC & NON-SCROLLABLE -->
     <div class="left-panel">
       <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
       <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
@@ -637,7 +637,6 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL -->
     <div class="right-panel">
       <div class="card">
         <div class="top-logo"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></div>
@@ -646,7 +645,6 @@
           <button class="tab-btn" onclick="switchTab('register')">Register</button>
         </div>
 
-        <!-- LOGIN SECTION -->
         <div class="form-section active" id="tab-login">
           <div class="form-heading">Welcome back 👋</div>
           <div class="form-sub">Sign in to submit your weekly mess feedback.</div>
@@ -676,7 +674,6 @@
           </div>
         </div>
 
-        <!-- REGISTER SECTION -->
         <div class="form-section" id="tab-register">
           <div class="form-heading">Create account 🎓</div>
           <div class="form-sub">Register with your NIST college email.</div>
@@ -703,7 +700,6 @@
           <div class="card-footer">Already registered? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
 
-        <!-- FORGOT PASSWORD -->
         <div class="form-section" id="tab-forgot">
           <div class="form-heading">Reset Password 🔑</div>
           <div class="form-sub">Enter your college email to receive an OTP.</div>
@@ -719,7 +715,6 @@
           <div class="card-footer">Remember your password? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
 
-        <!-- RESET PASSWORD -->
         <div class="form-section" id="tab-reset">
           <div class="form-heading">Set New Password 🔒</div>
           <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
