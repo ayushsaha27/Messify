@@ -32,7 +32,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: "DM Sans", sans-serif;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     /* Animations */
@@ -92,10 +92,9 @@
     .page {
       position: relative;
       z-index: 1;
-      height: 100vh;
+      min-height: 100vh;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      overflow: hidden;
     }
 
     /* ============================================
@@ -105,8 +104,6 @@
       .page {
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
-        overflow-x: hidden;
       }
       .left-panel {
         display: none !important;
@@ -117,26 +114,26 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px 12px;
+        padding: 20px 12px;   /* minimal side padding, card will be almost full width */
         background: radial-gradient(ellipse 140% 50% at 50% -5%, rgba(249, 115, 22, 0.15) 0%, rgba(11, 15, 26, 1) 70%), #0b0f1a;
       }
       .card {
         width: 100%;
-        max-width: 94vw;
+        max-width: 94vw;       /* 🔥 KEY: 94% of viewport width → ultra wide on phones */
         padding: 36px 24px;
         border-radius: 32px;
         background: var(--surface);
         backdrop-filter: blur(0px);
         box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
         transition: all 0.2s ease;
-        margin: 20px 0;
       }
+      /* Even wider for very small devices */
       @media (max-width: 600px) {
         .right-panel {
           padding: 16px 8px;
         }
         .card {
-          max-width: 96vw;
+          max-width: 96vw;     /* almost edge-to-edge on narrow phones */
           padding: 32px 20px;
           border-radius: 28px;
         }
@@ -154,6 +151,7 @@
           font-size: 22px;
         }
       }
+      /* Ensure all interactive elements are touch-friendly */
       .input-group input {
         font-size: 16px !important;
         padding: 15px 16px 15px 48px;
@@ -167,35 +165,18 @@
       .blob-3 { display: none; }
     }
 
-    /* Desktop styles */
+    /* Desktop styles (elegant, with fixed button heights) */
     @media (min-width: 1025px) {
       .right-panel {
-        padding: 0;
-        height: 100vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 48px 40px;
       }
       .card {
         max-width: 480px;
-        width: 100%;
         padding: 48px 44px;
         border-radius: 28px;
-        margin: 40px auto;
       }
       
-      /* Hide scrollbar for right panel */
-      .right-panel::-webkit-scrollbar {
-        width: 0;
-        background: transparent;
-      }
-      .right-panel {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-      
+      /* 🔥 DESKTOP BUTTON HEIGHT FIXES */
       .btn-primary, .btn-google {
         padding: 18px 20px !important;
         font-size: 16px !important;
@@ -227,6 +208,7 @@
       }
     }
 
+    /* Extra large screens - even taller buttons */
     @media (min-width: 1440px) {
       .btn-primary, .btn-google {
         padding: 20px 24px !important;
@@ -251,7 +233,7 @@
       }
     }
 
-    /* LEFT PANEL (desktop) - FIXED: No scroll, static content */
+    /* LEFT PANEL (desktop) */
     .left-panel {
       display: flex;
       flex-direction: column;
@@ -260,16 +242,9 @@
       padding: 60px 64px;
       border-right: 1px solid var(--border);
       position: relative;
-      height: 100vh;
       overflow: hidden;
       background: linear-gradient(135deg, rgba(249, 115, 22, 0.02) 0%, transparent 70%);
     }
-
-    .left-content {
-      width: 100%;
-      max-width: 500px;
-    }
-
     .brand-badge {
       display: inline-flex;
       align-items: center;
@@ -284,7 +259,6 @@
       margin-bottom: 40px;
       animation: fadeUp 0.6s ease both;
     }
-
     .brand-badge .dot {
       width: 8px;
       height: 8px;
@@ -293,12 +267,7 @@
       box-shadow: 0 0 8px var(--accent);
       animation: pulse 2s infinite;
     }
-
-    @keyframes pulse { 
-      0%,100% { opacity: 1; } 
-      50% { opacity: 0.4; }
-    }
-
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
     .left-title {
       font-family: "Syne", sans-serif;
       font-size: clamp(40px, 4.5vw, 58px);
@@ -311,12 +280,7 @@
       -webkit-background-clip: text;
       color: transparent;
     }
-
-    .left-title span { 
-      color: var(--accent); 
-      background: none; 
-    }
-
+    .left-title span { color: var(--accent); background: none; }
     .left-desc {
       font-size: 16px;
       line-height: 1.7;
@@ -324,42 +288,16 @@
       max-width: 380px;
       margin-bottom: 52px;
     }
-
     .stats-row {
       display: flex;
       gap: 32px;
       margin-bottom: 52px;
     }
-
-    .stat-num { 
-      font-family: "Syne", sans-serif; 
-      font-size: 28px; 
-      font-weight: 700; 
-    }
-
-    .stat-num span { 
-      color: var(--accent); 
-    }
-
-    .stat-label { 
-      font-size: 12px; 
-      color: var(--muted); 
-      text-transform: uppercase; 
-      letter-spacing: 0.08em; 
-    }
-
-    .divider-v { 
-      width: 1px; 
-      background: var(--border); 
-      align-self: stretch; 
-    }
-
-    .meals-preview { 
-      display: flex; 
-      gap: 10px; 
-      flex-wrap: wrap; 
-    }
-
+    .stat-num { font-family: "Syne", sans-serif; font-size: 28px; font-weight: 700; }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .divider-v { width: 1px; background: var(--border); align-self: stretch; }
+    .meals-preview { display: flex; gap: 10px; flex-wrap: wrap; }
     .meal-tag {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -372,11 +310,7 @@
       gap: 8px;
       transition: all 0.2s;
     }
-
-    .meal-tag:hover { 
-      transform: translateY(-2px); 
-      border-color: var(--accent); 
-    }
+    .meal-tag:hover { transform: translateY(-2px); border-color: var(--accent); }
 
     /* RIGHT PANEL & CARD (shared) */
     .right-panel {
@@ -385,7 +319,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .card {
       width: 100%;
       background: var(--surface);
@@ -394,7 +327,6 @@
       animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
       transition: transform 0.3s ease, border-color 0.2s;
     }
-
     .card:hover {
       transform: translateY(-3px);
       border-color: rgba(249, 115, 22, 0.3);
@@ -409,7 +341,6 @@
       margin-bottom: 32px;
       gap: 6px;
     }
-
     .tab-btn {
       flex: 1;
       padding: 10px;
@@ -423,21 +354,13 @@
       cursor: pointer;
       transition: all 0.25s;
     }
-
     .tab-btn.active {
       background: var(--surface);
       color: var(--text);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
-
-    .form-section { 
-      display: none; 
-    }
-
-    .form-section.active { 
-      display: block; 
-      animation: fadeUp 0.35s ease both; 
-    }
+    .form-section { display: none; }
+    .form-section.active { display: block; animation: fadeUp 0.35s ease both; }
 
     .form-heading {
       font-family: "Syne", sans-serif;
@@ -449,17 +372,14 @@
       -webkit-background-clip: text;
       color: transparent;
     }
-
     .form-sub {
       font-size: 13px;
       color: var(--muted);
       margin-bottom: 28px;
     }
-
     .input-group {
       margin-bottom: 22px;
     }
-
     .input-group label {
       display: block;
       font-size: 12px;
@@ -469,11 +389,9 @@
       letter-spacing: 0.07em;
       margin-bottom: 8px;
     }
-
     .input-wrap {
       position: relative;
     }
-
     .input-wrap .icon {
       position: absolute;
       left: 14px;
@@ -483,7 +401,6 @@
       pointer-events: none;
       opacity: 0.6;
     }
-
     .input-group input {
       width: 100%;
       background: var(--surface2);
@@ -495,13 +412,11 @@
       outline: none;
       transition: all 0.2s ease;
     }
-
     .input-group input:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
       transform: scale(1.01);
     }
-
     .domain-hint {
       font-size: 11px;
       color: var(--muted);
@@ -510,11 +425,7 @@
       align-items: center;
       gap: 5px;
     }
-
-    .domain-hint .tick { 
-      color: var(--success); 
-      font-weight: bold; 
-    }
+    .domain-hint .tick { color: var(--success); font-weight: bold; }
 
     .or-divider {
       display: flex;
@@ -522,18 +433,13 @@
       gap: 12px;
       margin: 28px 0;
     }
-
     .or-divider::before, .or-divider::after {
       content: "";
       flex: 1;
       height: 1px;
       background: var(--border);
     }
-
-    .or-divider span { 
-      font-size: 12px; 
-      color: var(--muted); 
-    }
+    .or-divider span { font-size: 12px; color: var(--muted); }
 
     .btn-google {
       width: 100%;
@@ -552,7 +458,6 @@
       transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
     }
-
     .btn-google:hover {
       background: #f8fafc;
       transform: translateY(-2px);
@@ -574,7 +479,6 @@
       box-shadow: 0 4px 18px rgba(249, 115, 22, 0.4);
       margin-top: 10px;
     }
-
     .btn-primary:hover {
       background: var(--accent2);
       transform: translateY(-2px);
@@ -601,16 +505,12 @@
       font-size: 13px;
       color: var(--muted);
     }
-
     .card-footer a {
       color: var(--accent);
       text-decoration: none;
       font-weight: 600;
     }
-
-    .card-footer a:hover { 
-      text-decoration: underline; 
-    }
+    .card-footer a:hover { text-decoration: underline; }
 
     .top-logo {
       display: flex;
@@ -618,7 +518,6 @@
       gap: 10px;
       margin-bottom: 32px;
     }
-
     .logo-icon {
       width: 40px;
       height: 40px;
@@ -629,17 +528,13 @@
       justify-content: center;
       font-size: 22px;
     }
-
     .logo-text {
       font-family: "Syne", sans-serif;
       font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
-
-    .logo-text span { 
-      color: var(--accent); 
-    }
+    .logo-text span { color: var(--accent); }
 
     /* Toast */
     .toast {
@@ -664,13 +559,13 @@
       visibility: hidden;
       transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.3s, visibility 0.3s;
     }
-
     .toast.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
       visibility: visible;
     }
 
+    /* Mobile-specific touches: bigger tap targets */
     @media (max-width: 700px) {
       .tab-btn {
         padding: 12px 6px;
@@ -694,29 +589,27 @@
   <div class="grid-lines"></div>
 
   <div class="page">
-    <!-- Left Panel - FIXED: Static content, no scroll -->
+    <!-- Left Panel - informative, hidden on mobile -->
     <div class="left-panel">
-      <div class="left-content">
-        <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
-        <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
-        <p class="left-desc">Messify is NIST's centralized feedback system — submit weekly ratings, flag issues, and help the mess committee make data-backed improvements every single week.</p>
-        <div class="stats-row">
-          <div class="stat"><div class="stat-num">5<span>k+</span></div><div class="stat-label">Students</div></div>
-          <div class="divider-v"></div>
-          <div class="stat"><div class="stat-num">4</div><div class="stat-label">Meals / Day</div></div>
-          <div class="divider-v"></div>
-          <div class="stat"><div class="stat-num">1<span>/wk</span></div><div class="stat-label">Submission</div></div>
-        </div>
-        <div class="meals-preview">
-          <div class="meal-tag"><span>🌅</span> Breakfast</div>
-          <div class="meal-tag"><span>🍱</span> Lunch</div>
-          <div class="meal-tag"><span>🫖</span> Snacks</div>
-          <div class="meal-tag"><span>🌙</span> Dinner</div>
-        </div>
+      <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
+      <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
+      <p class="left-desc">Messify is NIST's centralized feedback system — submit weekly ratings, flag issues, and help the mess committee make data-backed improvements every single week.</p>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-num">5<span>k+</span></div><div class="stat-label">Students</div></div>
+        <div class="divider-v"></div>
+        <div class="stat"><div class="stat-num">4</div><div class="stat-label">Meals / Day</div></div>
+        <div class="divider-v"></div>
+        <div class="stat"><div class="stat-num">1<span>/wk</span></div><div class="stat-label">Submission</div></div>
+      </div>
+      <div class="meals-preview">
+        <div class="meal-tag"><span>🌅</span> Breakfast</div>
+        <div class="meal-tag"><span>🍱</span> Lunch</div>
+        <div class="meal-tag"><span>🫖</span> Snacks</div>
+        <div class="meal-tag"><span>🌙</span> Dinner</div>
       </div>
     </div>
 
-    <!-- RIGHT PANEL: Scrollable if content overflows -->
+    <!-- RIGHT PANEL: WIDER THAN EVER ON MOBILE -->
     <div class="right-panel">
       <div class="card">
         <div class="top-logo"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></div>
@@ -768,7 +661,7 @@
           <div class="card-footer">Already registered? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
 
-        <!-- FORGOT PASSWORD SECTION -->
+        <!-- ── FORGOT PASSWORD — Step 1: Enter email ── -->
         <div class="form-section" id="tab-forgot">
           <div class="form-heading">Reset Password 🔑</div>
           <div class="form-sub">Enter your college email to receive an OTP.</div>
@@ -784,7 +677,7 @@
           <div class="card-footer">Remember your password? <a href="#" onclick="switchTab('login'); return false;">Sign in</a></div>
         </div>
 
-        <!-- RESET PASSWORD SECTION -->
+        <!-- ── FORGOT PASSWORD — Step 2: Verify OTP + new password ── -->
         <div class="form-section" id="tab-reset">
           <div class="form-heading">Set New Password 🔒</div>
           <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
@@ -823,7 +716,7 @@
   <div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-msg"></span></div>
 
   <script>
-    // Auto-redirect if already logged in
+    // Auto-redirect if already logged in (demo persistent)
     (function(){
       try {
         const stored = localStorage.getItem("messify_user");
@@ -838,9 +731,11 @@
     })();
 
     function switchTab(tab){
+      // Toggle the top nav tab buttons (only login + register have buttons)
       document.querySelectorAll(".tab-btn").forEach((btn,i)=>{
         btn.classList.toggle("active", (tab==="login" && i===0) || (tab==="register" && i===1));
       });
+      // Show/hide all form sections
       ["tab-login","tab-register","tab-forgot","tab-reset"].forEach(id=>{
         const el = document.getElementById(id);
         if(el) el.classList.toggle("active", id === "tab-"+tab);
@@ -866,6 +761,7 @@
     }
 
     function handleGoogleAuth(mode){
+      // In a real app, redirect to backend Google OAuth
       window.location.href = "/auth/google";
     }
 
@@ -915,6 +811,7 @@
       }
     }
 
+    // ── FORGOT PASSWORD — Step 1: send OTP ──
     async function handleForgotPassword(){
       const email = document.getElementById("forgot-email").value.trim();
       if(!email) return showToast("Please enter your college email.");
@@ -928,6 +825,7 @@
         });
         const data = await res.json();
         if(data.success){
+          // Store email so reset form knows which account to reset
           window._resetEmail = email;
           const sub = document.getElementById("reset-sub");
           if(sub) sub.textContent = "Enter the OTP sent to " + email + " and choose a new password.";
@@ -941,6 +839,7 @@
       }
     }
 
+    // ── RESET PASSWORD — Step 2: verify OTP + set new password ──
     async function handleResetPassword(){
       const email = window._resetEmail || "";
       const otp = (document.getElementById("reset-otp").value || "").trim();
@@ -962,6 +861,7 @@
         const data = await res.json();
         if(data.success){
           showToast("Password reset! You can now sign in.", "success");
+          // Clear fields and go to login
           document.getElementById("reset-otp").value = "";
           document.getElementById("reset-pass").value = "";
           document.getElementById("reset-confirm").value = "";
