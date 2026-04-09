@@ -75,11 +75,6 @@
       100% { opacity: 1; transform: scale(1) rotate(0deg); }
     }
 
-    @keyframes tabSlide {
-      0% { transform: translateX(var(--slide-start, 0)); }
-      100% { transform: translateX(var(--slide-end, 0)); }
-    }
-
     body {
       animation: pageFade 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
     }
@@ -280,7 +275,7 @@
       }
     }
 
-    /* LEFT PANEL (desktop) */
+    /* LEFT PANEL (desktop) - FIXED HEIGHT PREVENTS SHIFTING */
     .left-panel {
       display: flex;
       flex-direction: column;
@@ -291,7 +286,16 @@
       position: relative;
       overflow: hidden;
       background: linear-gradient(135deg, rgba(249, 115, 22, 0.02) 0%, transparent 70%);
+      height: 100vh;
+      position: sticky;
+      top: 0;
     }
+
+    .left-content {
+      width: 100%;
+      max-width: 500px;
+    }
+
     .brand-badge {
       display: inline-flex;
       align-items: center;
@@ -315,6 +319,7 @@
       animation: pulse 2s infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+    
     .left-title {
       font-family: "Syne", sans-serif;
       font-size: clamp(40px, 4.5vw, 58px);
@@ -326,15 +331,22 @@
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
+      min-height: 192px; /* Fixed height prevents shifting */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .left-title span { color: var(--accent); background: none; }
+    
     .left-desc {
       font-size: 16px;
       line-height: 1.7;
       color: var(--muted);
       max-width: 380px;
       margin-bottom: 52px;
+      min-height: 78px; /* Fixed height prevents shifting */
     }
+    
     .stats-row {
       display: flex;
       gap: 32px;
@@ -690,27 +702,29 @@
   <div class="grid-lines"></div>
 
   <div class="page">
-    <!-- Left Panel - informative, hidden on mobile -->
+    <!-- Left Panel - FIXED: Content stays at constant height -->
     <div class="left-panel">
-      <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
-      <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
-      <p class="left-desc">Messify is NIST's centralized feedback system — submit weekly ratings, flag issues, and help the mess committee make data-backed improvements every single week.</p>
-      <div class="stats-row">
-        <div class="stat"><div class="stat-num">5<span>k+</span></div><div class="stat-label">Students</div></div>
-        <div class="divider-v"></div>
-        <div class="stat"><div class="stat-num">4</div><div class="stat-label">Meals / Day</div></div>
-        <div class="divider-v"></div>
-        <div class="stat"><div class="stat-num">1<span>/wk</span></div><div class="stat-label">Submission</div></div>
-      </div>
-      <div class="meals-preview">
-        <div class="meal-tag"><span>🌅</span> Breakfast</div>
-        <div class="meal-tag"><span>🍱</span> Lunch</div>
-        <div class="meal-tag"><span>🫖</span> Snacks</div>
-        <div class="meal-tag"><span>🌙</span> Dinner</div>
+      <div class="left-content">
+        <div class="brand-badge"><span class="dot"></span> NIST University · Mess Portal</div>
+        <h1 class="left-title">Your voice<br />shapes the <span>food</span><br />you eat.</h1>
+        <p class="left-desc">Messify is NIST's centralized feedback system — submit weekly ratings, flag issues, and help the mess committee make data-backed improvements every single week.</p>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-num">5<span>k+</span></div><div class="stat-label">Students</div></div>
+          <div class="divider-v"></div>
+          <div class="stat"><div class="stat-num">4</div><div class="stat-label">Meals / Day</div></div>
+          <div class="divider-v"></div>
+          <div class="stat"><div class="stat-num">1<span>/wk</span></div><div class="stat-label">Submission</div></div>
+        </div>
+        <div class="meals-preview">
+          <div class="meal-tag"><span>🌅</span> Breakfast</div>
+          <div class="meal-tag"><span>🍱</span> Lunch</div>
+          <div class="meal-tag"><span>🫖</span> Snacks</div>
+          <div class="meal-tag"><span>🌙</span> Dinner</div>
+        </div>
       </div>
     </div>
 
-    <!-- RIGHT PANEL: WIDER THAN EVER ON MOBILE -->
+    <!-- RIGHT PANEL -->
     <div class="right-panel">
       <div class="card">
         <div class="top-logo"><div class="logo-icon">🍽</div><div class="logo-text">Messi<span>fy</span></div></div>
@@ -727,7 +741,7 @@
           <div class="forms-slider" id="formsSlider">
             
             <!-- LOGIN SECTION -->
-            <div class="form-slide" id="slide-login">
+            <div class="form-slide" id="slide-login" style="opacity: 1;">
               <div class="form-section">
                 <div class="form-heading">Welcome back 👋</div>
                 <div class="form-sub">Sign in to submit your weekly mess feedback.</div>
@@ -759,7 +773,7 @@
             </div>
 
             <!-- REGISTER SECTION -->
-            <div class="form-slide" id="slide-register">
+            <div class="form-slide" id="slide-register" style="opacity: 0;">
               <div class="form-section">
                 <div class="form-heading">Create account 🎓</div>
                 <div class="form-sub">Register with your NIST college email.</div>
@@ -786,7 +800,7 @@
             </div>
 
             <!-- FORGOT PASSWORD SECTION -->
-            <div class="form-slide" id="slide-forgot">
+            <div class="form-slide" id="slide-forgot" style="opacity: 0;">
               <div class="form-section">
                 <div class="form-heading">Reset Password 🔑</div>
                 <div class="form-sub">Enter your college email to receive an OTP.</div>
@@ -805,7 +819,7 @@
             </div>
 
             <!-- RESET PASSWORD SECTION -->
-            <div class="form-slide" id="slide-reset">
+            <div class="form-slide" id="slide-reset" style="opacity: 0;">
               <div class="form-section">
                 <div class="form-heading">Set New Password 🔒</div>
                 <div class="form-sub" id="reset-sub">Enter the OTP sent to your email and choose a new password.</div>
@@ -861,6 +875,39 @@
       } catch(e){}
     })();
 
+    // FIX: Initialize the slider position and opacity on page load
+    window.addEventListener('DOMContentLoaded', function() {
+      // Set initial slider position to login
+      const slider = document.getElementById("formsSlider");
+      if (slider) {
+        slider.style.transform = 'translateX(0%)';
+      }
+      
+      // Ensure login slide is visible, others hidden
+      document.querySelectorAll('.form-slide').forEach((slide, index) => {
+        if (index === 0) {
+          slide.style.opacity = '1';
+        } else {
+          slide.style.opacity = '0';
+        }
+      });
+      
+      // Set tab indicator position
+      const indicator = document.getElementById("tabIndicator");
+      if (indicator) {
+        indicator.classList.remove("right");
+      }
+      
+      // Set active tab button
+      document.querySelectorAll(".tab-btn").forEach((btn, i) => {
+        if (i === 0) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    });
+
     // Track navigation history for directional awareness
     let tabHistory = ['login'];
     const slideOrder = ['login', 'register', 'forgot', 'reset'];
@@ -874,7 +921,7 @@
       tabHistory.push(tab);
       if (tabHistory.length > 10) tabHistory.shift();
       
-      // Update tab buttons and indicator
+      // Update tab buttons
       document.querySelectorAll(".tab-btn").forEach((btn, i) => {
         btn.classList.toggle("active", (tab === "login" && i === 0) || (tab === "register" && i === 1));
       });
@@ -892,12 +939,18 @@
       const position = slidePositions[tab] || 0;
       slider.style.transform = `translateX(-${position * 25}%)`;
       
-      // Add directional animation class
+      // Update opacity for all slides
       const slides = document.querySelectorAll(".form-slide");
-      slides.forEach(slide => {
+      slides.forEach((slide, index) => {
         slide.classList.remove("slide-in-left", "slide-in-right");
+        if (index === position) {
+          slide.style.opacity = '1';
+        } else {
+          slide.style.opacity = '0';
+        }
       });
       
+      // Add directional animation class to active slide
       const activeSlide = document.getElementById(`slide-${tab}`);
       if (activeSlide) {
         if (direction === "forward") {
